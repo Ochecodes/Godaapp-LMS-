@@ -1,0 +1,29 @@
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+.vercel/
+
+# Generated caches and coverage
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# Environment files contain local configuration and are not committed
+.env*
+
+# Logs and local OS/editor artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+Microsoft/Windows/PowerShell/ModuleAnalysisCache
+
+# Local package archives
+swc-*.tgz
+next-*.tgz
