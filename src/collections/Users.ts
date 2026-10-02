@@ -1,13 +1,27 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  auth: true, // Configures native Payload Admin panel authentication fields
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['email', 'fullName', 'role'],
+    hidden: true,
+  },
+  access: {
+    admin: () => false,
+    create: () => false,
+    read: () => false,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
+    {
+      name: 'email',
+      type: 'email',
+      required: true,
+      unique: true,
+      index: true,
+    },
     {
       name: 'supabase_uid',
       type: 'text',
@@ -29,10 +43,7 @@ export const Users: CollectionConfig = {
       defaultValue: 'student',
       required: true,
       options: [
-        { label: 'Student Enrollee', value: 'student' },
-        { label: 'Registered Affiliate', value: 'affiliate' },
-        { label: 'Course Instructor', value: 'instructor' },
-        { label: 'System Admin', value: 'admin' },
+        { label: 'Student', value: 'student' },
       ],
     },
     {

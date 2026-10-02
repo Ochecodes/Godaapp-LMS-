@@ -1,7 +1,15 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
+import { isActivePayloadAdmin } from '../lib/payload-access.ts'
 
 export const Affiliates: CollectionConfig = {
   slug: 'affiliates',
+  access: {
+    admin: ({ req }) => isActivePayloadAdmin(req.user),
+    create: () => false,
+    read: ({ req }) => isActivePayloadAdmin(req.user),
+    update: ({ req }) => isActivePayloadAdmin(req.user),
+    delete: ({ req }) => isActivePayloadAdmin(req.user),
+  },
   admin: {
     useAsTitle: 'referralCode',
     defaultColumns: ['user', 'referralCode', 'status'],

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
 
 export const metadata: Metadata = {
   title: "Godaapp - Digital Asset Education Content Network",
   description: "Highly targeted, interactive content delivery network for global learners.",
 };
 
-export default function RootLayout({
+export default function FrontendRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

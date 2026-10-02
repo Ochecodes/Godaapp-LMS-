@@ -2,6 +2,9 @@ import {MinimalFooter}  from "@/components/ui/minimal-footer"
 import { Nav } from "@/components/ui/Nav"
 import { AuroraHero } from "@/components/ui/AuroraHero"
 import { Button } from "@/components/ui/button"
+import Wwd from "@/components/ui/Wwd"
+import Wwd1 from "@/components/ui/Wwd1"
+import Useimg from "@/components/ui/Useimg"
 import Link from "next/link"
 
 export default function HomePage() {
@@ -43,6 +46,9 @@ export default function HomePage() {
       </div>
       </AuroraHero>
       </div>
+      <Wwd />
+      <Wwd1 />
+      <Useimg />
       <MinimalFooter />
     </>
   )

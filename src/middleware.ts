@@ -14,6 +14,11 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  const isPayloadPath =
+    pathname.startsWith('/instructor-panel') || pathname.startsWith('/payload-api')
+
+  if (isPayloadPath) return response
+
   // ----------------------------------------------------
   // 2. CAPTURE AFFILIATE REFERRAL COOKIES
   // ----------------------------------------------------

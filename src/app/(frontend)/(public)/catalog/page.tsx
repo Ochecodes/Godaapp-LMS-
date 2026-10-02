@@ -4,6 +4,7 @@ import { MinimalFooter } from "@/components/ui/minimal-footer";
 import { Nav } from "@/components/ui/Nav";
 import { AuroraHero } from "@/components/ui/AuroraHero";
 import { Button } from "@/components/ui/button";
+import { CatalogWorkspace } from "@/components/CatalogWorkspace";
 
 export default function HomePage() {
   return (
@@ -29,6 +30,7 @@ export default function HomePage() {
           </div>
         </AuroraHero>
       </div>
+      <CatalogWorkspace />
       <MinimalFooter />
     </>
   )

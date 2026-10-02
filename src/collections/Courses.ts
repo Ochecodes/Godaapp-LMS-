@@ -1,7 +1,15 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
+import { isActiveCourseEditor } from '../lib/payload-access.ts'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',
+  access: {
+    admin: ({ req }) => isActiveCourseEditor(req.user),
+    create: ({ req }) => isActiveCourseEditor(req.user),
+    read: ({ req }) => isActiveCourseEditor(req.user),
+    update: ({ req }) => isActiveCourseEditor(req.user),
+    delete: ({ req }) => isActiveCourseEditor(req.user),
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'priceUSD', 'status'],

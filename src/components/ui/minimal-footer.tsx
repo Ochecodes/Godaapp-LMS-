@@ -30,7 +30,7 @@ export function MinimalFooter() {
 		{ title: 'Courses', href: '/catalog' },
 		{ title: 'Sign Up', href: '/sign-up' },
 		{ title: 'Contact Support', href: '/contact' },
-		{ title: 'Community', href: 'godaappinfo@gmail.com' },
+		{ title: 'Community', href: 'https://x.com/godaapp' },
 		{ title: 'Faq', href: '/faq' },
 	];
 
@@ -205,7 +205,7 @@ export function MinimalFooter() {
 						&copy; {year} Goda App. All rights reserved.
 						</p>
 						<p className="text-[11px] text-zinc-600 font-normal">
-							Designed by <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:underline">Davoc Technology</a>
+							Designed by <a href="https://x.com/ocheakor4" target="_blank" rel="noopener noreferrer" className="hover:underline">Davoc Technology</a>
 						</p>
 					</div>
 				</div>

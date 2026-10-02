@@ -1,7 +1,15 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
+import { isActivePayloadAdmin } from '../lib/payload-access.ts'
 
 export const Enrollments: CollectionConfig = {
   slug: 'enrollments',
+  access: {
+    admin: ({ req }) => isActivePayloadAdmin(req.user),
+    create: () => false,
+    read: ({ req }) => isActivePayloadAdmin(req.user),
+    update: () => false,
+    delete: () => false,
+  },
   admin: {
     defaultColumns: ['email', 'course', 'createdAt'],
   },
