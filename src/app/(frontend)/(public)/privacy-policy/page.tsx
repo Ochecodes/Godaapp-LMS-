@@ -94,6 +94,12 @@ export default function PrivacyPolicyPage() {
             <PolicySection title="4. Cookies & Tracking Technologies">
               <PolicyText>We may use cookies and similar technologies to:</PolicyText>
               <PolicyList items={["Remember user preferences", "Improve website performance", "Analyze traffic and engagement", "Support security and fraud prevention", "Deliver relevant marketing where applicable"]} />
+              <PolicyText>
+                For platform analytics, we use a first-party random visitor identifier and record page paths,
+                referring URLs, and browser user-agent information. We also record course checkout and
+                verified payment events, plus account deletion events, in Tinybird. These analytics events
+                are retained for up to one year and do not include student email addresses.
+              </PolicyText>
               <PolicyText>Users may manage cookie settings through their browser.</PolicyText>
             </PolicySection>
 

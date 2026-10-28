@@ -14,6 +14,7 @@ coverage/
 
 # Environment files contain local configuration and are not committed
 .env*
+**/.tinyb
 
 # Logs and local OS/editor artifacts
 npm-debug.log*

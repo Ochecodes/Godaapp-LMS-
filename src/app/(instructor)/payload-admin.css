@@ -1,0 +1,846 @@
+:root[data-theme="light"] {
+  --theme-bg: #e9edeb;
+  --theme-text: #181c1b;
+  --theme-input-bg: #ffffff;
+  --theme-border-color: #d5dcda;
+  --theme-elevation-0: #e9edeb;
+  --theme-elevation-50: #f5f7f6;
+  --theme-elevation-100: #edf1ef;
+  --theme-elevation-150: #e4eae7;
+  --theme-elevation-200: #dce3df;
+  --theme-elevation-250: #d2dad6;
+  --theme-elevation-300: #c6d0cb;
+  --theme-elevation-400: #acb9b2;
+  --theme-elevation-500: #87958d;
+  --theme-elevation-600: #6c7771;
+  --theme-elevation-700: #4d5752;
+  --theme-elevation-800: #343c38;
+  --theme-elevation-850: #252c29;
+  --theme-elevation-900: #1d2421;
+  --theme-elevation-950: #171c1a;
+  --theme-elevation-1000: #111513;
+  --theme-success-50: #f0f9f5;
+  --theme-success-100: #e0f2e9;
+  --theme-success-150: #d0ebde;
+  --theme-success-200: #bfe3d2;
+  --theme-success-250: #a8dac4;
+  --theme-success-300: #8ed0b4;
+  --theme-success-350: #73c5a4;
+  --theme-success-400: #56b992;
+  --theme-success-450: #36a97e;
+  --theme-success-500: #068365;
+  --theme-success-550: #067a5e;
+  --theme-success-600: #056d53;
+  --theme-success-650: #055f49;
+  --theme-success-700: #04513e;
+  --theme-success-750: #034334;
+  --theme-success-800: #023529;
+  --theme-success-850: #02271f;
+  --theme-success-900: #011a15;
+  --theme-success-950: #00110d;
+  --theme-warning-50: #fff8f0;
+  --theme-warning-100: #fff0df;
+  --theme-warning-150: #ffe6ca;
+  --theme-warning-200: #ffddb5;
+  --theme-warning-250: #ffd29b;
+  --theme-warning-300: #ffc681;
+  --theme-warning-350: #ffb967;
+  --theme-warning-400: #ffa84b;
+  --theme-warning-450: #ff9630;
+  --theme-warning-500: #f57c00;
+  --theme-warning-550: #e97500;
+  --theme-warning-600: #d96e00;
+  --theme-warning-650: #c76500;
+  --theme-warning-700: #ad5900;
+  --theme-warning-750: #914b00;
+  --theme-warning-800: #743d00;
+  --theme-warning-850: #573000;
+  --theme-warning-900: #3a2200;
+  --theme-warning-950: #211500;
+}
+
+:root[data-theme="dark"] {
+  --theme-bg: #141716;
+  --theme-text: #f4f5f4;
+  --theme-input-bg: #181c1a;
+  --theme-border-color: #383d3a;
+  --theme-elevation-0: #141716;
+  --theme-elevation-50: #1d211f;
+  --theme-elevation-100: #252a27;
+  --theme-elevation-150: #2c322e;
+  --theme-elevation-200: #343b37;
+  --theme-elevation-250: #3c4440;
+  --theme-elevation-300: #454e49;
+  --theme-elevation-400: #5b655f;
+  --theme-elevation-500: #77817b;
+  --theme-elevation-600: #9aa39e;
+  --theme-elevation-700: #bac1bd;
+  --theme-elevation-800: #d1d6d3;
+  --theme-elevation-850: #e0e4e2;
+  --theme-elevation-900: #ebeeec;
+  --theme-elevation-950: #f2f4f3;
+  --theme-elevation-1000: #fafbfa;
+  --theme-success-50: #14211c;
+  --theme-success-100: #183329;
+  --theme-success-150: #1b4435;
+  --theme-success-200: #205641;
+  --theme-success-250: #25684d;
+  --theme-success-300: #2a7959;
+  --theme-success-350: #2d8a65;
+  --theme-success-400: #2d9b71;
+  --theme-success-450: #29a77a;
+  --theme-success-500: #25a27f;
+  --theme-success-550: #2ab18b;
+  --theme-success-600: #48bc9b;
+  --theme-success-650: #68c9ac;
+  --theme-success-700: #86d4bc;
+  --theme-success-750: #a4dfcd;
+  --theme-success-800: #c0e9dc;
+  --theme-success-850: #d4f0e6;
+  --theme-success-900: #e4f6ee;
+  --theme-success-950: #f2fbf7;
+  --theme-warning-50: #241b13;
+  --theme-warning-100: #332314;
+  --theme-warning-150: #432b14;
+  --theme-warning-200: #533415;
+  --theme-warning-250: #633d15;
+  --theme-warning-300: #734616;
+  --theme-warning-350: #834f16;
+  --theme-warning-400: #935817;
+  --theme-warning-450: #a36117;
+  --theme-warning-500: #f57c00;
+  --theme-warning-550: #ee871c;
+  --theme-warning-600: #ff9a35;
+  --theme-warning-650: #ffa84e;
+  --theme-warning-700: #ffb667;
+  --theme-warning-750: #ffc480;
+  --theme-warning-800: #ffd299;
+  --theme-warning-850: #ffe0b2;
+  --theme-warning-900: #ffedcb;
+  --theme-warning-950: #fff8eb;
+}
+
+:root[data-theme="light"] .template-default,
+:root[data-theme="dark"] .template-default {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+.template-default .nav {
+  background: var(--theme-elevation-50);
+  border-right: 1px solid var(--theme-border-color);
+}
+
+.goda-admin-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--theme-border-color);
+  color: var(--theme-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.goda-admin-nav-brand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+.goda-admin-logo-frame {
+  display: grid;
+  width: 82px;
+  height: 58px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e8f2ee;
+}
+
+.goda-admin-graphic {
+  display: inline-grid;
+  width: 46px;
+  height: 38px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #e8f2ee;
+}
+
+.goda-admin-graphic img {
+  display: block;
+  width: 42px;
+  height: 32px;
+  object-fit: cover;
+  transform: scale(1.2);
+  mix-blend-mode: multiply;
+}
+
+.goda-admin-theme-toggle {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--theme-elevation-600);
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.goda-admin-theme-toggle:hover {
+  background: var(--theme-elevation-100);
+  color: var(--theme-success-500);
+}
+
+.goda-admin-theme-toggle:focus-visible {
+  outline: 2px solid var(--theme-success-500);
+  outline-offset: 2px;
+}
+
+.goda-admin-theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.template-default .nav__link {
+  border-radius: 8px;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.template-default .nav__link:hover,
+.template-default .nav-group__toggle:hover {
+  background: var(--theme-elevation-100);
+}
+
+.template-default .nav__link.active {
+  background: var(--theme-success-50);
+  color: var(--theme-success-600);
+}
+
+.template-default .app-header {
+  background: var(--theme-bg);
+  border-bottom: 1px solid var(--theme-border-color);
+}
+
+.template-default .app-header__bg {
+  background: var(--theme-bg);
+}
+
+.template-default .app-header__account {
+  border-radius: 999px;
+}
+
+.template-default .dashboard {
+  padding-top: 28px;
+}
+
+.goda-admin-welcome {
+  margin: 0 0 34px;
+  padding: clamp(24px, 4vw, 38px);
+  border: 1px solid var(--theme-border-color);
+  border-left: 4px solid #068365;
+  border-radius: 14px;
+  background: var(--theme-elevation-50);
+}
+
+.goda-admin-welcome p {
+  margin: 0 0 10px;
+  color: var(--theme-success-500);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.goda-admin-welcome h1 {
+  margin: 0;
+  color: var(--theme-text);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.goda-admin-welcome span {
+  display: block;
+  margin-top: 9px;
+  color: var(--theme-elevation-600);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.goda-admin-analytics-link {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  background: var(--theme-success-500);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.goda-admin-analytics-link:hover {
+  background: var(--theme-success-600);
+}
+
+.goda-analytics {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(18px, 3vw, 36px);
+  color: var(--theme-text);
+}
+
+.goda-analytics-header,
+.goda-analytics-panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.goda-analytics-header {
+  margin-bottom: 26px;
+}
+
+.goda-analytics-header h1 {
+  margin: 0;
+  color: var(--theme-text);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.goda-analytics-header p,
+.goda-analytics-panel-heading p {
+  margin: 7px 0 0;
+  color: var(--theme-elevation-600);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.goda-analytics-eyebrow {
+  margin-bottom: 8px !important;
+  color: var(--theme-success-500) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.goda-analytics-refresh {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  border: 1px solid var(--theme-border-color);
+  border-radius: 8px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.goda-analytics-refresh svg,
+.goda-analytics-alert svg,
+.goda-analytics-loading svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.goda-analytics-refresh:hover {
+  border-color: var(--theme-success-500);
+}
+
+.goda-analytics-refresh:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.goda-analytics-spin {
+  animation: goda-analytics-spin 900ms linear infinite;
+}
+
+@keyframes goda-analytics-spin {
+  to { transform: rotate(360deg); }
+}
+
+.goda-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.goda-analytics-card,
+.goda-analytics-panel {
+  min-width: 0;
+  border: 1px solid var(--theme-border-color);
+  border-radius: 12px;
+  background: var(--theme-elevation-50);
+}
+
+.goda-analytics-card {
+  min-height: 142px;
+  padding: 17px;
+}
+
+.goda-analytics-icon {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--theme-success-100);
+  color: var(--theme-success-600);
+}
+
+:root[data-theme="dark"] .goda-analytics-icon {
+  background: var(--theme-success-150);
+  color: var(--theme-success-800);
+}
+
+.goda-analytics-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.goda-analytics-card p {
+  margin: 13px 0 4px;
+  color: var(--theme-elevation-600);
+  font-size: 0.78rem;
+}
+
+.goda-analytics-card strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--theme-text);
+  font-size: clamp(1.22rem, 2vw, 1.65rem);
+  font-weight: 680;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.goda-analytics-hint {
+  display: block;
+  margin-top: 4px;
+  color: var(--theme-elevation-600);
+  font-size: 0.69rem;
+}
+
+.goda-analytics-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 15px;
+  margin-top: 16px;
+}
+
+.goda-analytics-panel {
+  padding: 20px;
+}
+
+.goda-analytics-panel-heading {
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.goda-analytics-panel-heading h2 {
+  margin: 0;
+  color: var(--theme-text);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.goda-analytics-panel-heading p {
+  font-size: 0.76rem;
+}
+
+.goda-analytics-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border-radius: 99px;
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-700);
+  font-size: 0.67rem;
+  font-weight: 600;
+}
+
+.goda-analytics-status.ready {
+  background: var(--theme-success-100);
+  color: var(--theme-success-700);
+}
+
+.goda-analytics-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 8px;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+}
+
+.goda-analytics-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goda-analytics-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--theme-success-500);
+}
+
+.goda-analytics-legend i.payment {
+  background: var(--theme-warning-500);
+}
+
+.goda-analytics-svg {
+  display: block;
+  width: 100%;
+  min-height: 190px;
+  overflow: visible;
+}
+
+.goda-analytics-svg line {
+  stroke: var(--theme-border-color);
+  stroke-width: 1;
+}
+
+.goda-analytics-svg text {
+  fill: var(--theme-elevation-600);
+  font-size: 10px;
+}
+
+.goda-analytics-svg .page-view-bar {
+  fill: var(--theme-success-500);
+}
+
+.goda-analytics-svg .payment-bar {
+  fill: var(--theme-warning-500);
+}
+
+.goda-analytics-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.goda-analytics-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.76rem;
+}
+
+.goda-analytics-table-wrap th,
+.goda-analytics-table-wrap td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--theme-border-color);
+  white-space: nowrap;
+}
+
+.goda-analytics-table-wrap thead th {
+  color: var(--theme-elevation-600);
+  font-size: 0.66rem;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.goda-analytics-table-wrap tbody th {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--theme-text);
+  font-weight: 550;
+  text-overflow: ellipsis;
+}
+
+.goda-analytics-abandoned {
+  color: var(--theme-warning-600);
+  font-weight: 700;
+}
+
+.goda-analytics-empty,
+.goda-analytics-loading {
+  display: flex;
+  min-height: 130px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--theme-elevation-600);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.goda-analytics-loading {
+  gap: 10px;
+}
+
+.goda-analytics-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--theme-error-300);
+  border-radius: 9px;
+  background: var(--theme-error-50);
+  color: var(--theme-error-700);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.goda-analytics-alert-warning {
+  border-color: var(--theme-warning-300);
+  background: var(--theme-warning-50);
+  color: var(--theme-warning-800);
+}
+
+.goda-analytics-alert button {
+  flex: 0 0 auto;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.goda-analytics-footnote {
+  margin: 15px 2px 0;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+.template-default .dashboard__group {
+  margin-bottom: 32px;
+}
+
+.template-default .dashboard .card {
+  overflow: hidden;
+  border: 1px solid var(--theme-border-color);
+  border-radius: 12px;
+  background: var(--theme-elevation-50);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.template-default .dashboard .card:hover {
+  transform: translateY(-2px);
+  border-color: var(--theme-success-400);
+  box-shadow: 0 8px 24px rgb(12 44 32 / 8%);
+}
+
+.template-default .dashboard .card__title {
+  font-weight: 600;
+}
+
+.template-default .collection-list,
+.template-default .collection-edit,
+.template-default .global-edit,
+.template-default .account {
+  color: var(--theme-text);
+}
+
+.template-default .list-header,
+.template-default .doc-header {
+  border-bottom: 1px solid var(--theme-border-color);
+}
+
+.template-default .list-header__title,
+.template-default .doc-header__title {
+  letter-spacing: -0.025em;
+}
+
+.template-default .collection-list__sub-header,
+.template-default .doc-controls {
+  background: var(--theme-elevation-50);
+  border-bottom: 1px solid var(--theme-border-color);
+}
+
+.template-default .search-filter__input,
+.template-default .field-type input:not([type="checkbox"]):not([type="radio"]),
+.template-default .field-type textarea,
+.template-default .field-type select,
+.template-default .field-type .rs__control {
+  border-color: var(--theme-border-color);
+  border-radius: 8px;
+  background-color: var(--theme-input-bg);
+  color: var(--theme-text);
+  box-shadow: none;
+}
+
+.template-default .search-filter__input:focus,
+.template-default .field-type input:focus,
+.template-default .field-type textarea:focus,
+.template-default .field-type select:focus,
+.template-default .field-type .rs__control--is-focused {
+  border-color: var(--theme-success-500);
+  outline: none;
+  box-shadow: none;
+}
+
+.template-default .field-type input:focus-visible,
+.template-default .field-type textarea:focus-visible,
+.template-default .field-type select:focus-visible,
+.template-default .search-filter__input:focus-visible,
+.template-default button:focus-visible,
+.template-default a:focus-visible {
+  outline: 2px solid var(--theme-success-500);
+  outline-offset: 2px;
+}
+
+.template-default .field-label,
+.template-default .field-description,
+.template-default .form-submit {
+  color: var(--theme-text);
+}
+
+.template-default .table,
+.template-default .table-wrap {
+  border-color: var(--theme-border-color);
+}
+
+.template-default .table th {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-700);
+  font-weight: 650;
+}
+
+.template-default .table tr {
+  border-color: var(--theme-border-color);
+}
+
+.template-default .table tbody tr:hover {
+  background: var(--theme-elevation-100);
+}
+
+.template-default .pill {
+  border-radius: 7px;
+}
+
+.template-default .btn--style-primary {
+  border-radius: 8px;
+  background: #068365;
+  color: #fff;
+}
+
+.template-default .btn--style-primary:hover {
+  background: #056d53;
+}
+
+.template-default .btn--style-secondary,
+.template-default .pill--style-light {
+  border-radius: 8px;
+}
+
+.template-default .collection-list__no-results {
+  border: 1px dashed var(--theme-border-color);
+  border-radius: 12px;
+  background: var(--theme-elevation-50);
+}
+
+.template-minimal {
+  background: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+.template-minimal .form,
+.template-minimal .login,
+.template-minimal .forgot-password,
+.template-minimal .reset-password,
+.template-minimal .unauthorized {
+  color: var(--theme-text);
+}
+
+.template-minimal input:not([type="checkbox"]),
+.template-minimal button,
+.payload__modal-container button {
+  border-radius: 8px;
+}
+
+.payload__modal-container {
+  --modal-border-color: var(--theme-border-color);
+}
+
+@media (max-width: 760px) {
+  .goda-admin-nav-brand {
+    padding: 14px 18px;
+  }
+
+  .goda-admin-nav-brand img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .goda-admin-logo-frame {
+    width: 72px;
+    height: 50px;
+  }
+
+  .goda-admin-welcome {
+    margin-bottom: 26px;
+  }
+
+  .template-default .dashboard {
+    padding-top: 20px;
+  }
+
+  .goda-analytics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .goda-analytics-lower {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .goda-analytics-header {
+    align-items: flex-start;
+  }
+
+  .goda-analytics-refresh {
+    padding: 0 10px;
+    font-size: 0;
+  }
+
+  .goda-analytics-refresh svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .goda-analytics-grid {
+    gap: 9px;
+  }
+
+  .goda-analytics-card {
+    min-height: 128px;
+    padding: 13px;
+  }
+
+  .goda-analytics-panel {
+    padding: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .template-default .nav__link,
+  .template-default .dashboard .card,
+  .goda-admin-theme-toggle {
+    transition: none;
+  }
+}

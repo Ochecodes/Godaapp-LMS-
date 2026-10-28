@@ -1,0 +1,15 @@
+SCHEMA >
+    `timestamp` DateTime64(3, 'UTC'),
+    `event` LowCardinality(String),
+    `event_id` String,
+    `visitor_id` String,
+    `path` String,
+    `referrer` String,
+    `user_agent` String,
+    `course_slug` String,
+    `amount_usd` Float64
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "timestamp, event, event_id"
+ENGINE_TTL "toDateTime(timestamp) + INTERVAL 365 DAY"

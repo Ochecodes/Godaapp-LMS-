@@ -15,7 +15,7 @@ export const PayoutRequests: CollectionConfig = {
   },
   fields: [
     {
-      name: 'affiliate',
+      name:'affiliate',
       type: 'relationship',
       relationTo: 'affiliates',
       required: true,

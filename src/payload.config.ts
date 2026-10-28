@@ -22,6 +22,33 @@ export default buildConfig({
   editor: lexicalEditor(),
   admin: {
     user: Instructors.slug,
+    components: {
+      beforeDashboard: [
+        '../../../components/PayloadAdminBrand.tsx#PayloadDashboardWelcome',
+      ],
+      beforeNavLinks: [
+        '../../../components/PayloadAdminBrand.tsx#PayloadNavBrand',
+      ],
+      actions: [
+        '../../../components/PayloadAdminBrand.tsx#PayloadThemeToggle',
+      ],
+      graphics: {
+        Icon: '../../../components/PayloadAdminBrand.tsx#PayloadGraphic',
+        Logo: '../../../components/PayloadAdminBrand.tsx#PayloadGraphic',
+      },
+      views: {
+        Login: {
+          Component: '../../../components/InstructorAdminLogin.tsx#InstructorAdminLogin',
+          path: '/login',
+          exact: true,
+        },
+        analytics: {
+          Component: '../../../components/PayloadAnalyticsView.tsx#PayloadAnalyticsView',
+          path: '/analytics',
+          exact: true,
+        },
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname, './app/(instructor)/instructor-panel'),
       importMapFile: path.resolve(dirname, './app/(instructor)/instructor-panel/importMap.js'),

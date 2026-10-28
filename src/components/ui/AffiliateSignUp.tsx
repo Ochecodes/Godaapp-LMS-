@@ -1,28 +1,11 @@
 "use client";
 
-import type { CSSProperties, FormEvent } from "react";
+import type { FormEvent } from "react";
 import { useRef, useState } from "react";
 import { Check, ArrowRight } from "lucide-react";
 
 import { AuroraHero } from "@/components/ui/AuroraHero";
 import { Button } from "@/components/ui/button";
-
-const ribbons = [
-  { left: "8%", top: "34%", color: "#F57C00", rotate: "-22deg", delay: "0ms" },
-  { left: "15%", top: "18%", color: "#068365", rotate: "18deg", delay: "60ms" },
-  { left: "27%", top: "12%", color: "#F57C00", rotate: "42deg", delay: "120ms" },
-  { left: "38%", top: "22%", color: "#068365", rotate: "-35deg", delay: "180ms" },
-  { left: "52%", top: "10%", color: "#F57C00", rotate: "16deg", delay: "240ms" },
-  { left: "68%", top: "18%", color: "#068365", rotate: "-18deg", delay: "300ms" },
-  { left: "82%", top: "30%", color: "#F57C00", rotate: "34deg", delay: "360ms" },
-  { left: "92%", top: "45%", color: "#068365", rotate: "-28deg", delay: "420ms" },
-  { left: "10%", top: "63%", color: "#068365", rotate: "28deg", delay: "480ms" },
-  { left: "23%", top: "78%", color: "#F57C00", rotate: "-42deg", delay: "540ms" },
-  { left: "44%", top: "84%", color: "#068365", rotate: "20deg", delay: "600ms" },
-  { left: "63%", top: "78%", color: "#F57C00", rotate: "-15deg", delay: "660ms" },
-  { left: "79%", top: "70%", color: "#068365", rotate: "38deg", delay: "720ms" },
-  { left: "90%", top: "62%", color: "#F57C00", rotate: "-32deg", delay: "780ms" },
-];
 
 export default function AffiliateSignUp() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -39,20 +22,6 @@ export default function AffiliateSignUp() {
 
   return (
     <AuroraHero className="min-h-screen justify-center px-4 py-20 sm:px-8 lg:px-12">
-      <style>{`
-        @keyframes affiliate-ribbon-burst {
-          0% { opacity: 0; transform: translate(0, 0) rotate(var(--rotate)) scale(0.4); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(var(--travel-x), var(--travel-y)) rotate(calc(var(--rotate) + 220deg)) scale(1); }
-        }
-        .affiliate-ribbon-burst {
-          animation: affiliate-ribbon-burst 950ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .affiliate-ribbon-burst { animation: none; opacity: 0; }
-        }
-      `}</style>
-
       <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-80 overflow-hidden lg:min-h-[38rem]">
           <img
@@ -68,26 +37,6 @@ export default function AffiliateSignUp() {
         </div>
 
         <div className="relative bg-white/95 p-6 text-zinc-950 sm:p-10 lg:p-14">
-          {submitted && (
-            <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden" aria-hidden="true">
-              {ribbons.map((ribbon, index) => (
-                <span
-                  key={index}
-                  className="affiliate-ribbon-burst absolute h-2 w-12 rounded-full"
-                  style={{
-                    left: ribbon.left,
-                    top: ribbon.top,
-                    backgroundColor: ribbon.color,
-                    ["--rotate" as string]: ribbon.rotate,
-                    ["--travel-x" as string]: `${index % 2 ? 70 : -70}px`,
-                    ["--travel-y" as string]: `${index % 3 === 0 ? -120 : 120}px`,
-                    animationDelay: ribbon.delay,
-                  } as CSSProperties}
-                />
-              ))}
-            </div>
-          )}
-
           <div className="relative z-10 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#068365]">Affiliate program</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Become a partner</h1>
@@ -138,8 +87,8 @@ export default function AffiliateSignUp() {
                 </span>
               </label>
 
-              <Button type="submit" disabled={submitted} className="h-11 w-full rounded-lg bg-[#068365] font-semibold text-white transition-colors hover:bg-[#056d53] disabled:cursor-not-allowed disabled:opacity-100">
-                {submitted ? <Check className="size-5" aria-label="Submitted" /> : <>Submit application <ArrowRight className="size-4" aria-hidden="true" /></>}
+              <Button type="submit" disabled={submitted} className="h-11 w-full rounded-lg bg-[#068365] font-semibold text-white transition-colors hover:bg-[#056d53] disabled:cursor-not-allowed disabled:opacity-100 disabled:text-white">
+                {submitted ? <><Check className="size-5" aria-label="Submitted" /> Submitted</> : <>Submit application <ArrowRight className="size-4" aria-hidden="true" /></>}
               </Button>
             </form>
           </div>

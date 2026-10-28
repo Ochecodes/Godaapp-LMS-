@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 interface GridItemType {
   tag: string;
   category: string;
+  courseSlug: string;
   title: string;
   desc: string;
   badge: string;
@@ -19,6 +20,7 @@ const GRID_ITEMS: GridItemType[] = [
   {
     tag: "Goda",
     category: "Capital Preservation",
+    courseSlug: "capital-preservation-survival-mindset",
     title: "Capital Preservation & Survival Mindset",
     desc: "In trading, survival comes before profitability. A trader who protects capital can continue learning, improving, and compounding over time. Learn how",
     badge: "Free",
@@ -28,6 +30,7 @@ const GRID_ITEMS: GridItemType[] = [
   {
     tag: "Goda",
     category: "Forex Trading",
+    courseSlug: "forex-trading-beginners-fundamentals",
     title: "Forex Trading: Beginners Fundamentals",
     desc: "Forex trading rewards structure, not guesswork, and this course is built to give you that structure from the ground up.",
     badge: "Free",
@@ -37,6 +40,7 @@ const GRID_ITEMS: GridItemType[] = [
   {
     tag: "Goda",
     category: "Trading Psychology",
+    courseSlug: "risk-management-trading-psychology",
     title: "Risk Management & Trading Psychology",
     desc: "Most traders dont fail because of strategy, they fail because of emotions & poor risk control. This course addresses the difference between survival and consistency.",
     badge: "Paid",
@@ -46,6 +50,7 @@ const GRID_ITEMS: GridItemType[] = [
   {
     tag: "Goda",
     category: "Crypto Markets",
+    courseSlug: "cryptocurrency-market-trading-fundamentals",
     title: "Cryptocurrency Market & Trading Fundamentals",
     desc: "Cryptocurrency trading isnt just about buying and selling,its about understanding how the market truly works. This course gives you that foundation.",
     badge: "Paid",
@@ -178,8 +183,8 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                     
                     {/* Action row layout */}
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-4">
-                        {compact ? (
+                      <div className="flex flex-wrap items-center gap-3">
+                        {compact && (
                           <button
                             type="button"
                             aria-expanded={isExpanded}
@@ -189,11 +194,13 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                             {isExpanded ? "Hide lessons" : "Explore lessons"}
                             {isExpanded ? <ChevronUp className="size-3.5" aria-hidden="true" /> : <BookOpen className="size-3.5" aria-hidden="true" />}
                           </button>
-                        ) : (
-                          <Link href="/sign-up" className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100]">
-                            Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
-                          </Link>
                         )}
+                        <Link
+                          href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
+                          className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
+                        >
+                          Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
+                        </Link>
                         <span className="text-base font-bold text-[#068365] tracking-tight">
                           {item.price}
                         </span>
@@ -219,7 +226,7 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                           return (
                             <li key={lesson}>
                               <Link
-                                href={locked ? "/sign-up" : "/dashboard"}
+                                href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
                                 className="flex items-center justify-between rounded-md px-2.5 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]"
                               >
                                 <span>Lesson {lesson}{locked ? " (Locked)" : ""}</span>

@@ -1,135 +1,124 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { trackTinybirdEvent } from "@/lib/tinybird/client";
 
-export async function middleware(request: NextRequest) {
-  const { searchParams, pathname } = request.nextUrl
-
-  // ----------------------------------------------------
-  // 1. INITIALIZE RESPONSE
-  // ----------------------------------------------------
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  const { searchParams, pathname } = request.nextUrl;
   let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+    request: { headers: request.headers },
+  });
 
   const isPayloadPath =
-    pathname.startsWith('/instructor-panel') || pathname.startsWith('/payload-api')
+    pathname.startsWith("/instructor-panel") || pathname.startsWith("/payload-api");
+  if (isPayloadPath) return response;
 
-  if (isPayloadPath) return response
-
-  // ----------------------------------------------------
-  // 2. CAPTURE AFFILIATE REFERRAL COOKIES
-  // ----------------------------------------------------
-  const refCode = searchParams.get('ref')
-
+  const refCode = searchParams.get("ref");
   if (refCode) {
-    response.cookies.set('godaapp_affiliate_ref', refCode, {
+    response.cookies.set("godaapp_affiliate_ref", refCode, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30-day expiry
-      path: '/',
-    })
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 30,
+      path: "/",
+    });
   }
 
-  // ----------------------------------------------------
-  // 3. OFFLOAD REAL-TIME METRICS TO TINYBIRD (FIRE & FORGET)
-  // ----------------------------------------------------
-  const isInternalPath =
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname === '/favicon.ico'
-
-  if (!isInternalPath) {
-    const tinybirdToken = process.env.TINYBIRD_API_KEY
-    if (tinybirdToken) {
-      fetch('https://tinybird.co', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${tinybirdToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          timestamp: new Date().toISOString(),
-          path: pathname,
-          referrer: request.headers.get('referer') || 'direct',
-          user_agent: request.headers.get('user-agent') || 'unknown',
-        }),
-      }).catch((err) => console.error('Tinybird telemetry ingestion dropped:', err))
-    }
-  }
-
-  // ----------------------------------------------------
-  // 4. SECURE AUTHENTICATION & ROUTE GUARDRAILS
-  // ----------------------------------------------------
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  // Skip auth checks entirely if env vars are not available
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('[Middleware] Missing Supabase env vars — skipping auth checks')
-    return response
+    console.error("[Middleware] Missing Supabase env vars — skipping auth checks");
+    scheduleAnalyticsPageView(request, response, event);
+    return response;
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        return request.cookies.getAll().map(({ name, value }) => ({ name, value }))
+        return request.cookies.getAll().map(({ name, value }) => ({ name, value }));
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) =>
-          request.cookies.set({ name, value, ...options })
-        )
+          request.cookies.set({ name, value, ...options }),
+        );
         response = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        })
+          request: { headers: request.headers },
+        });
         cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set({ name, value, ...options })
-        )
+          response.cookies.set(name, value, options),
+        );
       },
     },
-  })
+  });
 
-  // Retrieve authenticated user from encrypted session
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  // --- Protect: Student Dashboard ---
-  if (pathname.startsWith('/dashboard') && !user) {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+  if (pathname.startsWith("/dashboard") && !user) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  // --- Protect: Admin Control Panel ---
-  if (pathname.startsWith('/control-panel')) {
+  if (pathname.startsWith("/affiliate-dashboard")) {
     if (!user) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
+      return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-    if (user.user_metadata?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  }
-
-  // --- Protect: Affiliate Dashboard ---
-  if (pathname.startsWith('/affiliate-dashboard')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/sign-in', request.url))
-    }
-    const role = user.user_metadata?.role
-    if (role !== 'affiliate' && role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+    const role = user.user_metadata?.role;
+    if (role !== "affiliate" && role !== "admin") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
-  return response
+  scheduleAnalyticsPageView(request, response, event);
+  return response;
+}
+
+function scheduleAnalyticsPageView(
+  request: NextRequest,
+  response: NextResponse,
+  event: NextFetchEvent,
+) {
+  const { pathname } = request.nextUrl;
+  const isInternalPath =
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname === "/favicon.ico" ||
+    pathname.startsWith("/instructor-panel") ||
+    pathname.startsWith("/payload-api");
+  const isPrefetch =
+    request.headers.has("next-router-prefetch") ||
+    request.headers.get("purpose") === "prefetch";
+
+  if (request.method !== "GET" || isInternalPath || isPrefetch) return;
+
+  const existingVisitorId = request.cookies.get("goda_visitor_id")?.value;
+  const visitorId = existingVisitorId ?? globalThis.crypto.randomUUID();
+  if (!existingVisitorId) {
+    request.cookies.set("goda_visitor_id", visitorId);
+    response.cookies.set("goda_visitor_id", visitorId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+    });
+  }
+
+  event.waitUntil(
+    trackTinybirdEvent({
+      event: "page_view",
+      visitor_id: visitorId,
+      path: pathname.slice(0, 500),
+      referrer: (request.headers.get("referer") ?? "").slice(0, 1000),
+      user_agent: (request.headers.get("user-agent") ?? "").slice(0, 500),
+    }).catch((error: unknown) => {
+      console.error("[Tinybird] Page-view ingestion failed:", error);
+    }),
+  );
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|assets|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|assets|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-}
+};

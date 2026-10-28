@@ -43,6 +43,55 @@ export const Lessons: CollectionConfig = {
       },
     },
     {
+      name: 'quizQuestions',
+      type: 'array',
+      label: 'Video check-in questions',
+      labels: {
+        singular: 'Question',
+        plural: 'Questions',
+      },
+      admin: {
+        description:
+          'Questions are shown in order during playback, once every two minutes. Only questions that fit before the video ends will be used.',
+      },
+      fields: [
+        {
+          name: 'question',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'optionA',
+          type: 'text',
+          label: 'Option A',
+          required: true,
+        },
+        {
+          name: 'optionB',
+          type: 'text',
+          label: 'Option B',
+          required: true,
+        },
+        {
+          name: 'optionC',
+          type: 'text',
+          label: 'Option C',
+          required: true,
+        },
+        {
+          name: 'correctOption',
+          type: 'select',
+          label: 'Correct option',
+          required: true,
+          options: [
+            { label: 'Option A', value: 'A' },
+            { label: 'Option B', value: 'B' },
+            { label: 'Option C', value: 'C' },
+          ],
+        },
+      ],
+    },
+    {
       name: 'isPreview',
       type: 'checkbox',
       defaultValue: false,

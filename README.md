@@ -15,7 +15,7 @@ GodaApp is a digital-asset education platform built with Next.js App Router. The
 | CMS and application data | Payload CMS 3 with PostgreSQL adapter |
 | Authentication | Supabase Auth with `@supabase/ssr` |
 | Payments | Paystack webhook integration |
-| Analytics | Tinybird-related middleware hook |
+| Analytics | Tinybird event ingestion and Payload-admin dashboard |
 | Package manager | pnpm 10.18.2 |
 
 ## Prerequisites
@@ -71,7 +71,9 @@ Create a local `.env.local` file. The current integration code references these 
 | `PAYLOAD_SECRET` | Payload CMS | Set a strong, unique secret in every non-local environment. The source currently contains a development fallback; replace it for deployment. |
 | `PAYSTACK_SECRET_KEY` | Paystack webhook verification | Used to calculate the request signature. |
 | `PAYSTACK_WEBHOOK_SECRET` | Not currently referenced by source | Present in local configuration conventions, but the webhook currently verifies with `PAYSTACK_SECRET_KEY`. |
-| `TINYBIRD_API_KEY` | Middleware telemetry hook | When set, middleware attempts to send page-view data to Tinybird. Verify the destination endpoint and workspace configuration before production use. |
+| `TINYBIRD_API_KEY` | Platform analytics | Server-only Tinybird token with event-ingest and SQL-query permission for the analytics data source. Never expose this as a `NEXT_PUBLIC_*` variable. |
+| `TINYBIRD_URL` | Platform analytics | Region-specific Tinybird API base URL, such as `https://api.tinybird.co`. |
+| `TINYBIRD_ANALYTICS_DATASOURCE` | Platform analytics | Optional data source name; defaults to `godaapp_events`. |
 
 Never place secret values in `NEXT_PUBLIC_*` variables; Next.js exposes those values to browser bundles.
 
@@ -113,14 +115,14 @@ Parenthesized route-group names are organizational and are not included in publi
 | `/faq` | `src/app/(public)/faq/page.tsx` | FAQ hero and FAQ section |
 | `/privacy-policy` | `src/app/(public)/privacy-policy/page.tsx` | Privacy, refund, and risk policy content |
 | `/terms-of-service` | `src/app/(public)/terms-of-service/page.tsx` | Terms of use and mentorship terms, with acceptance control |
-| `/sign-in`, `/sign-up` | `src/app/(auth)/...` | Authentication routes; current pages are placeholders |
-| `/dashboard` | `src/app/(student)/dashboard/page.tsx` | Student dashboard landing route; currently minimal |
+| `/sign-in`, `/sign-up` | `src/app/(frontend)/(auth)/...` | Student authentication routes |
+| `/dashboard` | `src/app/(frontend)/(student)/dashboard/page.tsx` | Protected student dashboard |
 | `/dashboard/courses`, `/dashboard/live`, `/dashboard/resources`, `/dashboard/settings` | `src/app/(student)/dashboard/...` | Student dashboard sections |
 | `/affiliate-dashboard` and subroutes | `src/app/(affiliate-portal)/affiliate-dashboard/...` | Affiliate dashboard routes |
-| `/control-panel` and subroutes | `src/app/(admin-control)/control-panel/...` | Admin controls |
-| `/instructor-panel` | `src/app/(instructor)/instructor-panel` | Instructor route group; incomplete |
-| `/api/webhooks/paystack` | `src/app/api/webhooks/paystack/route.ts` | Paystack webhook handler |
-| `/api/analytics/track` | `src/app/api/analytics/track/route.ts` | Analytics endpoint path; handler is currently empty |
+| `/instructor-panel` | `src/app/(instructor)/instructor-panel` | Payload admin and instructor workspace |
+| `/instructor-panel/analytics` | Payload custom admin view | Administrator-only platform analytics |
+| `/api/webhooks/paystack` | `src/app/(frontend)/api/webhooks/paystack/route.ts` | Paystack webhook and verified-payment analytics event |
+| `/api/admin/analytics` | `src/app/(frontend)/api/admin/analytics/route.ts` | Payload-admin authenticated analytics data API |
 
 ## Application Architecture
 
@@ -145,22 +147,27 @@ Global Tailwind v4 setup and semantic theme tokens are in `src/app/globals.css`.
 
 The `users` collection stores a `supabase_uid` association and role metadata. Course, enrollment, affiliate, referral, and payout schemas are defined in `src/collections`.
 
+Courses can contain scheduled Google Meet live classes with a title, meeting URL, start time, and end time. Instructors manage these in the course editor; active students enrolled in the course see upcoming, ongoing, and ended sessions at `/dashboard/live`. The schedule schema is added by the `20261004_000000_add_course_live_classes` Payload migration.
+
 ### Supabase Authentication and Middleware
 
 `src/middleware.ts` uses `@supabase/ssr` to read and refresh session cookies when Supabase URL and anon key are configured. It also:
 
 - Captures a `ref` query parameter into the `godaapp_affiliate_ref` cookie for 30 days.
-- Applies route guards to `/dashboard`, `/control-panel`, and `/affiliate-dashboard` paths.
-- Redirects unauthenticated users to `/sign-in` and checks `user_metadata.role` for admin and affiliate routes.
-- Attempts Tinybird telemetry for non-internal page requests when `TINYBIRD_API_KEY` is present.
+- Applies Supabase session checks to `/dashboard` and `/affiliate-dashboard`.
+- Captures non-prefetch page requests in Tinybird using a first-party random visitor ID; Payload admin paths are excluded.
 
 Without the two public Supabase variables, the middleware logs a warning and skips authentication checks. This is suitable only for local UI development, not a production security boundary.
 
 ### Paystack Webhook
 
-`src/app/api/webhooks/paystack/route.ts` accepts POST requests, calculates an HMAC-SHA512 digest using `PAYSTACK_SECRET_KEY`, and compares it with `x-paystack-signature`. On `charge.success`, it creates an enrollment and, when an approved affiliate referral code is present, records a 25% commission in the referrals collection.
+`src/app/(frontend)/api/webhooks/paystack/route.ts` accepts POST requests, verifies the HMAC-SHA512 signature, checks the course, currency, amount, and student metadata, and creates the enrollment and optional referral once. Verified payments are also recorded in Tinybird for analytics.
 
-Before production use, verify webhook event schemas, metadata validation, idempotency, amount/currency handling, and failure/retry semantics. The handler currently assumes required event fields are present and does not implement idempotency protection.
+### Tinybird Analytics
+
+The analytics dashboard lives in Payload at `/instructor-panel/analytics` and the API independently verifies an active Payload administrator session. Deploy `tinybird/datasources/godaapp_events.datasource` to the Tinybird Cloud workspace from the `tinybird/` directory using the Tinybird CLI command `tb --cloud deploy`. Middleware records page views; Paystack checkout initialization and verified webhook events record the purchase funnel; successful student account deletions are recorded without sending email addresses. Event history starts when the data source is deployed and has a one-year retention policy.
+
+Paid/free learner counts are derived from active enrollments and each course’s current Payload price; platform revenue is derived from verified Paystack payment events; paid affiliate payouts are Payload payout requests marked approved. Checkout abandonment is the number of distinct Paystack checkout references without a verified successful payment. Confirm that these definitions match finance/reporting requirements before using the dashboard for formal accounting.
 
 ## Payload Admin
 
@@ -174,10 +181,8 @@ Payload is configured in `src/payload.config.ts`. The configuration defines the 
 
 These areas should be completed and tested before relying on the corresponding workflows in production:
 
-- `src/lib/supabase/client.ts` is empty; browser-side Supabase client creation is not implemented there.
 - `src/lib/paystack/client.ts` is empty; payment creation/checkout client functionality is not implemented there.
-- `src/lib/tinybird/client.ts` is empty; the middleware currently sends telemetry directly rather than using this helper.
-- `src/app/(auth)/callback/route.ts`, sign-in, sign-up, and `/api/analytics/track` are empty placeholders.
+- Deploy the Tinybird analytics data source before relying on traffic/revenue analytics; without it the Payload dashboard shows Payload database totals and an analytics-unavailable notice.
 - `/affiliate` currently contains only navigation; a public affiliate information page is not implemented.
 - The student dashboard landing page is minimal, and the instructor route group has no complete dashboard flow.
 - Add automated tests and linting before making broader production changes; `package.json` currently exposes only dev/build/start scripts.
