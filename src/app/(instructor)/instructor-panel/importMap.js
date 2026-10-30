@@ -26,7 +26,7 @@ import { PayloadThemeToggle as PayloadThemeToggle_4a1de07ca7b94332db72fae8a0c4a0
 import { PayloadDashboardWelcome as PayloadDashboardWelcome_4a1de07ca7b94332db72fae8a0c4a0e5 } from './../../../components/PayloadAdminBrand.tsx'
 import { PayloadNavBrand as PayloadNavBrand_4a1de07ca7b94332db72fae8a0c4a0e5 } from './../../../components/PayloadAdminBrand.tsx'
 import { InstructorAdminLogin as InstructorAdminLogin_64ee0e728747908bc327ad5d7a370050 } from './../../../components/InstructorAdminLogin.tsx'
-import { PayloadAnalyticsView as PayloadAnalyticsView_4a1de07ca7b94332db72fae8a0c4a0e5 } from './../../../components/PayloadAnalyticsView.tsx'
+import { PayloadAnalyticsView as PayloadAnalyticsView_e16c00e3d1c24df60cf0a466284a36d4 } from './../../../components/PayloadAnalyticsView.tsx'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -57,5 +57,5 @@ export const importMap = {
   "../../../components/PayloadAdminBrand.tsx#PayloadDashboardWelcome": PayloadDashboardWelcome_4a1de07ca7b94332db72fae8a0c4a0e5,
   "../../../components/PayloadAdminBrand.tsx#PayloadNavBrand": PayloadNavBrand_4a1de07ca7b94332db72fae8a0c4a0e5,
   "../../../components/InstructorAdminLogin.tsx#InstructorAdminLogin": InstructorAdminLogin_64ee0e728747908bc327ad5d7a370050,
-  "../../../components/PayloadAnalyticsView.tsx#PayloadAnalyticsView": PayloadAnalyticsView_4a1de07ca7b94332db72fae8a0c4a0e5,
+  "../../../components/PayloadAnalyticsView.tsx#PayloadAnalyticsView": PayloadAnalyticsView_e16c00e3d1c24df60cf0a466284a36d4
 }

@@ -110,7 +110,7 @@ export function HeroSection() {
                       size="lg"
                       className="rounded-xl bg-[#F57C00] px-5 text-base font-medium text-white transition-colors duration-200 hover:bg-[#E65100]"
                     >
-                      <Link href="#link">
+                      <Link href="/catalog">
                         <span className="text-nowrap">Browse Courses</span>
                       </Link>
                     </Button>
@@ -122,7 +122,7 @@ export function HeroSection() {
                     variant="ghost"
                     className="h-10.5 rounded-xl px-5 text-zinc-400 duration-200 hover:bg-white/5 hover:text-zinc-200"
                   >
-                    <Link href="#link">
+                    <Link href="/affiliate">
                       <span className="text-nowrap">Affiliate Program</span>
                     </Link>
                   </Button>
@@ -145,7 +145,7 @@ export function HeroSection() {
                     <img
                       className="relative block w-full rounded-2xl border border-white/5"
                       alt="App screenshot"
-                      src="/Appscreen.png"
+                      src="/DashIMG.jpeg"
                       loading="lazy"
                       decoding="async"
                     />

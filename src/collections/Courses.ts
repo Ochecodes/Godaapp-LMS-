@@ -80,6 +80,13 @@ export const Courses: CollectionConfig = {
           },
         },
         {
+          name: 'instructorName',
+          type: 'text',
+          admin: {
+            description: 'Instructor name displayed to enrolled students for this session.',
+          },
+        },
+        {
           name: 'meetingUrl',
           type: 'text',
           required: true,

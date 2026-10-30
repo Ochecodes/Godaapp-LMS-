@@ -8,8 +8,66 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createHash } from "node:crypto";
 import { cookies } from "next/headers";
 import { trackTinybirdEvent } from "@/lib/tinybird/client";
+import { getAuthorizedStudentLesson } from "@/lib/student-lesson-access";
+import { getStudentLearningActivity } from "@/lib/student-learning-activity";
+import { normalizeStudentEmail } from "@/lib/student-email";
 
 export type ProfileActionResult = { success?: string; error?: string };
+
+export async function recordStudentLessonActivity(
+  lessonId: number,
+  watchedSeconds: number,
+  completed: boolean,
+): Promise<{ success?: true; error?: string }> {
+  if (
+    !Number.isInteger(lessonId) ||
+    lessonId < 1 ||
+    !Number.isInteger(watchedSeconds) ||
+    watchedSeconds < 0 ||
+    watchedSeconds > 30 ||
+    typeof completed !== "boolean" ||
+    (watchedSeconds === 0 && !completed)
+  ) {
+    return { error: "The lesson activity could not be recorded because its data was invalid." };
+  }
+
+  const access = await getAuthorizedStudentLesson(lessonId);
+  if (!access) return { error: "You no longer have access to this lesson. Sign in or check your enrollment." };
+
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError) return { error: "Your session could not be verified. Please sign in again." };
+  if (!user) return { error: "Please sign in before recording lesson activity." };
+
+  const currentActivity = getStudentLearningActivity(user.user_metadata?.student_learning);
+  const now = new Date();
+  const timestamp = now.toISOString();
+  const day = timestamp.slice(0, 10);
+  const existingLesson = currentActivity.lessons[String(lessonId)];
+
+  currentActivity.lessons[String(lessonId)] = {
+    courseId: access.course.id,
+    watchedSeconds: (existingLesson?.watchedSeconds ?? 0) + watchedSeconds,
+    lastWatchedAt: timestamp,
+    ...((existingLesson?.completedAt || completed) ? { completedAt: existingLesson?.completedAt ?? timestamp } : {}),
+  };
+  currentActivity.dailySeconds[day] = Math.min(
+    86_400,
+    (currentActivity.dailySeconds[day] ?? 0) + watchedSeconds,
+  );
+
+  const activityDays = Object.keys(currentActivity.dailySeconds).sort();
+  for (const oldDay of activityDays.slice(0, Math.max(0, activityDays.length - 365))) {
+    delete currentActivity.dailySeconds[oldDay];
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: { student_learning: currentActivity },
+  });
+  if (updateError) return { error: "Your lesson activity could not be saved. Please try again." };
+
+  return { success: true };
+}
 
 export async function updateStudentProfile(formData: FormData): Promise<ProfileActionResult> {
   const supabase = await createClient();
@@ -94,8 +152,8 @@ export async function deleteStudentAccount(): Promise<ProfileActionResult> {
 
   const enrollments = await payload.find({
     collection: "enrollments",
-    where: { email: { equals: user.email ?? "" } },
-    limit: 10000,
+    where: { email: { equals: normalizeStudentEmail(user.email ?? "") } },
+    limit: 1000,
     pagination: false,
     overrideAccess: true,
   });

@@ -25,7 +25,7 @@ export default function AffiliateSignUp() {
       <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-80 overflow-hidden lg:min-h-[38rem]">
           <img
-            src="/students.jfif"
+            src="/AffiliateIMG.jpg"
             alt="Students learning together"
             className="absolute inset-0 h-full w-full object-cover object-center"
           />

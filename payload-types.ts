@@ -73,6 +73,7 @@ export interface Config {
     modules: Module;
     lessons: Lesson;
     enrollments: Enrollment;
+    resources: Resource;
     affiliates: Affiliate;
     referrals: Referral;
     'payout-requests': PayoutRequest;
@@ -88,6 +89,7 @@ export interface Config {
     modules: ModulesSelect<false> | ModulesSelect<true>;
     lessons: LessonsSelect<false> | LessonsSelect<true>;
     enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
+    resources: ResourcesSelect<false> | ResourcesSelect<true>;
     affiliates: AffiliatesSelect<false> | AffiliatesSelect<true>;
     referrals: ReferralsSelect<false> | ReferralsSelect<true>;
     'payout-requests': PayoutRequestsSelect<false> | PayoutRequestsSelect<true>;
@@ -193,6 +195,10 @@ export interface Course {
          * For example, Weekly Q&A or Module 2 review.
          */
         title: string;
+        /**
+         * Instructor name displayed to enrolled students for this session.
+         */
+        instructorName?: string | null;
         /**
          * Only active students enrolled in this course can see this link.
          */
@@ -301,6 +307,22 @@ export interface Enrollment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources".
+ */
+export interface Resource {
+  id: number;
+  title: string;
+  category: string;
+  description: string;
+  externalUrl: string;
+  format: string;
+  status: 'published' | 'draft';
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "affiliates".
  */
 export interface Affiliate {
@@ -394,6 +416,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enrollments';
         value: number | Enrollment;
+      } | null)
+    | ({
+        relationTo: 'resources';
+        value: number | Resource;
       } | null)
     | ({
         relationTo: 'affiliates';
@@ -497,6 +523,7 @@ export interface CoursesSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
+        instructorName?: T;
         meetingUrl?: T;
         startsAt?: T;
         endsAt?: T;
@@ -549,6 +576,21 @@ export interface EnrollmentsSelect<T extends boolean = true> {
   user?: T;
   course?: T;
   isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "resources_select".
+ */
+export interface ResourcesSelect<T extends boolean = true> {
+  title?: T;
+  category?: T;
+  description?: T;
+  externalUrl?: T;
+  format?: T;
+  status?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

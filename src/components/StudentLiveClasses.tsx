@@ -1,18 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  CalendarDays,
-  Clock3,
-  ExternalLink,
-  Video,
-} from "lucide-react";
+import { DashboardPageBanner } from "@/components/DashboardPageBanner";
+import { DashboardIcon } from "@/components/DashboardIcon";
 
 export type StudentLiveClass = {
   id: string;
   courseTitle: string;
   title: string;
+  instructorName: string;
   meetingUrl: string;
   startsAt: string;
   endsAt: string;
@@ -20,186 +16,168 @@ export type StudentLiveClass = {
 
 type StudentLiveClassesProps = {
   classes: StudentLiveClass[];
+  scheduleKey: string;
 };
 
-export function StudentLiveClasses({ classes }: StudentLiveClassesProps) {
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+export function StudentLiveClasses({ classes, scheduleKey }: StudentLiveClassesProps) {
   const [now, setNow] = useState(0);
+  const [scheduledIds, setScheduledIds] = useState<string[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [scheduleError, setScheduleError] = useState("");
   const selectedClass = classes.find((liveClass) => liveClass.id === selectedClassId);
+  const storageKey = `godaapp-scheduled-classes-${scheduleKey}`;
 
   useEffect(() => {
     const updateNow = () => setNow(Date.now());
     updateNow();
     const interval = window.setInterval(updateNow, 30_000);
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.every((id) => typeof id === "string")) {
+          setScheduledIds(parsed);
+        }
+      }
+    } catch (error) {
+      console.error("Could not read the saved live-class schedule:", error);
+    }
     return () => window.clearInterval(interval);
-  }, []);
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (!selectedClassId) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setSelectedClassId(null);
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [selectedClassId]);
+
+  function scheduleClass(liveClass: StudentLiveClass) {
+    const next = [...new Set([...scheduledIds, liveClass.id])];
+    setScheduledIds(next);
+    setScheduleError("");
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+    } catch (error) {
+      console.error("Could not save this live class to the browser:", error);
+      setScheduleError("This class is marked as scheduled for this visit, but your browser could not save the reminder.");
+    }
+    setSelectedClassId(liveClass.id);
+  }
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        {selectedClass ? (
-          <LiveClassRoom
-            liveClass={selectedClass}
-            now={now}
-            onClose={() => setSelectedClassId(null)}
-          />
-        ) : (
-          <>
-            <div className="flex items-start gap-4">
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Video aria-hidden="true" className="size-5" />
-              </span>
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Live classes</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Google Meet sessions for courses you are enrolled in.
-                </p>
-              </div>
-            </div>
-
-            {classes.length ? (
-              <ul className="mt-7 space-y-3">
+    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <DashboardPageBanner
+        description="Review your upcoming course sessions and save the ones you plan to attend."
+        icon="lucide:calendar-days"
+        title="Live Classes"
+      />
+      {classes.length ? (
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse text-left">
+              <thead className="bg-muted/50">
+                <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="px-5 py-4 font-semibold">Class</th>
+                  <th className="px-5 py-4 font-semibold">Instructor</th>
+                  <th className="px-5 py-4 font-semibold">Date</th>
+                  <th className="px-5 py-4 font-semibold">Time</th>
+                  <th className="px-5 py-4 text-right font-semibold">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
                 {classes.map((liveClass) => {
                   const status = getStatus(liveClass, now);
                   const ended = status === "ended";
+                  const scheduled = scheduledIds.includes(liveClass.id);
                   return (
-                    <li key={liveClass.id}>
-                      <button
-                        aria-label={`${liveClass.title}, ${status === "live" ? "ongoing" : status === "upcoming" ? "upcoming" : "ended"}`}
-                        className={`w-full rounded-xl border border-border bg-card p-4 text-left transition-colors sm:p-5 ${
-                          ended
-                            ? "cursor-not-allowed opacity-60"
-                            : "hover:border-primary/40 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        }`}
-                        disabled={ended}
-                        onClick={() => setSelectedClassId(liveClass.id)}
-                        type="button"
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-muted-foreground">{liveClass.courseTitle}</p>
-                            <h2 className="mt-1 truncate text-base font-semibold">{liveClass.title}</h2>
-                          </div>
-                          <StatusBadge status={status} />
+                    <tr className="transition-colors hover:bg-muted/30" key={liveClass.id}>
+                      <td className="px-5 py-4">
+                        <p className="font-semibold">{liveClass.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{liveClass.courseTitle}</p>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-muted-foreground">{liveClass.instructorName}</td>
+                      <td className="whitespace-nowrap px-5 py-4 text-sm">{formatDate(liveClass.startsAt)}</td>
+                      <td className="whitespace-nowrap px-5 py-4 text-sm text-muted-foreground">
+                        {formatTime(liveClass.startsAt)}–{formatTime(liveClass.endsAt)}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <div className="flex flex-wrap items-center justify-end gap-2">
+                          <button
+                            className={`inline-flex min-h-9 items-center justify-center gap-2 rounded-lg px-4 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${scheduled ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-[#068365] text-white hover:bg-[#056d53]"}`}
+                            disabled={ended}
+                            onClick={() => scheduled ? setSelectedClassId(liveClass.id) : scheduleClass(liveClass)}
+                            type="button"
+                          >
+                            {scheduled ? <><DashboardIcon aria-hidden="true" className="size-3.5" icon="lucide:check" />Scheduled</> : ended ? "Ended" : "Join"}
+                          </button>
+                          {status === "live" && scheduled && (
+                            <a className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 text-xs font-semibold hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={liveClass.meetingUrl} rel="noopener noreferrer" target="_blank">
+                              Join now <DashboardIcon aria-hidden="true" className="size-3.5" icon="lucide:external-link" />
+                            </a>
+                          )}
                         </div>
-                        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                          <span className="inline-flex items-center gap-2">
-                            <CalendarDays aria-hidden="true" className="size-4" />
-                            {formatDate(liveClass.startsAt)}
-                          </span>
-                          <span className="inline-flex items-center gap-2">
-                            <Clock3 aria-hidden="true" className="size-4" />
-                            {formatTime(liveClass.startsAt)}–{formatTime(liveClass.endsAt)}
-                            <span aria-hidden="true">·</span>
-                            {formatDuration(liveClass.startsAt, liveClass.endsAt)}
-                          </span>
-                        </div>
-                        {ended && (
-                          <p className="mt-3 text-xs font-medium text-muted-foreground">
-                            This class has ended. The meeting link is no longer available.
-                          </p>
-                        )}
-                      </button>
-                    </li>
+                      </td>
+                    </tr>
                   );
                 })}
-              </ul>
-            ) : (
-              <div className="mt-8 rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center">
-                <Video aria-hidden="true" className="mx-auto size-8 text-muted-foreground" />
-                <h2 className="mt-3 text-lg font-semibold">No live classes scheduled</h2>
-                <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                  When an instructor schedules a class for one of your courses, it will appear here.
-                </p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </main>
-  );
-}
-
-function LiveClassRoom({
-  liveClass,
-  now,
-  onClose,
-}: {
-  liveClass: StudentLiveClass;
-  now: number;
-  onClose: () => void;
-}) {
-  const status = getStatus(liveClass, now);
-  const upcoming = status === "upcoming";
-  const ended = status === "ended";
-
-  return (
-    <section>
-      <button
-        className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        onClick={onClose}
-        type="button"
-      >
-        <ArrowLeft aria-hidden="true" className="size-4" />
-        Back to live classes
-      </button>
-      <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">{liveClass.courseTitle}</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{liveClass.title}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {formatDate(liveClass.startsAt)} · {formatTime(liveClass.startsAt)}–{formatTime(liveClass.endsAt)} ·{" "}
-            {formatDuration(liveClass.startsAt, liveClass.endsAt)}
-          </p>
-        </div>
-        <StatusBadge status={status} />
-      </div>
-
-      {upcoming ? (
-        <div className="mt-6 rounded-xl border border-border bg-card px-5 py-8 text-center">
-          <CalendarDays aria-hidden="true" className="mx-auto size-8 text-primary" />
-          <h2 className="mt-3 text-lg font-semibold">This class has not started yet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            It is scheduled to begin {formatDateTime(liveClass.startsAt)}. Return here when it starts to join.
-          </p>
-        </div>
-      ) : ended ? (
-        <div className="mt-6 rounded-xl border border-border bg-card px-5 py-8 text-center">
-          <h2 className="text-lg font-semibold">This class has ended</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The meeting link is disabled. Return to see other scheduled classes.
+              </tbody>
+            </table>
+          </div>
+          <p className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
+            Times are shown in your device’s local time zone.
           </p>
         </div>
       ) : (
-        <>
-          <div className="mt-6 overflow-hidden rounded-xl border border-border bg-card">
-            <iframe
-              allow="camera; microphone; fullscreen; display-capture"
-              allowFullScreen
-              className="h-[min(70vh,42rem)] min-h-[24rem] w-full bg-muted"
-              referrerPolicy="strict-origin-when-cross-origin"
-              src={liveClass.meetingUrl}
-              title={`Google Meet: ${liveClass.title}`}
-            />
-          </div>
-          <div className="mt-4 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <p className="text-sm text-muted-foreground">
-              Google Meet controls sign-in, admission, camera, and microphone access. If Meet does not load here,
-              open it directly.
-            </p>
-            <a
-              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              href={liveClass.meetingUrl}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Open Google Meet
-              <ExternalLink aria-hidden="true" className="size-4" />
-            </a>
-          </div>
-        </>
+        <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-14 text-center">
+          <DashboardIcon aria-hidden="true" className="mx-auto size-9 text-muted-foreground" icon="lucide:calendar-clock" />
+          <h2 className="mt-3 text-lg font-semibold">No live classes scheduled</h2>
+          <p className="mx-auto mt-1 max-w-md text-sm leading-relaxed text-muted-foreground">
+            When an instructor schedules a class for one of your enrolled courses, it will appear here.
+          </p>
+        </div>
       )}
-    </section>
+
+      {selectedClass && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-zinc-950/60 p-4" onClick={() => setSelectedClassId(null)}>
+          <section
+            aria-labelledby="scheduled-class-title"
+            aria-modal="true"
+            className="w-full max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-2xl sm:p-8"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <span className="mx-auto grid size-14 place-items-center rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+              <DashboardIcon aria-hidden="true" className="size-7" icon="lucide:calendar-check-2" />
+            </span>
+            <h2 className="mt-4 text-xl font-semibold" id="scheduled-class-title">You’re scheduled!</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {selectedClass.title} with {selectedClass.instructorName} is on your schedule for {formatDateTime(selectedClass.startsAt)}.
+            </p>
+            {scheduleError && <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-left text-xs text-destructive" role="alert">{scheduleError}</p>}
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              <button
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#068365] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#056d53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => downloadCalendarEvent(selectedClass)}
+                type="button"
+              >
+                <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:calendar-plus-2" />
+                Add to calendar
+              </button>
+              <button
+                className="min-h-11 rounded-lg border border-border px-4 text-sm font-semibold transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => setSelectedClassId(null)}
+                type="button"
+              >
+                Done
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </main>
   );
 }
 
@@ -209,34 +187,48 @@ function getStatus(liveClass: StudentLiveClass, now: number): "upcoming" | "live
   return "live";
 }
 
-function StatusBadge({ status }: { status: "upcoming" | "live" | "ended" }) {
-  const label = status === "live" ? "In progress" : status === "upcoming" ? "Upcoming" : "Ended";
-  const className =
-    status === "live"
-      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
-      : status === "upcoming"
-        ? "bg-primary/10 text-primary"
-        : "bg-muted text-muted-foreground";
-
-  return <span className={`rounded-full px-3 py-1 text-xs font-medium ${className}`}>{label}</span>;
-}
-
-function formatDate(value: string): string {
+function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(value));
 }
 
-function formatTime(value: string): string {
+function formatTime(value: string) {
   return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(value));
 }
 
-function formatDateTime(value: string): string {
+function formatDateTime(value: string) {
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 }
 
-function formatDuration(startsAt: string, endsAt: string): string {
-  const minutes = Math.max(0, Math.round((Date.parse(endsAt) - Date.parse(startsAt)) / 60_000));
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  if (hours === 0) return `${remainingMinutes} min`;
-  return remainingMinutes === 0 ? `${hours} hr` : `${hours} hr ${remainingMinutes} min`;
+function toCalendarDate(value: string) {
+  return new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+}
+
+function escapeCalendarText(value: string) {
+  return value.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;").replace(/\n/g, "\\n");
+}
+
+function downloadCalendarEvent(liveClass: StudentLiveClass) {
+  const event = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//GodaApp//Student Dashboard//EN",
+    "BEGIN:VEVENT",
+    `UID:${encodeURIComponent(liveClass.id)}@godaapp`,
+    `DTSTAMP:${toCalendarDate(new Date().toISOString())}`,
+    `DTSTART:${toCalendarDate(liveClass.startsAt)}`,
+    `DTEND:${toCalendarDate(liveClass.endsAt)}`,
+    `SUMMARY:${escapeCalendarText(liveClass.title)}`,
+    `DESCRIPTION:${escapeCalendarText(`${liveClass.courseTitle} with ${liveClass.instructorName}`)}`,
+    `URL:${liveClass.meetingUrl}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([event], { type: "text/calendar;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${liveClass.title.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "godaapp-class"}.ics`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

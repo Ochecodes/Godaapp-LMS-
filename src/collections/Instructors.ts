@@ -20,7 +20,9 @@ function isActiveInstructor(user: unknown) {
   return getInstructor(user)?.isActive === true
 }
 
-async function canCreateInstructor(req: Parameters<NonNullable<CollectionConfig['access']>['create']>[0]['req']) {
+async function canCreateInstructor(
+  req: Parameters<NonNullable<NonNullable<CollectionConfig['access']>['create']>>[0]['req'],
+) {
   if (isAdmin(req.user)) return true
 
   const existingInstructors = await req.payload.find({

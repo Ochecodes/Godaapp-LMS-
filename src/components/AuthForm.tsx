@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { AuroraHero } from "@/components/ui/AuroraHero";
 
 type AuthFormProps = { mode: "sign-in" | "sign-up" };
 
@@ -13,6 +14,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,41 +91,46 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 py-10 text-foreground sm:px-6">
-      <div className="mx-auto max-w-5xl">
-        <Link className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground" href="/">
-          <ArrowLeft aria-hidden="true" className="size-4" />
-          Back to GodaApp
-        </Link>
-        <div className={`mx-auto mt-8 grid max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-sm ${isSignUp ? "md:grid-cols-[0.85fr_1.15fr]" : "md:grid-cols-[0.7fr_1fr]"}`}>
-          <section className="hidden flex-col justify-between bg-[#0b352b] p-9 text-white md:flex">
-            <img alt="GodaApp" className="h-10 w-fit object-contain" src="/logo.svg" />
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-200">Learn with purpose</p>
-              <h1 className="mt-4 text-3xl font-semibold leading-tight">
-                {isSignUp ? "Build knowledge that moves you forward." : "Welcome back to your learning journey."}
-              </h1>
-              <p className="mt-4 text-sm leading-6 text-white/75">
-                {destination === "/dashboard"
-                  ? "Sign in or create your account to continue to the student dashboard."
-                  : "Sign in or create an account to continue with your selected course."}
-              </p>
-            </div>
-            <p className="text-xs text-white/60">GodaApp · Learning platform</p>
-          </section>
+    <AuroraHero className="min-h-screen justify-center px-4 py-10 sm:px-8 lg:px-12">
+      <main className="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="relative min-h-64 overflow-hidden sm:min-h-80 lg:min-h-[42rem]">
+          <img
+            alt={isSignUp ? "Learners building their future together" : "Learner continuing a course"}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            src={isSignUp ? "/SignupIMG.jpg" : "/SigninIMG.jpeg"}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
+          <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">GodaApp learning</p>
+            <h1 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
+              {isSignUp ? "Build knowledge that moves you forward." : "Welcome back to your learning journey."}
+            </h1>
+            <p className="mt-3 text-sm leading-relaxed text-white/80">
+              {destination === "/dashboard"
+                ? "Continue learning with a community focused on practical digital asset skills."
+                : "Sign in or create an account to continue with your selected course."}
+            </p>
+          </div>
+        </section>
 
-          <section className="p-6 sm:p-9">
-            <img alt="GodaApp" className="h-9 w-fit object-contain md:hidden" src="/logo.svg" />
-            <p className="mt-5 text-sm font-semibold text-primary">{isSignUp ? "Get started" : "Welcome back"}</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+        <section className="bg-white/95 p-6 text-zinc-950 sm:p-10 lg:p-12">
+          <div className="mx-auto max-w-xl">
+            <Link className="inline-flex items-center gap-2 text-sm text-zinc-600 transition hover:text-zinc-950" href="/">
+              <ArrowLeft aria-hidden="true" className="size-4" />
+              Back to GodaApp
+            </Link>
+            <p className="mt-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#068365]">
+              {isSignUp ? "Get started" : "Welcome back"}
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               {isSignUp ? "Create your account" : "Sign in to GodaApp"}
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm leading-relaxed text-zinc-600">
               {isSignUp ? "Your student dashboard is one step away." : "Sign in to continue to your student dashboard."}
             </p>
 
             <button
-              className="mt-6 flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              className="mt-7 flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold transition hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]/40 disabled:opacity-50"
               disabled={loading}
               onClick={() => void continueWithGoogle()}
               type="button"
@@ -131,8 +138,8 @@ export function AuthForm({ mode }: AuthFormProps) {
               <GoogleMark />
               Continue with Google
             </button>
-            <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />or use email<span className="h-px flex-1 bg-border" />
+            <div className="my-5 flex items-center gap-3 text-xs text-zinc-500">
+              <span className="h-px flex-1 bg-zinc-200" />or use email<span className="h-px flex-1 bg-zinc-200" />
             </div>
 
             <form className="space-y-4" onSubmit={submit}>
@@ -146,27 +153,47 @@ export function AuthForm({ mode }: AuthFormProps) {
                 Email address
                 <input autoComplete="email" className={fieldClass} onChange={(e) => setEmail(e.target.value)} required type="email" value={email} />
               </label>
-              <label className="block space-y-1.5 text-sm font-medium">
-                Password
-                <input autoComplete={isSignUp ? "new-password" : "current-password"} className={fieldClass} minLength={isSignUp ? 8 : undefined} onChange={(e) => setPassword(e.target.value)} required type="password" value={password} />
-              </label>
-              {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
-              {notice && <p className="text-sm text-primary" role="status">{notice}</p>}
-              <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50" disabled={loading} type="submit">
+              <div className="space-y-1.5 text-sm font-medium">
+                <label htmlFor="auth-password">Password</label>
+                <span className="relative block">
+                  <input
+                    id="auth-password"
+                    autoComplete={isSignUp ? "new-password" : "current-password"}
+                    className={`${fieldClass} pr-12`}
+                    minLength={isSignUp ? 8 : undefined}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    type={passwordVisible ? "text" : "password"}
+                    value={password}
+                  />
+                  <button
+                    aria-label={passwordVisible ? "Hide password" : "Show password"}
+                    aria-pressed={passwordVisible}
+                    className="absolute inset-y-0 right-0 inline-flex w-11 items-center justify-center rounded-r-lg text-zinc-500 transition hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#068365]/50"
+                    onClick={() => setPasswordVisible((visible) => !visible)}
+                    type="button"
+                  >
+                    {passwordVisible ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+                  </button>
+                </span>
+              </div>
+              {error && <p className="text-sm text-red-700" role="alert">{error}</p>}
+              {notice && <p className="text-sm text-[#056d53]" role="status">{notice}</p>}
+              <button className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#068365] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#056d53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]/50 disabled:opacity-50" disabled={loading} type="submit">
                 {loading && <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}
                 {isSignUp ? "Create account" : "Sign in"}
               </button>
             </form>
-            <p className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-zinc-600">
               {isSignUp ? "Already have an account?" : "New to GodaApp?"}{" "}
-              <Link className="font-semibold text-primary underline-offset-4 hover:underline" href={isSignUp ? toAuthLink("/sign-in") : toAuthLink("/sign-up")}>
+              <Link className="font-semibold text-[#068365] underline-offset-4 hover:underline" href={isSignUp ? toAuthLink("/sign-in") : toAuthLink("/sign-up")}>
                 {isSignUp ? "Sign in" : "Create an account"}
               </Link>
             </p>
-          </section>
-        </div>
-      </div>
-    </main>
+          </div>
+        </section>
+      </main>
+    </AuroraHero>
   );
 
   function toAuthLink(path: string) {
@@ -180,7 +207,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 }
 
-const fieldClass = "min-h-11 w-full rounded-lg border border-input bg-background px-3 py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const fieldClass = "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-[#068365] focus-visible:ring-2 focus-visible:ring-[#068365]/20";
 
 function GoogleMark() {
   return (

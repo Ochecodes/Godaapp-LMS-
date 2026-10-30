@@ -12,6 +12,7 @@ import { Lessons } from './collections/Lessons.ts'
 import { Modules } from './collections/Modules.ts'
 import { PayoutRequests } from './collections/PayoutRequests.ts'
 import { Referrals } from './collections/Referrals.ts'
+import { Resources } from './collections/Resources.ts'
 import { Users } from './collections/Users.ts'
 
 const filename = fileURLToPath(import.meta.url)
@@ -63,5 +64,5 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI,
     },
   }),
-  collections: [Instructors, Users, Courses, Modules, Lessons, Enrollments, Affiliates, Referrals, PayoutRequests],
+  collections: [Instructors, Users, Courses, Modules, Lessons, Enrollments, Resources, Affiliates, Referrals, PayoutRequests],
 })

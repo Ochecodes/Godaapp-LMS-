@@ -1,6 +1,7 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { Payload } from "payload";
 import type { Course, User } from "../../payload-types";
+import { normalizeStudentEmail } from "@/lib/student-email";
 
 export async function ensurePayloadStudent(payload: Payload, authUser: SupabaseUser): Promise<User> {
   if (!authUser.email) throw new Error("Your account needs a verified email address.");
@@ -26,9 +27,18 @@ export async function ensurePayloadStudent(payload: Payload, authUser: SupabaseU
           : null;
 
   if (existing.docs[0]) {
+    const existingStudent = existing.docs[0];
+    if (
+      existingStudent.email === authUser.email &&
+      existingStudent.fullName === fullName &&
+      (existingStudent.avatarUrl ?? null) === avatarUrl
+    ) {
+      return existingStudent;
+    }
+
     return payload.update({
       collection: "users",
-      id: existing.docs[0].id,
+      id: existingStudent.id,
       data: {
         email: authUser.email,
         fullName,
@@ -70,23 +80,22 @@ export async function ensureCourseEnrollment(
   if (!authUser.email) throw new Error("Your account needs a verified email address.");
 
   const student = await ensurePayloadStudent(payload, authUser);
-  const existingEnrollments = await payload.find({
+  const email = normalizeStudentEmail(authUser.email);
+  const matchingEnrollments = await payload.find({
     collection: "enrollments",
-    where: { course: { equals: course.id } },
-    limit: 10000,
+    where: { and: [{ course: { equals: course.id } }, { email: { equals: email } }] },
+    limit: 1000,
     pagination: false,
     overrideAccess: true,
   });
-  const existing = existingEnrollments.docs.find(
-    (enrollment) => enrollment.email.trim().toLowerCase() === authUser.email!.trim().toLowerCase(),
-  );
+  const existing = matchingEnrollments.docs.find((enrollment) => !enrollment.isActive);
 
-  if (existing?.isActive) return;
+  if (matchingEnrollments.docs.some((enrollment) => enrollment.isActive)) return;
   if (existing) {
     await payload.update({
       collection: "enrollments",
       id: existing.id,
-      data: { email: authUser.email, user: student.id, isActive: true },
+      data: { email, user: student.id, isActive: true },
       overrideAccess: true,
     });
     return;
@@ -95,7 +104,7 @@ export async function ensureCourseEnrollment(
   await payload.create({
     collection: "enrollments",
     data: {
-      email: authUser.email,
+      email,
       user: student.id,
       course: course.id,
       isActive: true,

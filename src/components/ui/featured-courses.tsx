@@ -18,44 +18,64 @@ interface GridItemType {
 
 const GRID_ITEMS: GridItemType[] = [
   {
-    tag: "Goda",
-    category: "Capital Preservation",
-    courseSlug: "capital-preservation-survival-mindset",
-    title: "Capital Preservation & Survival Mindset",
-    desc: "In trading, survival comes before profitability. A trader who protects capital can continue learning, improving, and compounding over time. Learn how",
+    tag: "Udoyen Peter Snr",
+    category: "Crypto Markets",
+    courseSlug: "cryptocurrency-market-and-trading-fundamentals",
+    title: "Cryptocurrency Market and Trading Fundamentals",
+    desc: "This course introduces the tools and concepts traders use to interpret market behaviour, understand liquidity, analyse price charts, and manage exposure to risk. You will also examine common security threats, trading mistakes, and the importance of disciplined decision-making.",
     badge: "Free",
-    innerImageSrc: "/Capital.jpg",
+    innerImageSrc: "/CryptoMarIMGCourse.jpg",
     price: "$0"
   },
   {
-    tag: "Goda",
+    tag: "Udoyen Peter Snr",
     category: "Forex Trading",
-    courseSlug: "forex-trading-beginners-fundamentals",
-    title: "Forex Trading: Beginners Fundamentals",
-    desc: "Forex trading rewards structure, not guesswork, and this course is built to give you that structure from the ground up.",
+    courseSlug: "forex-trading-and-beginners-fundamentals",
+    title: "Forex Trading and Beginner Fundamentals",
+    desc: "Understand how the foreign exchange market operates, from currency pairs, pips, and lot sizes to market sessions, price movements, and trading platforms. This course explores technical and fundamental analysis, economic events, leverage, and the practical mechanics of executing trades. It also examines risk management and the common weaknesses that can undermine trading decisions.",
     badge: "Free",
-    innerImageSrc: "/Forex.jpg",
+    innerImageSrc: "/ForexTradIMGCourse.jpg",
     price: "$0"
   },
   {
-    tag: "Goda",
+    tag: "Udoyen Peter Snr",
     category: "Trading Psychology",
     courseSlug: "risk-management-trading-psychology",
     title: "Risk Management & Trading Psychology",
-    desc: "Most traders dont fail because of strategy, they fail because of emotions & poor risk control. This course addresses the difference between survival and consistency.",
+    desc: "Develop a disciplined approach to managing trading risk, protecting capital, and making decisions under pressure. This course examines position sizing, risk-to-reward ratios, drawdowns, exposure control, and capital preservation alongside the psychological challenges of fear, greed, overtrading, and revenge trading. You will explore practical methods for evaluating risk, controlling emotional responses, and building a structured trading process.",
     badge: "Paid",
-    innerImageSrc: "/Risk.jpg",
-    price: "$49"
+    innerImageSrc: "/RistMangIMGCourse.jpg",
+    price: "$30"
   },
   {
-    tag: "Goda",
-    category: "Crypto Markets",
-    courseSlug: "cryptocurrency-market-trading-fundamentals",
-    title: "Cryptocurrency Market & Trading Fundamentals",
-    desc: "Cryptocurrency trading isnt just about buying and selling,its about understanding how the market truly works. This course gives you that foundation.",
+    tag: "Udoyen Peter Snr",
+    category: "Forex Trading",
+    courseSlug: "capital-management-and-prop-firm-preparation",
+    title: "Capital Management and Prop Firm Preparation",
+    desc: "This course examines prop firm evaluation models, profit targets, drawdown limits, risk restrictions, consistency requirements, and the rules that govern funded accounts. You will explore how to prepare for evaluations, control exposure, manage trading pressure, and develop a structured plan for operating within firm-specific conditions. The focus is on understanding the responsibilities and constraints of prop trading, making informed decisions, and preserving capital rather than pursuing funding at any cost.",
     badge: "Paid",
-    innerImageSrc: "/Crypto.jpg",
-    price: "$99"
+    innerImageSrc: "/CapiPropIMGCourse.jpg",
+    price: "$30"
+  },
+  {
+    tag: "Oche Akor",
+    category: "Crypto Markets",
+    courseSlug: "introduction-to-portfolio-management-and-copy-trading",
+    title: "Introduction to Portfolio Management and Copy Trading",
+    desc: "This course explores asset allocation, diversification, portfolio performance, and risk management, alongside the principles of copy trading and how investors assess traders before following their strategies. You will develop a clearer understanding of how individual investment decisions influence overall portfolio performance, the risks involved in copying trades, and the importance of making informed choices rather than relying solely on another investor’s decisions.",
+    badge: "Paid",
+    innerImageSrc: "/PortIMGCourse.jpg",
+    price: "$50"
+  },
+  {
+    tag: "Oche Akor",
+    category: "Algorithmic Trading using PineScript",
+    courseSlug: "algorithmic-trading-using-pinescript",
+    title: "Algorithmic Trading using PineScript",
+    desc: "Learn how to develop, test, and refine rule-based trading strategies using Pine Script on TradingView. This course explores Pine Script fundamentals, indicator development, strategy logic, entry and exit conditions, trade alerts, and backtesting. You will examine how to translate trading ideas into code, evaluate strategy performance against historical market data, and identify limitations that can affect real-world results. The focus is on building a structured understanding of trading automation, systematic strategy development, and the role of coding in making trading decisions more consistent and measurable.",
+    badge: "Paid",
+    innerImageSrc: "/AlgoTradIMGCourse.jpg",
+    price: "$100"
   }
 ];
 
@@ -109,7 +129,10 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
         4-CARD GRID CONTAINER MAXIMIZED TO 7XL
         ========================================================================
       */}
-      <div className={cn("relative z-20 mx-auto max-w-7xl px-6 py-24 md:py-32", compact && "px-4 py-8 sm:px-6 sm:py-10")}>
+      <div className={cn(
+        "relative z-20 mx-auto max-w-7xl",
+        compact ? "px-4 py-3 sm:px-6 sm:py-4" : "px-6 py-24 md:py-32",
+      )}>
         
         {/* Relative wrapper holding the grid to safely anchor the absolute side tab */}
         <div className="relative w-full">
@@ -141,29 +164,15 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                   
                   {/* Course Card Preview Screenshot Area */}
                   <div className={cn("flex justify-center relative", compact ? "p-3" : "p-4")}>
-                    <div className={cn("w-full rounded-xl bg-zinc-50 border border-zinc-100 overflow-hidden relative", compact ? "h-40" : "h-56")}>
+                    <div className={cn("relative aspect-[3/2] w-full max-h-[360px] overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50", !compact && "max-h-[420px]")}>
                       <img 
                         src={item.innerImageSrc} 
                         alt={item.title} 
-                        className="w-full h-full object-cover object-center relative z-0" 
+                        className="relative z-0 h-full w-full object-contain object-center"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
-                      
-                      {/* Transparent Teal Color Tint Overlay layer */}
-                      <div className="absolute inset-0 bg-[#068365]/15 pointer-events-none mix-blend-multiply transition-opacity duration-300 group-hover:opacity-20 z-10" />
-                      
-                      {/* Background layout mesh graph vector lines */}
-                      <div className="absolute inset-0 opacity-[0.02] pointer-events-none z-20">
-                        <div 
-                          className="w-full h-full" 
-                          style={{ 
-                            backgroundImage: 'linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px), linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px)', 
-                            backgroundSize: '15px 15px' 
-                          }} 
-                        />
-                      </div>
                     </div>
                   </div>
                   

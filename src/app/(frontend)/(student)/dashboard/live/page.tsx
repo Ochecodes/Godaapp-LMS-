@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 import { getPayload } from "payload";
 import config from "@/payload.config";
 import { createClient } from "@/lib/supabase/server";
+import { getCourseInstructorName } from "@/lib/course-instructor";
 import { StudentLiveClasses } from "@/components/StudentLiveClasses";
-import type { Course, Enrollment } from "../../../../../../payload-types";
+import { normalizeStudentEmail } from "@/lib/student-email";
+import type { Course } from "../../../../../../payload-types";
 
 export const dynamic = "force-dynamic";
 
@@ -21,20 +23,20 @@ export default async function StudentLiveClassesPage() {
   const payload = await getPayload({ config });
   const enrollmentsResult = await payload.find({
     collection: "enrollments",
-    where: { isActive: { equals: true } },
-    limit: 10000,
+    where: {
+      and: [
+        { email: { equals: normalizeStudentEmail(user.email ?? "") } },
+        { isActive: { equals: true } },
+      ],
+    },
+    limit: 1000,
     pagination: false,
     overrideAccess: true,
   });
-  const activeEnrollments = (enrollmentsResult.docs as Enrollment[]).filter(
-    (enrollment) =>
-      enrollment.isActive &&
-      enrollment.email.trim().toLowerCase() === user.email?.trim().toLowerCase(),
-  );
-  const courseIds = [...new Set(activeEnrollments.map((enrollment) => getRelationId(enrollment.course)))];
+  const courseIds = [...new Set(enrollmentsResult.docs.map((enrollment) => getRelationId(enrollment.course)))];
 
   if (courseIds.length === 0) {
-    return <StudentLiveClasses classes={[]} />;
+    return <StudentLiveClasses classes={[]} scheduleKey={user.id} />;
   }
 
   const coursesResult = await payload.find({
@@ -49,6 +51,7 @@ export default async function StudentLiveClassesPage() {
       id: `${course.id}-${liveClass.id ?? index}`,
       courseTitle: course.title,
       title: liveClass.title,
+      instructorName: liveClass.instructorName?.trim() || getCourseInstructorName(course.title),
       meetingUrl: liveClass.meetingUrl,
       startsAt: liveClass.startsAt,
       endsAt: liveClass.endsAt,
@@ -57,5 +60,5 @@ export default async function StudentLiveClassesPage() {
 
   classes.sort((first, second) => Date.parse(first.startsAt) - Date.parse(second.startsAt));
 
-  return <StudentLiveClasses classes={classes} />;
+  return <StudentLiveClasses classes={classes} scheduleKey={user.id} />;
 }

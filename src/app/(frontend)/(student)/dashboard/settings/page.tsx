@@ -3,6 +3,7 @@ import config from "@/payload.config";
 import { createClient } from "@/lib/supabase/server";
 import { StudentProfileSettings } from "@/components/StudentProfileSettings";
 import { ThemePreferenceControl } from "@/components/ThemePreferenceControl";
+import { DashboardPageBanner } from "@/components/DashboardPageBanner";
 
 export default async function StudentSettingsPage() {
   const supabase = await createClient();
@@ -21,10 +22,11 @@ export default async function StudentSettingsPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Profile settings</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Manage the profile details associated with your student account.
-      </p>
+      <DashboardPageBanner
+        description="Manage the profile details and preferences associated with your student account."
+        icon="lucide:settings-2"
+        title="Settings"
+      />
       <section className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-7">
         <StudentProfileSettings
           about={typeof metadata.about === "string" ? metadata.about : ""}

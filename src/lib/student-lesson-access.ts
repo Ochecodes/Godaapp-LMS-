@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { createClient } from '@/lib/supabase/server'
+import { normalizeStudentEmail } from '@/lib/student-email'
 import type { Course, Lesson, Module } from '../../payload-types'
 
 export type LessonQuizQuestion = {
@@ -72,16 +73,12 @@ export async function getAuthorizedStudentLesson(
       and: [
         { course: { equals: course.id } },
         { isActive: { equals: true } },
+        { email: { equals: normalizeStudentEmail(user.email) } },
       ],
     },
-    limit: 10000,
-    pagination: false,
+    limit: 1,
     overrideAccess: true,
   })
-  const studentEmail = user.email.trim().toLowerCase()
-  const hasEnrollment = enrollments.docs.some(
-    (enrollment) => enrollment.email.trim().toLowerCase() === studentEmail,
-  )
 
-  return hasEnrollment ? { lesson, module, course } : null
+  return enrollments.docs.length > 0 ? { lesson, module, course } : null
 }

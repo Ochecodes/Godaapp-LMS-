@@ -30,7 +30,7 @@ export default function Wwd() {
         <div className="relative mx-auto w-full max-w-xl">
           <div className="aspect-[1.05] overflow-hidden rounded-xl bg-zinc-100 shadow-xl shadow-zinc-900/10">
             <img
-              src="/team.jfif"
+              src="/ContactIMG.jpg"
               alt="Global Digital Assets Academy community working together"
               className="h-full w-full object-cover object-center"
               loading="lazy"

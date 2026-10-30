@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
 import { findPublishedCourseBySlug } from "@/lib/course-enrollment";
+import { normalizeStudentEmail } from "@/lib/student-email";
 import { trackTinybirdEvent } from "@/lib/tinybird/client";
 
 type PaystackWebhookEvent = {
@@ -80,31 +81,36 @@ export async function POST(request: Request) {
     overrideAccess: true,
   });
   const student = studentResult.docs[0];
-  if (!student || student.email.trim().toLowerCase() !== email.trim().toLowerCase()) {
+  const normalizedEmail = normalizeStudentEmail(email);
+  if (!student || normalizeStudentEmail(student.email) !== normalizedEmail) {
     return NextResponse.json({ error: "Payment customer does not match the student account." }, { status: 400 });
   }
 
   const enrollmentResult = await payload.find({
     collection: "enrollments",
-    where: { course: { equals: course.id } },
-    limit: 10000,
+    where: {
+      and: [
+        { course: { equals: course.id } },
+        { email: { equals: normalizedEmail } },
+      ],
+    },
+    limit: 1000,
     pagination: false,
     overrideAccess: true,
   });
-  const matchingEnrollment = enrollmentResult.docs.find(
-    (enrollment) => enrollment.email.trim().toLowerCase() === email.trim().toLowerCase(),
-  );
+  const matchingEnrollment = enrollmentResult.docs.find((enrollment) => enrollment.isActive)
+    ?? enrollmentResult.docs[0];
   if (!matchingEnrollment) {
     await payload.create({
       collection: "enrollments",
-      data: { email, user: student.id, course: course.id, isActive: true },
+      data: { email: normalizedEmail, user: student.id, course: course.id, isActive: true },
       overrideAccess: true,
     });
   } else if (!matchingEnrollment.isActive) {
     await payload.update({
       collection: "enrollments",
       id: matchingEnrollment.id,
-      data: { user: student.id, isActive: true },
+      data: { email: normalizedEmail, user: student.id, isActive: true },
       overrideAccess: true,
     });
   }

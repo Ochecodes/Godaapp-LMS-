@@ -11,9 +11,13 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@iconify-json/lucide": "^1.2.149",
+    "@iconify-json/simple-icons": "^1.2.101",
+    "@iconify/react": "^6.0.3",
     "@payloadcms/db-postgres": "3.42.0",
     "@payloadcms/next": "3.42.0",
     "@payloadcms/richtext-lexical": "3.42.0",
+    "@payloadcms/ui": "3.42.0",
     "@radix-ui/react-dialog": "1.1.14",
     "@radix-ui/react-dropdown-menu": "2.1.15",
     "@radix-ui/react-slot": "1.2.3",

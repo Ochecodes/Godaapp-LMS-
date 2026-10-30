@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
-import { ArrowLeft, CircleAlert, CircleCheck, CircleX, LoaderCircle } from "lucide-react";
+import { DashboardIcon } from "@/components/DashboardIcon";
+import { DashboardPageBanner } from "@/components/DashboardPageBanner";
+import { recordStudentLessonActivity } from "@/app/(frontend)/(student)/dashboard/actions";
 
 type QuizOption = {
   id: "A" | "B" | "C";
@@ -54,7 +56,7 @@ type YouTubeAPI = {
       };
     },
   ) => YouTubePlayer;
-  PlayerState: { PLAYING: number };
+  PlayerState: { PLAYING: number; ENDED: number };
 };
 
 declare global {
@@ -78,6 +80,10 @@ export function LessonPlayer({
   const nextQuestionIndexRef = useRef(0);
   const requestInProgressRef = useRef(false);
   const closeTimerRef = useRef<number | null>(null);
+  const lastTrackedVideoTimeRef = useRef<number | null>(null);
+  const activitySaveInProgressRef = useRef(false);
+  const pendingActivityRef = useRef({ watchedSeconds: 0, completed: false });
+  const [activitySaveError, setActivitySaveError] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [question, setQuestion] = useState<StudentQuestion | null>(null);
   const [selectedOption, setSelectedOption] = useState<QuizOption["id"] | null>(null);
@@ -88,6 +94,39 @@ export function LessonPlayer({
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [quizExhausted, setQuizExhausted] = useState(false);
 
+  const saveLessonActivity = useCallback(async (watchedSeconds = 0, completed = false) => {
+    pendingActivityRef.current.watchedSeconds += watchedSeconds;
+    pendingActivityRef.current.completed ||= completed;
+    if (activitySaveInProgressRef.current || (!pendingActivityRef.current.watchedSeconds && !pendingActivityRef.current.completed)) return;
+    activitySaveInProgressRef.current = true;
+    let activeBatch: { watchedSeconds: number; completed: boolean } | null = null;
+    try {
+      while (pendingActivityRef.current.watchedSeconds || pendingActivityRef.current.completed) {
+        const batch = pendingActivityRef.current;
+        activeBatch = batch;
+        pendingActivityRef.current = { watchedSeconds: 0, completed: false };
+        const result = await recordStudentLessonActivity(lessonId, batch.watchedSeconds, batch.completed);
+        if (result.error) {
+          pendingActivityRef.current.watchedSeconds += batch.watchedSeconds;
+          pendingActivityRef.current.completed ||= batch.completed;
+          activeBatch = null;
+          setActivitySaveError(result.error);
+          return;
+        }
+        activeBatch = null;
+        setActivitySaveError("");
+      }
+    } catch {
+      if (activeBatch) {
+        pendingActivityRef.current.watchedSeconds += activeBatch.watchedSeconds;
+        pendingActivityRef.current.completed ||= activeBatch.completed;
+      }
+      setActivitySaveError("Your lesson activity could not be saved. Please try again.");
+    } finally {
+      activitySaveInProgressRef.current = false;
+    }
+  }, [lessonId]);
+
   const initializePlayer = useCallback(() => {
     if (playerRef.current) return true;
     if (!playerContainerRef.current || !window.YT) return false;
@@ -97,11 +136,32 @@ export function LessonPlayer({
       playerVars: { rel: 0, playsinline: 1 },
       events: {
         onReady: () => setPlayerError(null),
-        onStateChange: (event) => setIsPlaying(event.data === window.YT?.PlayerState.PLAYING),
+        onStateChange: (event) => {
+          const api = window.YT;
+          const player = playerRef.current;
+          if (api && player && event.data === api.PlayerState.PLAYING) {
+            lastTrackedVideoTimeRef.current = player?.getCurrentTime() ?? null;
+          } else if (api && player && event.data === api.PlayerState.ENDED) {
+            const previousTime = lastTrackedVideoTimeRef.current;
+            const watchedSeconds = previousTime === null
+              ? 0
+              : Math.min(30, Math.max(0, Math.floor(player.getCurrentTime() - previousTime)));
+            lastTrackedVideoTimeRef.current = null;
+            void saveLessonActivity(watchedSeconds, true);
+          } else if (player) {
+            const previousTime = lastTrackedVideoTimeRef.current;
+            const watchedSeconds = previousTime === null
+              ? 0
+              : Math.min(30, Math.max(0, Math.floor(player.getCurrentTime() - previousTime)));
+            lastTrackedVideoTimeRef.current = null;
+            if (watchedSeconds > 0) void saveLessonActivity(watchedSeconds, false);
+          }
+          setIsPlaying(event.data === api?.PlayerState.PLAYING);
+        },
       },
     });
     return true;
-  }, [videoId]);
+  }, [lessonId, saveLessonActivity, videoId]);
 
   const loadNextQuestion = useCallback(async () => {
     if (requestInProgressRef.current || quizExhausted) return;
@@ -189,10 +249,17 @@ export function LessonPlayer({
 
     return () => {
       window.clearInterval(timer);
-      playerRef.current?.destroy();
+      const player = playerRef.current;
+      const previousTime = lastTrackedVideoTimeRef.current;
+      if (player && previousTime !== null) {
+        const watchedSeconds = Math.min(30, Math.max(0, Math.floor(player.getCurrentTime() - previousTime)));
+        if (watchedSeconds > 0) void saveLessonActivity(watchedSeconds, false);
+      }
+      lastTrackedVideoTimeRef.current = null;
+      player?.destroy();
       playerRef.current = null;
     };
-  }, [initializePlayer]);
+  }, [initializePlayer, saveLessonActivity]);
 
   useEffect(() => {
     if (!isPlaying || quizExhausted) return;
@@ -213,6 +280,27 @@ export function LessonPlayer({
 
     return () => window.clearInterval(timer);
   }, [isPlaying, loadNextQuestion, quizExhausted]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const timer = window.setInterval(() => {
+      const player = playerRef.current;
+      if (!player || activitySaveInProgressRef.current) return;
+
+      const currentTime = player.getCurrentTime();
+      const previousTime = lastTrackedVideoTimeRef.current;
+      lastTrackedVideoTimeRef.current = currentTime;
+      if (previousTime === null) return;
+
+      const watchedSeconds = Math.min(30, Math.max(0, Math.floor(currentTime - previousTime)));
+      if (watchedSeconds === 0) return;
+
+      void saveLessonActivity(watchedSeconds, false);
+    }, 30_000);
+
+    return () => window.clearInterval(timer);
+  }, [isPlaying, lessonId, saveLessonActivity]);
 
   useEffect(
     () => () => {
@@ -277,11 +365,16 @@ export function LessonPlayer({
         onReady={handleScriptReady}
       />
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <DashboardPageBanner
+          description={`${moduleTitle} · ${lessonTitle}`}
+          icon="lucide:play-circle"
+          title={courseTitle}
+        />
         <Link
           href="/dashboard/courses"
           className="mb-6 inline-flex items-center gap-2 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ArrowLeft aria-hidden="true" className="size-4" />
+          <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:arrow-left" />
           Back to my courses
         </Link>
 
@@ -308,6 +401,18 @@ export function LessonPlayer({
             <p className="mt-4 text-sm text-muted-foreground">
               A short knowledge check will pause the video at two-minute intervals.
             </p>
+            {activitySaveError && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <p className="text-sm text-destructive" role="alert">{activitySaveError}</p>
+                <button
+                  className="text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={() => void saveLessonActivity()}
+                  type="button"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </section>
 
           <aside className="h-fit rounded-xl border border-border bg-card p-5">
@@ -318,7 +423,7 @@ export function LessonPlayer({
             </p>
             {questionLoading && (
               <p className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+                <DashboardIcon aria-hidden="true" className="size-4 animate-spin" icon="lucide:loader-circle" />
                 Loading your next check-in
               </p>
             )}
@@ -398,9 +503,9 @@ export function LessonPlayer({
                 }`}
               >
                 {feedback.correct ? (
-                  <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+                  <DashboardIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0" icon="lucide:circle-check" />
                 ) : (
-                  <CircleX aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+                  <DashboardIcon aria-hidden="true" className="mt-0.5 size-5 shrink-0" icon="lucide:circle-x" />
                 )}
                 <div>
                   <p className="font-semibold">
@@ -420,7 +525,7 @@ export function LessonPlayer({
 
             {questionError && (
               <p role="alert" className="mt-4 flex items-center gap-2 text-sm text-destructive">
-                <CircleAlert aria-hidden="true" className="size-4 shrink-0" />
+                <DashboardIcon aria-hidden="true" className="size-4 shrink-0" icon="lucide:circle-alert" />
                 {questionError}
               </p>
             )}
