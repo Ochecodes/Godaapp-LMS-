@@ -19,6 +19,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { useCatalogStore } from "@/lib/catalog-store"
 
 const COURSES = [
   "Capital Preservation",
@@ -27,14 +28,12 @@ const COURSES = [
   "Crypto Markets",
 ]
 
-interface AppSidebarProps {
-  searchQuery: string
-  selectedCourse: string | null
-  onSearchChange: (query: string) => void
-  onSelectCourse: (course: string) => void
-}
+export function AppSidebar() {
+  const searchQuery = useCatalogStore((state) => state.searchQuery)
+  const selectedCourse = useCatalogStore((state) => state.selectedCourse)
+  const setSearchQuery = useCatalogStore((state) => state.setSearchQuery)
+  const selectCourse = useCatalogStore((state) => state.selectCourse)
 
-export function AppSidebar({ searchQuery, selectedCourse, onSearchChange, onSelectCourse }: AppSidebarProps) {
   return (
     <Sidebar position="relative" collapsible="icon" className="border-zinc-700">
       <SidebarHeader className="border-b border-zinc-700 p-4 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-1">
@@ -52,7 +51,7 @@ export function AppSidebar({ searchQuery, selectedCourse, onSearchChange, onSele
               <Input
                 type="search"
                 value={searchQuery}
-                onChange={(event) => onSearchChange(event.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search courses"
                 aria-label="Search courses"
                 className="h-9 border-zinc-700 bg-zinc-800 pl-8 text-sm text-white placeholder:text-zinc-400 focus-visible:border-[#068365] focus-visible:ring-[#068365]/40"
@@ -84,7 +83,7 @@ export function AppSidebar({ searchQuery, selectedCourse, onSearchChange, onSele
                             <SidebarMenuSubItem key={lesson}>
                               <SidebarMenuSubButton
                                 render={locked ? <Link href="/sign-up" /> : <button type="button" />}
-                                onClick={locked ? undefined : () => onSelectCourse(course)}
+                                onClick={locked ? undefined : () => selectCourse(course)}
                                 className="text-zinc-300 hover:bg-zinc-800 hover:text-white"
                                 aria-label={locked ? `Lesson ${lesson}, sign up to unlock` : `Lesson ${lesson} in ${course}`}
                               >

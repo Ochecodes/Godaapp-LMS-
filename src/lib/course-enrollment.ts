@@ -3,7 +3,11 @@ import type { Payload } from "payload";
 import type { Course, User } from "../../payload-types";
 import { normalizeStudentEmail } from "@/lib/student-email";
 
-export async function ensurePayloadStudent(payload: Payload, authUser: SupabaseUser): Promise<User> {
+export type StudentAuthUser = Pick<SupabaseUser, "id" | "user_metadata"> & {
+  email?: string | null;
+};
+
+export async function ensurePayloadStudent(payload: Payload, authUser: StudentAuthUser): Promise<User> {
   if (!authUser.email) throw new Error("Your account needs a verified email address.");
 
   const existing = await payload.find({
@@ -74,7 +78,7 @@ export async function ensurePayloadStudent(payload: Payload, authUser: SupabaseU
 
 export async function ensureCourseEnrollment(
   payload: Payload,
-  authUser: SupabaseUser,
+  authUser: StudentAuthUser,
   course: Course,
 ): Promise<void> {
   if (!authUser.email) throw new Error("Your account needs a verified email address.");

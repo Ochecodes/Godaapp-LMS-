@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, EyeOff, LoaderCircle, Moon, Sun } from "lucide-react";
 
 import styles from "./InstructorAdminLogin.module.css";
@@ -84,7 +85,7 @@ export function InstructorAdminLogin() {
       <div className={styles.layout}>
         <section className={styles.brandPanel} aria-label="GodaApp instructor portal">
           <div className={styles.brandTop}>
-            <img className={styles.logo} src="/logotrans.png" alt="GodaApp" />
+            <Image className={styles.logo} src="/logotrans.png" alt="GodaApp" width={112} height={80} />
             <p className={styles.brandEyebrow}>Instructor portal</p>
           </div>
 

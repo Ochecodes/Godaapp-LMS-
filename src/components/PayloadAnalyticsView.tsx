@@ -100,7 +100,7 @@ export function PayloadAnalyticsView() {
           value: data.metrics.totalEarnedUsd,
           icon: ArrowUpRight,
           kind: "currency",
-          hint: "Verified Paystack payments",
+          hint: "Verified Bachs payments",
         },
         {
           label: "Affiliate payouts",

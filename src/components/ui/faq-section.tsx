@@ -1,6 +1,3 @@
-"use client";
-
-import React from 'react';
 import Link from 'next/link';
 
 interface FaqItemType {
@@ -81,7 +78,7 @@ export default function FaqSection({ contactHeader = false }: FaqSectionProps) {
           </h2>
           {!contactHeader && (
             <p className="mt-4 text-sm text-zinc-600 font-normal leading-relaxed">
-              We've gathered all the answers you're looking for, neatly organized just for you.
+              We&apos;ve gathered all the answers you&apos;re looking for, neatly organized just for you.
             </p>
           )}
         </div>

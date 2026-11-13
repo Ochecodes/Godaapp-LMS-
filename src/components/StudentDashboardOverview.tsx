@@ -131,22 +131,22 @@ export function StudentDashboardOverview({
           )}
         </section>
 
-        <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+        <section className="rounded-2xl border border-border bg-card p-4 sm:p-5">
           <h2 className="text-base font-semibold">Weekly learning activity</h2>
           <p className="mt-1 text-sm text-muted-foreground">Time spent learning, by day.</p>
-          <div aria-label="Weekly learning time, measured in minutes" className="mt-6 grid h-36 grid-cols-7 items-end gap-2 border-b border-border">
+          <div aria-label="Weekly learning time, measured in minutes" className="mt-4 grid h-24 grid-cols-7 items-end gap-2 border-b border-border">
             {weeklyActivity.map(({ day, label, seconds }) => (
-              <div className="flex h-full min-w-0 flex-col items-center justify-end gap-2" key={day} title={`${label}: ${formatDuration(seconds)}`}>
-                <span className="text-[10px] text-muted-foreground">{seconds ? formatDuration(seconds) : ""}</span>
+              <div className="flex h-full min-w-0 flex-col items-center justify-end gap-1" key={day} title={`${label}: ${formatDuration(seconds)}`}>
+                <span className="text-[9px] text-muted-foreground">{seconds ? formatDuration(seconds) : ""}</span>
                 <div
-                  className="min-h-1 w-full rounded-t-md bg-[#068365] transition-[height]"
+                  className="min-h-1 w-3/4 rounded-t-md bg-[#068365] transition-[height]"
                   style={{ height: `${seconds ? Math.max(8, (seconds / maxDailySeconds) * 70) : 4}%` }}
                 />
-                <span className="pb-2 text-[11px] text-muted-foreground">{label}</span>
+                <span className="pb-1 text-[10px] text-muted-foreground">{label}</span>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
+          <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
             {weeklyActivity.some((item) => item.seconds > 0)
               ? "Time is recorded while a lesson video is playing."
               : "Start a lesson to see your learning time here."}
@@ -179,10 +179,10 @@ export function StudentDashboardOverview({
         <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
           <h2 className="text-base font-semibold">Quick actions</h2>
           <p className="mt-1 text-sm text-muted-foreground">Shortcuts to common tasks.</p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
+          <div className="mt-4 grid grid-cols-2 gap-2">
             {QUICK_ACTIONS.map((action) => (
-              <Link className="flex min-h-12 items-center gap-3 rounded-xl border border-border px-3 py-2.5 text-sm font-medium transition hover:border-[#068365]/40 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={action.href} key={action.title}>
-                <DashboardIcon aria-hidden="true" className="size-4 text-[#068365]" icon={action.icon} />
+              <Link className="flex min-h-16 min-w-0 flex-col items-start justify-center gap-2 rounded-xl border border-border px-3 py-2.5 text-xs font-medium leading-4 transition hover:border-[#068365]/40 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:items-center sm:text-sm" href={action.href} key={action.title}>
+                <DashboardIcon aria-hidden="true" className="size-4 shrink-0 text-[#068365]" icon={action.icon} />
                 {action.title}
               </Link>
             ))}
@@ -209,7 +209,7 @@ export function StudentDashboardOverview({
         </section>
       </div>
 
-      <section aria-labelledby="learning-history-title" className="mt-6 w-full rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <section aria-labelledby="learning-history-title" className="mt-6 w-full rounded-2xl border border-border bg-card p-4 sm:p-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold" id="learning-history-title">Learning history</h2>
@@ -223,12 +223,12 @@ export function StudentDashboardOverview({
             <span>More</span>
           </div>
         </div>
-        <div className="mt-5 overflow-x-auto pb-2">
-          <div aria-label="Daily learning activity calendar" className="grid min-w-[720px] w-full auto-cols-fr grid-flow-col grid-rows-7 gap-1">
+        <div className="mt-4 overflow-x-auto pb-1">
+          <div aria-label="Daily learning activity calendar" className="grid w-max auto-cols-[0.75rem] grid-flow-col grid-rows-7 gap-1">
             {activityGrid.map(({ day, seconds }) => (
               <span
-                aria-label={`${new Date(`${day}T00:00:00Z`).toLocaleDateString()}: ${formatDuration(seconds)} of learning`}
-                className={`aspect-square w-full rounded-sm ${getActivityColor(getActivityLevel(seconds, maxGridSeconds))}`}
+                aria-label={`${new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`))}: ${formatDuration(seconds)} of learning`}
+                className={`size-3 rounded-[3px] ${getActivityColor(getActivityLevel(seconds, maxGridSeconds))}`}
                 key={day}
                 title={`${day}: ${formatDuration(seconds)}`}
               />

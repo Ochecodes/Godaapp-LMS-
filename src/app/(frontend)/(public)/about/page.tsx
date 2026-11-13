@@ -1,11 +1,22 @@
-import {MinimalFooter}  from "@/components/ui/minimal-footer"
+import dynamic from "next/dynamic"
 import { Nav } from "@/components/ui/Nav"
 import { AuroraHero } from "@/components/ui/AuroraHero"
 import { Button } from "@/components/ui/button"
-import Wwd from "@/components/ui/Wwd"
-import Wwd1 from "@/components/ui/Wwd1"
-import Useimg from "@/components/ui/Useimg"
 import Link from "next/link"
+
+const Wwd = dynamic(() => import("@/components/ui/Wwd"), {
+  loading: () => <div aria-hidden="true" className="min-h-96 animate-pulse motion-reduce:animate-none bg-muted" />,
+})
+const Wwd1 = dynamic(() => import("@/components/ui/Wwd1"), {
+  loading: () => <div aria-hidden="true" className="min-h-96 animate-pulse motion-reduce:animate-none bg-muted" />,
+})
+const Useimg = dynamic(() => import("@/components/ui/Useimg"), {
+  loading: () => <div aria-hidden="true" className="min-h-80 animate-pulse motion-reduce:animate-none bg-muted" />,
+})
+const MinimalFooter = dynamic(
+  () => import("@/components/ui/minimal-footer").then((module) => module.MinimalFooter),
+  { loading: () => <div aria-hidden="true" className="min-h-40 animate-pulse motion-reduce:animate-none bg-muted" /> },
+)
 
 export default function HomePage() {
   return (

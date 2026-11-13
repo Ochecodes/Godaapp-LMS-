@@ -185,6 +185,10 @@ export interface Course {
    * The flat rate cost of the course in USD (e.g. 90).
    */
   priceUSD: number;
+  /**
+   * Editable original price shown crossed out. Defaults to twice the current price (50% off).
+   */
+  originalPriceUSD?: number | null;
   status: 'draft' | 'published' | 'archived';
   /**
    * Schedule Google Meet sessions for students enrolled in this course.
@@ -244,6 +248,10 @@ export interface Lesson {
    * The alphanumeric string from the YouTube URL (e.g., dQw4w9WgXcQ).
    */
   youtubeVideoId: string;
+  /**
+   * Optional lesson duration in seconds.
+   */
+  durationSeconds?: number | null;
   /**
    * Detailed lesson notes, code snippets, or reading materials.
    */
@@ -518,6 +526,7 @@ export interface CoursesSelect<T extends boolean = true> {
   description?: T;
   thumbnailUrl?: T;
   priceUSD?: T;
+  originalPriceUSD?: T;
   status?: T;
   liveClasses?:
     | T
@@ -551,6 +560,7 @@ export interface LessonsSelect<T extends boolean = true> {
   title?: T;
   module?: T;
   youtubeVideoId?: T;
+  durationSeconds?: T;
   contentBody?: T;
   quizQuestions?:
     | T

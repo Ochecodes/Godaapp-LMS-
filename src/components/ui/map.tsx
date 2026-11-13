@@ -44,7 +44,7 @@ export function WorldMap({
       shape: "circle",
       backgroundColor: mapBackgroundColor ?? (theme === "dark" ? "black" : "white"),
     }),
-    [map, theme]
+    [map, mapBackgroundColor, theme]
   );
 
   const projectPoint = (lat: number, lng: number) => {

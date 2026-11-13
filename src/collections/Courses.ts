@@ -3,6 +3,22 @@ import { isActiveCourseEditor } from '../lib/payload-access.ts'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',
+  hooks: {
+    beforeChange: [
+      ({ data, operation }) => {
+        if (
+          operation === 'create' &&
+          data &&
+          typeof data.priceUSD === 'number' &&
+          data.priceUSD > 0 &&
+          typeof data.originalPriceUSD !== 'number'
+        ) {
+          return { ...data, originalPriceUSD: data.priceUSD * 2 }
+        }
+        return data
+      },
+    ],
+  },
   access: {
     admin: ({ req }) => isActiveCourseEditor(req.user),
     create: ({ req }) => isActiveCourseEditor(req.user),
@@ -47,6 +63,26 @@ export const Courses: CollectionConfig = {
       min: 0,
       admin: {
         description: 'The flat rate cost of the course in USD (e.g. 90).',
+      },
+    },
+    {
+      name: 'originalPriceUSD',
+      label: 'Original price (USD)',
+      type: 'number',
+      min: 0,
+      admin: {
+        description:
+          'Editable original price shown crossed out. Defaults to twice the current price (50% off).',
+      },
+      validate: (value: unknown, { siblingData }: { siblingData: { priceUSD?: unknown } }) => {
+        if (value === undefined || value === null) return true
+        const priceUSD = siblingData.priceUSD
+        if (typeof value !== 'number' || typeof priceUSD !== 'number' || priceUSD <= 0) {
+          return 'Set an original price only for paid courses.'
+        }
+        return value > priceUSD
+          ? true
+          : 'The original price must be greater than the current price.'
       },
     },
     {

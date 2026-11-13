@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { CatalogStoreProvider } from "@/lib/catalog-store";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,10 +18,18 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useCatalogStore } from "@/lib/catalog-store";
 
 export function CatalogWorkspace() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  return (
+    <CatalogStoreProvider>
+      <CatalogWorkspaceContent />
+    </CatalogStoreProvider>
+  );
+}
+
+function CatalogWorkspaceContent() {
+  const selectedCourse = useCatalogStore((state) => state.selectedCourse);
 
   useEffect(() => {
     if (!selectedCourse) return;
@@ -32,7 +41,10 @@ export function CatalogWorkspace() {
   return (
     <section className="relative isolate w-full overflow-hidden bg-white px-4 py-10 text-zinc-950 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <img src="/Zincbg.svg" alt="" className="h-full w-full object-cover object-center" />
+        <div
+          className="h-full w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/Zincbg.svg')" }}
+        />
         <div
           className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
           style={{
@@ -43,18 +55,7 @@ export function CatalogWorkspace() {
       </div>
       <div className="relative mx-auto w-full max-w-7xl">
         <SidebarProvider className="min-h-[42rem] w-full overflow-hidden rounded-xl border border-zinc-300/70 bg-white/95 shadow-2xl shadow-zinc-950/10 backdrop-blur-sm">
-          <AppSidebar
-            searchQuery={searchQuery}
-            selectedCourse={selectedCourse}
-            onSearchChange={(query) => {
-              setSearchQuery(query);
-              setSelectedCourse(null);
-            }}
-            onSelectCourse={(course) => {
-              setSearchQuery("");
-              setSelectedCourse(course);
-            }}
-          />
+          <AppSidebar />
           <SidebarInset className="min-w-0 flex-1 bg-transparent">
             <header className="flex h-14 shrink-0 items-center gap-2 border-b border-zinc-200 bg-white/90 px-4 backdrop-blur-sm">
               <SidebarTrigger className="-ml-1 text-zinc-700" aria-label="Toggle course menu" />
@@ -73,9 +74,6 @@ export function CatalogWorkspace() {
             </header>
             <main className="min-w-0 flex-1">
               <FeaturedCourses
-                searchQuery={searchQuery}
-                selectedCourse={selectedCourse}
-                onClearSelection={() => setSelectedCourse(null)}
                 compact
               />
             </main>

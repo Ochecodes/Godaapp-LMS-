@@ -1,14 +1,52 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { ArrowLeft, Eye, LoaderCircle } from "lucide-react";
 import { AuroraHero } from "@/components/ui/AuroraHero";
 
 type AuthFormProps = { mode: "sign-in" | "sign-up" };
+type AuthApiResponse = {
+  error?: string;
+  requiresEmailVerification?: boolean;
+  redirectUrl?: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+async function requestAuth(body: Record<string, string>): Promise<AuthApiResponse> {
+  const response = await fetch("/api/auth", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const result: unknown = await response.json();
+  if (!isRecord(result)) {
+    throw new Error("Authentication is temporarily unavailable. Please try again.");
+  }
+  const data: AuthApiResponse = {
+    ...(typeof result.error === "string" ? { error: result.error } : {}),
+    ...(typeof result.requiresEmailVerification === "boolean"
+      ? { requiresEmailVerification: result.requiresEmailVerification }
+      : {}),
+    ...(typeof result.redirectUrl === "string" ? { redirectUrl: result.redirectUrl } : {}),
+  };
+  if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error("Too many attempts. Please wait a few minutes before trying again.");
+    }
+    throw new Error(data.error || "Authentication failed. Please try again.");
+  }
+  return data;
+}
 
 export function AuthForm({ mode }: AuthFormProps) {
+  const router = useRouter();
   const isSignUp = mode === "sign-up";
   const [destination, setDestination] = useState("/dashboard");
   const [fullName, setFullName] = useState("");
@@ -32,12 +70,6 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
   }, []);
 
-  function callbackUrl() {
-    const url = new URL("/callback", window.location.origin);
-    url.searchParams.set("next", destination);
-    return url.toString();
-  }
-
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -45,29 +77,26 @@ export function AuthForm({ mode }: AuthFormProps) {
     setLoading(true);
 
     try {
-      const supabase = createClient();
       if (isSignUp) {
-        const { data, error: authError } = await supabase.auth.signUp({
+        const data = await requestAuth({
+          action: "sign-up",
           email: email.trim(),
           password,
-          options: {
-            data: { full_name: fullName.trim() },
-            emailRedirectTo: callbackUrl(),
-          },
+          fullName: fullName.trim(),
+          next: destination,
         });
-        if (authError) throw authError;
-        if (!data.session) {
+        if (data.requiresEmailVerification) {
           setNotice("Check your email to verify your account. We’ll continue after verification.");
           return;
         }
       } else {
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        await requestAuth({
+          action: "sign-in",
           email: email.trim(),
           password,
         });
-        if (authError) throw authError;
       }
-      window.location.assign(destination);
+      router.replace(destination);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Authentication failed. Please try again.");
     } finally {
@@ -79,11 +108,9 @@ export function AuthForm({ mode }: AuthFormProps) {
     setError("");
     setLoading(true);
     try {
-      const { error: authError } = await createClient().auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: callbackUrl() },
-      });
-      if (authError) throw authError;
+      const { redirectUrl } = await requestAuth({ action: "google", next: destination });
+      if (!redirectUrl) throw new Error("Google sign-in couldn't be started.");
+      window.location.assign(redirectUrl);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Google sign-in couldn't be started.");
       setLoading(false);
@@ -94,9 +121,11 @@ export function AuthForm({ mode }: AuthFormProps) {
     <AuroraHero className="min-h-screen justify-center px-4 py-10 sm:px-8 lg:px-12">
       <main className="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative min-h-64 overflow-hidden sm:min-h-80 lg:min-h-[42rem]">
-          <img
+          <Image
             alt={isSignUp ? "Learners building their future together" : "Learner continuing a course"}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="object-cover object-center"
+            fill
+            sizes="(max-width: 1023px) 100vw, 45vw"
             src={isSignUp ? "/SignupIMG.jpg" : "/SigninIMG.jpeg"}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
@@ -173,7 +202,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                     onClick={() => setPasswordVisible((visible) => !visible)}
                     type="button"
                   >
-                    {passwordVisible ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+                    <Eye aria-hidden="true" className={`size-4 transition-transform ${passwordVisible ? "scale-110" : ""}`} />
                   </button>
                 </span>
               </div>

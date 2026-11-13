@@ -1,7 +1,11 @@
+import dynamic from "next/dynamic";
 import { MinimalFooter } from "@/components/ui/minimal-footer";
 import { Nav } from "@/components/ui/Nav";
-import FaqSection from "@/components/ui/faq-section";
 import { AuroraHero } from "@/components/ui/AuroraHero";
+
+const FaqSection = dynamic(() => import("@/components/ui/faq-section"), {
+  loading: () => <div aria-hidden="true" className="min-h-96 animate-pulse motion-reduce:animate-none bg-muted" />,
+});
 
 export default function HomePage() {
   return (

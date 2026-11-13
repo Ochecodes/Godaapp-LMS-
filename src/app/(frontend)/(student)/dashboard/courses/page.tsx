@@ -2,11 +2,12 @@ import Link from "next/link";
 import { getPayload } from "payload";
 import { redirect } from "next/navigation";
 import config from "@/payload.config";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { getStudentLearningActivity } from "@/lib/student-learning-activity";
 import { normalizeStudentEmail } from "@/lib/student-email";
 import { DashboardPageBanner } from "@/components/DashboardPageBanner";
 import { DashboardIcon } from "@/components/DashboardIcon";
+import Image from "next/image";
 import type { Course, Lesson, Module } from "../../../../../../payload-types";
 
 function getRelationId(relation: number | { id: number }) {
@@ -19,10 +20,7 @@ type StudentCoursesPageProps = {
 
 export default async function StudentCoursesPage({ searchParams }: StudentCoursesPageProps) {
   const { payment } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) redirect("/sign-in");
   const activity = getStudentLearningActivity(user.user_metadata?.student_learning);
 
@@ -82,7 +80,7 @@ export default async function StudentCoursesPage({ searchParams }: StudentCourse
   ]);
   const courses = coursesResult.docs as Course[];
   const modules = modulesResult.docs as Module[];
-  const moduleIds = modules.map((module) => module.id);
+  const moduleIds = modules.map((courseModule) => courseModule.id);
   const lessonsResult = moduleIds.length
     ? await payload.find({
         collection: "lessons",
@@ -94,10 +92,10 @@ export default async function StudentCoursesPage({ searchParams }: StudentCourse
     : { docs: [] as Lesson[] };
   const lessons = lessonsResult.docs as Lesson[];
   const modulesByCourse = new Map<number, Module[]>();
-  for (const module of modules) {
-    const courseId = getRelationId(module.course);
+  for (const courseModule of modules) {
+    const courseId = getRelationId(courseModule.course);
     const courseModules = modulesByCourse.get(courseId) ?? [];
-    courseModules.push(module);
+    courseModules.push(courseModule);
     modulesByCourse.set(courseId, courseModules);
   }
   const lessonsByModule = new Map<number, Lesson[]>();
@@ -114,13 +112,13 @@ export default async function StudentCoursesPage({ searchParams }: StudentCourse
         (first, second) => first.sortOrder - second.sortOrder,
       );
       const availableModules = courseModules
-        .map((module) => ({
-          ...module,
-          lessons: (lessonsByModule.get(module.id) ?? [])
+        .map((courseModule) => ({
+          ...courseModule,
+          lessons: (lessonsByModule.get(courseModule.id) ?? [])
             .filter((lesson) => activeCourseIds.has(course.id) || lesson.isPreview)
             .sort((first, second) => first.sortOrder - second.sortOrder),
         }))
-        .filter((module) => module.lessons.length > 0);
+        .filter((courseModule) => courseModule.lessons.length > 0);
 
       return {
         ...course,
@@ -163,7 +161,13 @@ export default async function StudentCoursesPage({ searchParams }: StudentCourse
                 key={course.id}
               >
                 <div className="relative aspect-video overflow-hidden bg-muted">
-                  <img alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" loading="lazy" src={course.thumbnailUrl} />
+                  <Image
+                    alt=""
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1536px) 50vw, 33vw"
+                    src={course.thumbnailUrl}
+                  />
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-zinc-800">
                     {course.priceUSD === 0 ? "Free" : "Paid"}
                   </span>

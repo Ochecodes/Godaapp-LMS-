@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const communityImages = [
   { src: "/students.jfif", alt: "Students learning together" },
@@ -96,7 +97,10 @@ export default function Useimg() {
       `}</style>
 
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <img src="/Zincbg.svg" alt="" className="h-full w-full object-cover object-center" loading="lazy" />
+        <div
+          className="h-full w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/Zincbg.svg')" }}
+        />
         <div
           className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
           style={{
@@ -123,7 +127,13 @@ export default function Useimg() {
         <div className="community-orbit mx-auto mt-8 max-w-5xl sm:mt-10" aria-label="GodaApp community members">
           {communityImages.map((image) => (
             <figure key={image.src} className="community-bubble">
-              <img src={image.src} alt={image.alt} loading="lazy" />
+              <Image
+                src={image.src}
+                alt={image.alt}
+                fill
+                sizes="(max-width: 767px) 33vw, (max-width: 1023px) 20vw, 10vw"
+                className="object-cover"
+              />
             </figure>
           ))}
         </div>

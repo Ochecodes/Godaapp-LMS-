@@ -3,7 +3,7 @@ import { getPayload } from "payload";
 import config from "@/payload.config";
 import { isActivePayloadAdmin } from "@/lib/payload-access";
 import { getTinybirdAnalytics, isTinybirdConfigured } from "@/lib/tinybird/client";
-import type { Course, Enrollment, Instructor, PayoutRequest, Referral } from "../../../../../../payload-types";
+import type { Course, Enrollment, PayoutRequest, Referral } from "../../../../../../payload-types";
 
 function relationId(relation: number | { id: number }) {
   return typeof relation === "number" ? relation : relation.id;

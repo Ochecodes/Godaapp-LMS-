@@ -1,0 +1,26 @@
+{
+  "root": true,
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "ignorePatterns": [
+    ".next/",
+    "coverage/",
+    "node_modules/",
+    "src/app/(instructor)/instructor-panel/importMap.js",
+    "payload-types.ts",
+    "next-env.d.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "@next/next/no-html-link-for-pages": "off"
+      }
+    },
+    {
+      "files": ["src/migrations/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off"
+      }
+    }
+  ]
+}

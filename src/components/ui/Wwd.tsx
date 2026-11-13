@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
@@ -12,10 +13,9 @@ export default function Wwd() {
   return (
     <section className="relative isolate overflow-hidden border-t border-zinc-200/60 bg-white text-zinc-950">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <img
-          src="/Zincbg.svg"
-          alt=""
-          className="h-full w-full object-cover object-center"
+        <div
+          className="h-full w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/Zincbg.svg')" }}
         />
         <div
           className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
@@ -28,24 +28,27 @@ export default function Wwd() {
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:gap-12 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-24">
         <div className="relative mx-auto w-full max-w-xl">
-          <div className="aspect-[1.05] overflow-hidden rounded-xl bg-zinc-100 shadow-xl shadow-zinc-900/10">
-            <img
+          <div className="relative aspect-[1.05] overflow-hidden rounded-xl bg-zinc-100 shadow-xl shadow-zinc-900/10">
+            <Image
               src="/ContactIMG.jpg"
               alt="Global Digital Assets Academy community working together"
-              className="h-full w-full object-cover object-center"
-              loading="lazy"
+              fill
+              sizes="(max-width: 1023px) 100vw, 50vw"
+              className="object-cover object-center"
             />
           </div>
 
           <div className="absolute inset-x-4 bottom-4 flex min-h-20 items-center gap-3 rounded-lg bg-white px-4 py-3 shadow-lg sm:inset-x-8 sm:bottom-8 sm:max-w-xs sm:px-5">
             <div className="flex shrink-0 items-center pl-1" aria-hidden="true">
               {communityImages.map((image, index) => (
-                <img
+                <Image
                   key={image.src}
                   src={image.src}
                   alt={image.alt}
+                  width={36}
+                  height={36}
+                  sizes="36px"
                   className={`size-9 rounded-full border-2 border-white object-cover ${index ? "-ml-3" : ""}`}
-                  loading="lazy"
                 />
               ))}
               <span className="-ml-3 flex size-9 items-center justify-center rounded-full border-2 border-white bg-[#068365] text-[11px] font-semibold text-white">

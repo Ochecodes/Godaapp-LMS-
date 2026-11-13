@@ -1,8 +1,7 @@
-"use client";
-
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import Image from "next/image";
 import { DashboardPageBanner } from "@/components/DashboardPageBanner";
 import { DashboardIcon } from "@/components/DashboardIcon";
+import { DashboardContactForm } from "@/components/DashboardContactForm";
 
 const SOCIAL_LINKS = [
   { name: "Facebook", href: "https://web.facebook.com/Godaapp", icon: "simple-icons:facebook" },
@@ -36,8 +35,6 @@ const STARTER_RESOURCES: StudentResource[] = [
     format: "PDF · Federal Reserve",
   },
 ];
-
-const fieldClass = "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-[#068365] focus-visible:ring-2 focus-visible:ring-[#068365]/20";
 
 export function StudentResourcesPage({ resources }: { resources: StudentResource[] }) {
   const displayResources = resources.length ? resources : STARTER_RESOURCES;
@@ -102,12 +99,12 @@ export function StudentCommunityPage() {
             Join the conversation, find new perspectives, and stay up to date with learning opportunities from GodaApp.
           </p>
           <div className="relative mt-5 aspect-[1.8] overflow-hidden rounded-xl bg-muted">
-            <img alt="GodaApp learners connecting across a global community" className="h-full w-full object-cover" loading="lazy" src="/ContactIMG.jpg" />
+            <Image alt="GodaApp learners connecting across a global community" className="object-cover" fill sizes="(max-width: 1279px) 100vw, 40vw" src="/ContactIMG.jpg" />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-transparent to-transparent" />
             <div className="absolute inset-x-4 bottom-4 flex items-center gap-3">
               <div aria-hidden="true" className="flex shrink-0 pl-1">
                 {["/American.jpg", "/Nigerian.jpg", "/Asian.jpg"].map((src, index) => (
-                  <img alt="" className={`size-8 rounded-full border-2 border-white object-cover ${index ? "-ml-2.5" : ""}`} key={src} loading="lazy" src={src} />
+                  <Image alt="" className={`size-8 rounded-full border-2 border-white object-cover ${index ? "-ml-2.5" : ""}`} height={32} key={src} sizes="32px" src={src} width={32} />
                 ))}
                 <span className="-ml-2.5 grid size-8 place-items-center rounded-full border-2 border-white bg-[#068365] text-[9px] font-semibold text-white">50+</span>
               </div>
@@ -185,71 +182,5 @@ export function StudentSupportPage() {
         />
       </div>
     </main>
-  );
-}
-
-function DashboardContactForm({
-  heading,
-  subject,
-  description,
-}: {
-  heading: string;
-  subject: string;
-  description: string;
-}) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    const nextInput = formRef.current?.querySelector<HTMLInputElement>('input[name="_next"]');
-    if (nextInput) nextInput.value = `${window.location.origin}${window.location.pathname}?sent=1`;
-    setSent(new URLSearchParams(window.location.search).get("sent") === "1");
-  }, []);
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    setSubmitted(true);
-    if (!formRef.current?.checkValidity()) {
-      event.preventDefault();
-      setSubmitted(false);
-    }
-  }
-
-  return (
-    <form
-      action="https://formsubmit.co/godaappinfo@gmail.com"
-      className="space-y-4 rounded-2xl border border-border bg-card p-5 sm:p-7"
-      method="POST"
-      onSubmit={submit}
-      ref={formRef}
-    >
-      <input name="_subject" type="hidden" value={subject} />
-      <input name="_captcha" type="hidden" value="false" />
-      <input name="_template" type="hidden" value="table" />
-      <input name="_next" type="hidden" value="" />
-      <div>
-        <h2 className="text-lg font-semibold">{heading}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
-      </div>
-      {sent && <p className="rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-300" role="status">Thanks for reaching out. Your message has been sent to the GodaApp team.</p>}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="space-y-1.5 text-sm font-medium">
-          Full name
-          <input autoComplete="name" className={fieldClass} maxLength={120} name="fullName" placeholder="Your name" required />
-        </label>
-        <label className="space-y-1.5 text-sm font-medium">
-          Email address
-          <input autoComplete="email" className={fieldClass} name="email" placeholder="you@example.com" required type="email" />
-        </label>
-      </div>
-      <label className="block space-y-1.5 text-sm font-medium">
-        Message
-        <textarea className={`${fieldClass} min-h-32 resize-y`} maxLength={3000} name="message" placeholder="How can we help?" required rows={5} />
-      </label>
-      <button className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#068365] px-5 text-sm font-semibold text-white transition hover:bg-[#056d53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-70" disabled={submitted} type="submit">
-        {submitted ? "Sending…" : "Send message"}
-        <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:arrow-right" />
-      </button>
-    </form>
   );
 }

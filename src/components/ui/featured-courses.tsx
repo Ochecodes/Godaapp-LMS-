@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, ChevronDown, ChevronUp, LockKeyhole } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, BookOpen, ChevronUp, LockKeyhole } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCatalogStore } from '@/lib/catalog-store';
 
 interface GridItemType {
   tag: string;
@@ -15,6 +18,16 @@ interface GridItemType {
   innerImageSrc: string;
   price: string;
 }
+
+type FeaturedCourseDetails = {
+  priceUSD: number;
+  originalPriceUSD: number | null;
+  lessons: {
+    id: number;
+    title: string;
+    isPreview: boolean;
+  }[];
+};
 
 const GRID_ITEMS: GridItemType[] = [
   {
@@ -45,7 +58,7 @@ const GRID_ITEMS: GridItemType[] = [
     desc: "Develop a disciplined approach to managing trading risk, protecting capital, and making decisions under pressure. This course examines position sizing, risk-to-reward ratios, drawdowns, exposure control, and capital preservation alongside the psychological challenges of fear, greed, overtrading, and revenge trading. You will explore practical methods for evaluating risk, controlling emotional responses, and building a structured trading process.",
     badge: "Paid",
     innerImageSrc: "/RistMangIMGCourse.jpg",
-    price: "$30"
+    price: "$8.88"
   },
   {
     tag: "Udoyen Peter Snr",
@@ -55,7 +68,7 @@ const GRID_ITEMS: GridItemType[] = [
     desc: "This course examines prop firm evaluation models, profit targets, drawdown limits, risk restrictions, consistency requirements, and the rules that govern funded accounts. You will explore how to prepare for evaluations, control exposure, manage trading pressure, and develop a structured plan for operating within firm-specific conditions. The focus is on understanding the responsibilities and constraints of prop trading, making informed decisions, and preserving capital rather than pursuing funding at any cost.",
     badge: "Paid",
     innerImageSrc: "/CapiPropIMGCourse.jpg",
-    price: "$30"
+    price: "$9.98"
   },
   {
     tag: "Oche Akor",
@@ -65,7 +78,7 @@ const GRID_ITEMS: GridItemType[] = [
     desc: "This course explores asset allocation, diversification, portfolio performance, and risk management, alongside the principles of copy trading and how investors assess traders before following their strategies. You will develop a clearer understanding of how individual investment decisions influence overall portfolio performance, the risks involved in copying trades, and the importance of making informed choices rather than relying solely on another investor’s decisions.",
     badge: "Paid",
     innerImageSrc: "/PortIMGCourse.jpg",
-    price: "$50"
+    price: "$11.98"
   },
   {
     tag: "Oche Akor",
@@ -75,24 +88,50 @@ const GRID_ITEMS: GridItemType[] = [
     desc: "Learn how to develop, test, and refine rule-based trading strategies using Pine Script on TradingView. This course explores Pine Script fundamentals, indicator development, strategy logic, entry and exit conditions, trade alerts, and backtesting. You will examine how to translate trading ideas into code, evaluate strategy performance against historical market data, and identify limitations that can affect real-world results. The focus is on building a structured understanding of trading automation, systematic strategy development, and the role of coding in making trading decisions more consistent and measurable.",
     badge: "Paid",
     innerImageSrc: "/AlgoTradIMGCourse.jpg",
-    price: "$100"
+    price: "$11.98"
   }
 ];
 
 interface FeaturedCoursesProps {
-  searchQuery?: string;
-  selectedCourse?: string | null;
-  onClearSelection?: () => void;
   compact?: boolean;
 }
 
-export default function FeaturedCourses({ searchQuery = '', selectedCourse = null, onClearSelection, compact = false }: FeaturedCoursesProps) {
+async function fetchFeaturedCourseDetails(): Promise<Record<string, FeaturedCourseDetails>> {
+  const response = await fetch('/api/catalog/featured-courses');
+  if (!response.ok) {
+    throw new Error(`Course details request failed (${response.status}).`);
+  }
+  return response.json() as Promise<Record<string, FeaturedCourseDetails>>;
+}
+
+export default function FeaturedCourses({ compact = false }: FeaturedCoursesProps) {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const searchQuery = useCatalogStore((state) => state.searchQuery);
+  const selectedCourse = useCatalogStore((state) => state.selectedCourse);
+  const clearSelectedCourse = useCatalogStore((state) => state.clearSelectedCourse);
+  const {
+    data: courseDetails = {},
+    isPending: courseDetailsPending,
+    isError: hasCourseDetailsError,
+  } = useQuery({
+    queryKey: ['featured-course-details'],
+    queryFn: fetchFeaturedCourseDetails,
+  });
+  const courseDetailsLoaded = !courseDetailsPending;
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredItems = GRID_ITEMS.filter((item) =>
     (!selectedCourse || item.category === selectedCourse) &&
     [item.category, item.title, item.desc].some((value) => value.toLowerCase().includes(normalizedQuery))
   );
+
+  function getStaticPrice(price: string) {
+    const parsedPrice = Number(price.replace(/[^0-9.]/g, ''));
+    return Number.isFinite(parsedPrice) ? parsedPrice : 0;
+  }
+
+  function formatPrice(price: number) {
+    return `$${price.toFixed(2)}`;
+  }
 
   function getCourseId(category: string) {
     return `course-${category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
@@ -107,11 +146,9 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
         ========================================================================
       */}
       <div className="absolute inset-0 w-full h-full -z-10 select-none pointer-events-none">
-        <img 
-          src="/Zincbg.svg"
-          alt="" 
-          className="w-full h-full object-cover object-center" 
-          loading="eager"
+        <div
+          className="w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/Zincbg.svg')" }}
         />
         
         {/* Soft Noise Texture Mask Overlay */}
@@ -140,22 +177,39 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
           {selectedCourse && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white/90 px-4 py-3">
               <p className="text-sm font-medium text-zinc-800">Selected course: {selectedCourse}</p>
-              {onClearSelection && (
-                <button
-                  type="button"
-                  onClick={onClearSelection}
-                  className="text-sm font-semibold text-[#068365] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]"
-                >
-                  Show all courses
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={clearSelectedCourse}
+                className="text-sm font-semibold text-[#068365] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]"
+              >
+                Show all courses
+              </button>
             </div>
+          )}
+
+          {hasCourseDetailsError && (
+            <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+              Live course prices and lesson previews could not be loaded.
+            </p>
           )}
           
           {filteredItems.length > 0 ? (
             <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 w-full justify-center", compact && "gap-5")}>
             {filteredItems.map((item: GridItemType) => {
               const isExpanded = expandedCourse === item.category;
+              const details = courseDetails[item.courseSlug];
+              const currentPrice = details?.priceUSD ?? getStaticPrice(item.price);
+              const originalPrice = details
+                ? details.originalPriceUSD
+                : currentPrice > 0 ? currentPrice * 2 : null;
+              const isHalfPrice = originalPrice !== null &&
+                Math.round(originalPrice * 100) === Math.round(currentPrice * 200);
+              const courseIsPublished = Boolean(details);
+              const courseBadge = courseDetailsLoaded && !details
+                ? 'Coming soon'
+                : details
+                  ? currentPrice === 0 ? 'Free' : 'Paid'
+                  : item.badge;
 
               return (
               <div key={item.title} id={getCourseId(item.category)} className="w-full group scroll-mt-8">
@@ -165,9 +219,12 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                   {/* Course Card Preview Screenshot Area */}
                   <div className={cn("flex justify-center relative", compact ? "p-3" : "p-4")}>
                     <div className={cn("relative aspect-[3/2] w-full max-h-[360px] overflow-hidden rounded-xl border border-zinc-100 bg-zinc-50", !compact && "max-h-[420px]")}>
-                      <img 
+                      <Image
                         src={item.innerImageSrc} 
                         alt={item.title} 
+                        width={720}
+                        height={480}
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="relative z-0 h-full w-full object-contain object-center"
                         onError={(e) => {
                           (e.target as HTMLElement).style.display = 'none';
@@ -204,23 +261,46 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                             {isExpanded ? <ChevronUp className="size-3.5" aria-hidden="true" /> : <BookOpen className="size-3.5" aria-hidden="true" />}
                           </button>
                         )}
-                        <Link
-                          href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
-                          className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
-                        >
-                          Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
-                        </Link>
-                        <span className="text-base font-bold text-[#068365] tracking-tight">
-                          {item.price}
+                        {courseIsPublished ? (
+                          <Link
+                            href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
+                            className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
+                          >
+                            Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
+                          </Link>
+                        ) : courseDetailsLoaded ? (
+                          <span className="text-xs font-medium text-zinc-500">Not yet available</span>
+                        ) : (
+                          <Link
+                            href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
+                            className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
+                          >
+                            Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
+                          </Link>
+                        )}
+                        <span className="inline-flex flex-wrap items-baseline gap-2">
+                          {originalPrice !== null && originalPrice > currentPrice && (
+                            <del className="text-sm font-medium text-zinc-500">
+                              {formatPrice(originalPrice)}
+                            </del>
+                          )}
+                          <span className="text-base font-bold text-[#068365] tracking-tight">
+                            {formatPrice(currentPrice)}
+                          </span>
+                          {isHalfPrice && (
+                            <span className="text-[10px] font-semibold text-[#068365]">50% off</span>
+                          )}
                         </span>
                       </div>
 
                       <span className={`text-[11px] font-semibold px-3 py-0.5 rounded-full border ${
-                        item.badge === 'Free' 
+                        courseBadge === 'Free'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' 
-                          : 'bg-indigo-50 text-indigo-700 border-indigo-200/60'
+                          : courseBadge === 'Coming soon'
+                            ? 'bg-zinc-100 text-zinc-700 border-zinc-200'
+                            : 'bg-indigo-50 text-indigo-700 border-indigo-200/60'
                       }`}>
-                        {item.badge}
+                        {courseBadge}
                       </span>
                     </div>
                   </div>
@@ -229,21 +309,33 @@ export default function FeaturedCourses({ searchQuery = '', selectedCourse = nul
                     <div className="border-t border-zinc-200 px-4 pb-4 pt-3">
                       <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">Course lessons</h4>
                       <ul className="grid gap-1 sm:grid-cols-2">
-                        {[1, 2, 3, 4].map((lesson) => {
-                          const locked = lesson === 4;
-
-                          return (
-                            <li key={lesson}>
-                              <Link
-                                href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
-                                className="flex items-center justify-between rounded-md px-2.5 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]"
-                              >
-                                <span>Lesson {lesson}{locked ? " (Locked)" : ""}</span>
-                                {locked && <LockKeyhole className="size-3.5 text-zinc-500" aria-hidden="true" />}
-                              </Link>
-                            </li>
-                          );
-                        })}
+                        {details?.lessons.map((lesson) => (
+                          <li key={lesson.id}>
+                            <Link
+                              href={`/dashboard/lessons/${lesson.id}`}
+                              aria-label={lesson.isPreview ? `Preview lesson: ${lesson.title}` : `Unlock ${lesson.title}`}
+                              className="flex items-center justify-between rounded-md px-2.5 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365]"
+                            >
+                              <span className="min-w-0 truncate">{lesson.title}</span>
+                              <span className="ml-3 inline-flex shrink-0 items-center gap-1.5 text-xs text-zinc-500">
+                                {lesson.isPreview ? "Preview" : "Unlock"}
+                                {lesson.isPreview
+                                  ? <BookOpen className="size-3.5" aria-hidden="true" />
+                                  : <LockKeyhole className="size-3.5" aria-hidden="true" />}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                        {details && details.lessons.length === 0 && (
+                          <li className="px-2.5 py-2 text-sm text-zinc-500">
+                            No lessons have been published for this course yet.
+                          </li>
+                        )}
+                        {!details && (
+                          <li className="px-2.5 py-2 text-sm text-zinc-500">
+                            Lesson details appear when the course is published.
+                          </li>
+                        )}
                       </ul>
                     </div>
                   )}

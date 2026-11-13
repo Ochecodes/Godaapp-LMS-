@@ -1,6 +1,4 @@
-"use client";
-
-import React from 'react';
+import Image from "next/image";
 
 interface TestimonialItemType {
   quote: string;
@@ -64,11 +62,13 @@ export default function Testimonials() {
 
               {/* User Bio Footer Block */}
               <div className="mt-8 flex items-center gap-4 border-t border-white/5 pt-6">
-                <img
+                <Image
                   src={item.imageSrc}
                   alt={item.name}
                   className="h-12 w-12 rounded-xl object-cover border border-white/10 bg-zinc-800"
-                  loading="lazy"
+                  width={48}
+                  height={48}
+                  sizes="48px"
                 />
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-200 tracking-tight">

@@ -17,6 +17,16 @@ import { Users } from './collections/Users.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const databaseURL = process.env.DATABASE_URI ? new URL(process.env.DATABASE_URI) : null
+
+if (databaseURL && !['localhost', '127.0.0.1'].includes(databaseURL.hostname)) {
+  if (!databaseURL.searchParams.get('sslmode')) {
+    databaseURL.searchParams.set('sslmode', 'require')
+  }
+  if (databaseURL.searchParams.get('sslmode') === 'require') {
+    databaseURL.searchParams.set('uselibpqcompat', 'true')
+  }
+}
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || 'replace-this-development-secret-before-production',
@@ -61,8 +71,9 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI,
+      connectionString: databaseURL?.toString(),
     },
+    push: false,
   }),
   collections: [Instructors, Users, Courses, Modules, Lessons, Enrollments, Resources, Affiliates, Referrals, PayoutRequests],
 })

@@ -4,6 +4,7 @@ import { getPayload } from "payload";
 import config from "@/payload.config";
 import { createClient } from "@/lib/supabase/server";
 import { ensureCourseEnrollment, findPublishedCourseBySlug } from "@/lib/course-enrollment";
+import { CheckoutPanel } from "@/components/CheckoutPanel";
 
 type ContinuePageProps = {
   searchParams: Promise<{ course?: string }>;
@@ -37,7 +38,7 @@ export default async function ContinueEnrollmentPage({ searchParams }: ContinueP
   }
 
   if (course.priceUSD > 0) {
-    redirect(`/checkout?course=${encodeURIComponent(course.slug)}`);
+    return <CheckoutPanel courseTitle={course.title} courseSlug={course.slug} priceUSD={course.priceUSD} />;
   }
   if (course.priceUSD !== 0) {
     return (

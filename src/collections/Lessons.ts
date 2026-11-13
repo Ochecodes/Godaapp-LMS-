@@ -12,7 +12,7 @@ export const Lessons: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'module', 'isPreview', 'sortOrder'],
+    defaultColumns: ['title', 'module', 'durationSeconds', 'isPreview', 'sortOrder'],
   },
   fields: [
     {
@@ -33,6 +33,14 @@ export const Lessons: CollectionConfig = {
       required: true,
       admin: {
         description: 'The alphanumeric string from the YouTube URL (e.g., dQw4w9WgXcQ).',
+      },
+    },
+    {
+      name: 'durationSeconds',
+      type: 'number',
+      min: 0,
+      admin: {
+        description: 'Optional lesson duration in seconds, used in the student course outline.',
       },
     },
     {

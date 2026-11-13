@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -47,11 +48,14 @@ export function Nav() {
                 aria-label="Home"
                 className="flex items-center space-x-2"
               >
-                <img
-                  src="/logo.svg"
+                <Image
+                  src="/logo-optimized.png"
                   alt="Godaapp Logo"
                   className="h-12 w-auto object-contain"
-                  loading="eager"
+                  width={700}
+                  height={500}
+                  sizes="70px"
+                  priority
                 />
               </Link>
 

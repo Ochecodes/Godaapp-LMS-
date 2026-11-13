@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -142,12 +143,13 @@ export function HeroSection() {
                     className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-zinc-950/30 to-zinc-950"
                   />
                   <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 p-4 shadow-2xl shadow-black/90 ring-1 ring-white/5 backdrop-blur-md">
-                    <img
+                    <Image
                       className="relative block w-full rounded-2xl border border-white/5"
                       alt="App screenshot"
                       src="/DashIMG.jpeg"
-                      loading="lazy"
-                      decoding="async"
+                      width={1906}
+                      height={1231}
+                      sizes="(max-width: 640px) 100vw, 80vw"
                     />
                   </div>
                 </div>

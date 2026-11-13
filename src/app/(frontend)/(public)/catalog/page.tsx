@@ -1,10 +1,15 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 import { MinimalFooter } from "@/components/ui/minimal-footer";
 import { Nav } from "@/components/ui/Nav";
 import { AuroraHero } from "@/components/ui/AuroraHero";
 import { Button } from "@/components/ui/button";
-import { CatalogWorkspace } from "@/components/CatalogWorkspace";
+
+const CatalogWorkspace = dynamic(
+  () => import("@/components/CatalogWorkspace").then((module) => module.CatalogWorkspace),
+  { loading: () => <div aria-hidden="true" className="min-h-[42rem] animate-pulse motion-reduce:animate-none bg-muted" /> },
+);
 
 export default function HomePage() {
   return (

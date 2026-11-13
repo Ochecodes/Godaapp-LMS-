@@ -1,27 +1,15 @@
-import { getPayload } from "payload";
-import config from "@/payload.config";
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useDashboardIdentity } from "@/components/DashboardIdentity";
 import { StudentProfileSettings } from "@/components/StudentProfileSettings";
 import { ThemePreferenceControl } from "@/components/ThemePreferenceControl";
 import { DashboardPageBanner } from "@/components/DashboardPageBanner";
 
-export default async function StudentSettingsPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const metadata = user?.user_metadata ?? {};
-  const payload = await getPayload({ config });
-  const result = user
-    ? await payload.find({
-        collection: "users",
-        where: { supabase_uid: { equals: user.id } },
-        limit: 1,
-        overrideAccess: true,
-      })
-    : { docs: [] };
-  const student = result.docs[0];
+export default function StudentSettingsPage() {
+  const { email, emailVerified, avatarUrl, fullName, profileMetadata } = useDashboardIdentity();
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
+    <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       <DashboardPageBanner
         description="Manage the profile details and preferences associated with your student account."
         icon="lucide:settings-2"
@@ -29,12 +17,18 @@ export default async function StudentSettingsPage() {
       />
       <section className="mt-6 rounded-xl border border-border bg-card p-5 sm:p-7">
         <StudentProfileSettings
-          about={typeof metadata.about === "string" ? metadata.about : ""}
-          avatarUrl={student?.avatarUrl ?? (typeof metadata.avatar_url === "string" ? metadata.avatar_url : "")}
-          fullName={student?.fullName ?? (typeof metadata.full_name === "string" ? metadata.full_name : "")}
-          location={typeof metadata.location === "string" ? metadata.location : ""}
-          phone={typeof metadata.phone === "string" ? metadata.phone : ""}
-          team={typeof metadata.team === "string" ? metadata.team : ""}
+          email={email}
+          emailVerified={emailVerified}
+          publicEmail={typeof profileMetadata.public_email === "string" ? profileMetadata.public_email : ""}
+          about={typeof profileMetadata.about === "string" ? profileMetadata.about : ""}
+          avatarUrl={avatarUrl ?? (typeof profileMetadata.avatar_url === "string" ? profileMetadata.avatar_url : "")}
+          fullName={fullName}
+          location={typeof profileMetadata.location === "string" ? profileMetadata.location : ""}
+          phone={typeof profileMetadata.phone === "string" ? profileMetadata.phone : ""}
+          team={typeof profileMetadata.team === "string" ? profileMetadata.team : ""}
+          company={typeof profileMetadata.company === "string" ? profileMetadata.company : ""}
+          pronouns={typeof profileMetadata.pronouns === "string" ? profileMetadata.pronouns : ""}
+          website={typeof profileMetadata.website === "string" ? profileMetadata.website : ""}
         />
       </section>
 

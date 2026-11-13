@@ -32,7 +32,10 @@ export default function PrivacyPolicyPage() {
     <>
       <div className="relative isolate overflow-hidden bg-white text-zinc-950">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <img src="/Zincbg.svg" alt="" className="h-full w-full object-cover object-center" />
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: "url('/Zincbg.svg')" }}
+          />
           <div
             className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
             style={{

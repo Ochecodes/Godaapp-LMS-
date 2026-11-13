@@ -1,16 +1,16 @@
-"use client";
-
-import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const Logo = ({ className }: { className?: string }) => {
     return (
-        <img 
-            src="/logo.svg" 
+        <Image
+            src="/logo-optimized.png"
             alt="Godaapp Logo" 
-            className={cn('h-12 w-auto object-contain', className)} 
-            loading="eager" 
+            className={cn('h-12 w-auto object-contain', className)}
+            width={700}
+            height={500}
+            sizes="70px"
         />
     );
 };
@@ -24,6 +24,7 @@ export function MinimalFooter() {
 		{ title: 'Contact Us', href: '/contact' },
 		{ title: 'Privacy Policy', href: '/privacy-policy' },
 		{ title: 'Terms of Service', href: '/terms-of-service' },
+		{ title: 'Sitemap', href: '/sitemap.xml' },
 	];
 
 	const resources = [

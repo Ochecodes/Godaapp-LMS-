@@ -119,9 +119,13 @@ export async function requestAffiliateWithdrawal(formData: FormData) {
 
   // 5. Re-compute Ledger Balance on the server to prevent front-end field injection
   const currentMetrics = await getAffiliateDashboardMetrics()
-  const requestedAmount = parseFloat(formData.get('amount') as string)
+  const amountValue = formData.get('amount')
+  const amountText = typeof amountValue === 'string' ? amountValue.trim() : ''
+  const requestedAmount = /^(?:\d+\.?\d*|\.\d+)$/.test(amountText)
+    ? Number(amountText)
+    : Number.NaN
 
-  if (isNaN(requestedAmount) || requestedAmount <= 0) {
+  if (!Number.isFinite(requestedAmount) || requestedAmount <= 0) {
     return { success: false, error: 'Invalid monetary value specified.' }
   }
 

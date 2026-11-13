@@ -29,3 +29,11 @@
 - Choose checks that cover the changed behavior: relevant tests when present, then focused type/build checks as appropriate.
 - Do not add packages, change shared tokens, or make broad visual changes unless they are necessary for the request.
 - For UI changes, inspect the affected page or component at desktop and mobile sizes when the available environment supports it.
+
+## Payments
+
+- Create Bachs checkout sessions on the server with decimal-string amounts; keep API keys and webhook secrets server-only.
+- Open the server-created `checkout_url` with the Bachs browser overlay. Never grant enrollment from browser events or checkout redirects.
+- Fulfil payments only from a raw-body signature-verified Bachs webhook. Use `checkout.completed` with `payment_status: "paid"` and keep payment fulfillment idempotent.
+- USD checkout pricing supports adaptive local-currency options when enabled in Bachs settings. Keep analytics and affiliate commission amounts in the course's USD base currency.
+- Bachs destination splits require connected-account identities and explicit risk/payout decisions; do not enable them unless the app has the necessary account mapping and onboarding.

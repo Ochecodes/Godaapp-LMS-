@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { DashboardIcon } from "@/components/DashboardIcon";
 import { useDashboardIdentity } from "@/components/DashboardIdentity";
 
@@ -33,7 +34,14 @@ export function DashboardPageBanner({ title, description, icon }: DashboardPageB
       </div>
       <div className="flex min-w-0 items-center gap-3 self-start sm:self-center">
         {avatarUrl ? (
-          <img alt="" className="size-16 rounded-full object-cover" src={avatarUrl} />
+          <Image
+            alt=""
+            className="size-16 rounded-full object-cover"
+            height={64}
+            src={avatarUrl}
+            unoptimized
+            width={64}
+          />
         ) : (
           <span aria-hidden="true" className="grid size-16 place-items-center rounded-full bg-[#068365] text-2xl font-semibold">
             {firstName.charAt(0).toUpperCase()}

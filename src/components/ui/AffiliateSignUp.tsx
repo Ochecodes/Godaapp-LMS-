@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { Check, ArrowRight } from "lucide-react";
 
 import { AuroraHero } from "@/components/ui/AuroraHero";
@@ -24,10 +25,12 @@ export default function AffiliateSignUp() {
     <AuroraHero className="min-h-screen justify-center px-4 py-20 sm:px-8 lg:px-12">
       <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-80 overflow-hidden lg:min-h-[38rem]">
-          <img
+          <Image
             src="/AffiliateIMG.jpg"
             alt="Students learning together"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            fill
+            sizes="(max-width: 1023px) 100vw, 45vw"
+            className="object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">

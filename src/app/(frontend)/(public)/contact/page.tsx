@@ -1,11 +1,18 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 import { MinimalFooter } from "@/components/ui/minimal-footer";
 import { Nav } from "@/components/ui/Nav";
 import { AuroraHero } from "@/components/ui/AuroraHero";
 import { Button } from "@/components/ui/button";
-import ContactWithGlobe from "@/components/ui/ContactWithGlobe";
-import { WorldMap } from "@/components/ui/map";
+
+const ContactWithGlobe = dynamic(() => import("@/components/ui/ContactWithGlobe"), {
+  loading: () => <div aria-hidden="true" className="min-h-[32rem] animate-pulse motion-reduce:animate-none bg-muted" />,
+});
+const WorldMap = dynamic(
+  () => import("@/components/ui/map").then((module) => module.WorldMap),
+  { loading: () => <div aria-hidden="true" className="aspect-[2/1] animate-pulse motion-reduce:animate-none rounded-lg bg-muted" /> },
+);
 
 export default function HomePage() {
   return (
@@ -35,7 +42,10 @@ export default function HomePage() {
       <ContactWithGlobe />
       <section className="relative isolate w-full overflow-hidden pb-24 pt-0 text-zinc-950 sm:pb-32">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <img src="/Zincbg.svg" alt="" className="h-full w-full object-cover object-center" />
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: "url('/Zincbg.svg')" }}
+          />
           <div
             className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
             style={{

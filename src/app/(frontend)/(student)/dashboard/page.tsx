@@ -1,22 +1,26 @@
+import dynamicImport from "next/dynamic";
 import { getPayload } from "payload";
 import { redirect } from "next/navigation";
 import config from "@/payload.config";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { getCourseInstructorName } from "@/lib/course-instructor";
 import { getStudentLearningActivity } from "@/lib/student-learning-activity";
 import { normalizeStudentEmail } from "@/lib/student-email";
-import { StudentDashboardOverview } from "@/components/StudentDashboardOverview";
 import type { Course, Enrollment, Lesson, Module } from "../../../../../payload-types";
 
 export const dynamic = "force-dynamic";
+
+const StudentDashboardOverview = dynamicImport(
+  () => import("@/components/StudentDashboardOverview").then((module) => module.StudentDashboardOverview),
+  { loading: () => <div aria-hidden="true" className="mx-auto min-h-[38rem] w-full max-w-7xl animate-pulse motion-reduce:animate-none rounded-2xl bg-muted" /> },
+);
 
 function getRelationId(relation: number | { id: number }) {
   return typeof relation === "number" ? relation : relation.id;
 }
 
 export default async function StudentDashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) redirect("/sign-in");
   const activity = getStudentLearningActivity(user.user_metadata?.student_learning);
 
@@ -29,6 +33,8 @@ export default async function StudentDashboardPage() {
         { isActive: { equals: true } },
       ],
     },
+    select: { id: true, course: true },
+    depth: 0,
     limit: 1000,
     pagination: false,
     overrideAccess: true,
@@ -38,6 +44,8 @@ export default async function StudentDashboardPage() {
     ? await payload.find({
         collection: "courses",
         where: { id: { in: courseIds }, status: { equals: "published" } },
+        select: { id: true, title: true, liveClasses: true },
+        depth: 0,
         limit: courseIds.length,
         pagination: false,
         overrideAccess: true,
@@ -48,6 +56,8 @@ export default async function StudentDashboardPage() {
     ? await payload.find({
         collection: "modules",
         where: { course: { in: courses.map((course) => course.id) } },
+        select: { id: true, course: true },
+        depth: 0,
         limit: 10000,
         pagination: false,
         overrideAccess: true,
@@ -58,6 +68,8 @@ export default async function StudentDashboardPage() {
     ? await payload.find({
         collection: "lessons",
         where: { module: { in: moduleIds } },
+        select: { id: true, module: true },
+        depth: 0,
         limit: 10000,
         pagination: false,
         overrideAccess: true,

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { checkRateLimit, getClientAddress } from '@/lib/rate-limit'
 import {
   getAuthorizedStudentLesson,
   type LessonQuizQuestion,
@@ -7,8 +8,6 @@ import {
 type RouteContext = {
   params: Promise<{ lessonId: string }>
 }
-
-type QuizChoice = 'A' | 'B' | 'C'
 
 function getQuestion(
   questions: LessonQuizQuestion[] | null | undefined,
@@ -37,14 +36,20 @@ export async function GET(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: 'Invalid lesson or question.' }, { status: 400 })
   }
 
+  const rateLimited = await rateLimitQuizRequest(request, lessonId)
+  if (rateLimited) return rateLimited
+
   const access = await getAuthorizedStudentLesson(lessonId)
   if (!access) return NextResponse.json({ error: 'Lesson not found.' }, { status: 404 })
 
   const question = getQuestion(access.lesson.quizQuestions, index)
   if (!question) return NextResponse.json({ error: 'No more questions.' }, { status: 404 })
 
-  const { correctOption: _correctOption, ...studentQuestion } = question
-  return NextResponse.json({ index, ...studentQuestion })
+  return NextResponse.json({
+    index,
+    question: question.question,
+    options: question.options,
+  })
 }
 
 export async function POST(request: Request, { params }: RouteContext) {
@@ -78,6 +83,9 @@ export async function POST(request: Request, { params }: RouteContext) {
     return NextResponse.json({ error: 'A question index and one selected option are required.' }, { status: 400 })
   }
 
+  const rateLimited = await rateLimitQuizRequest(request, lessonId)
+  if (rateLimited) return rateLimited
+
   const access = await getAuthorizedStudentLesson(lessonId)
   if (!access) return NextResponse.json({ error: 'Lesson not found.' }, { status: 404 })
 
@@ -94,4 +102,29 @@ export async function POST(request: Request, { params }: RouteContext) {
           correctAnswer: question.options.find((option) => option.id === question.correctOption)?.text,
         }),
   })
+}
+
+async function rateLimitQuizRequest(request: Request, lessonId: number) {
+  const clientAddress = getClientAddress(request)
+  if (!clientAddress) {
+    return NextResponse.json({ error: 'Unable to verify this request.' }, { status: 400 })
+  }
+
+  try {
+    const result = await checkRateLimit([
+      { key: `quiz:ip:${clientAddress}`, limit: 120, windowSeconds: 60 * 60 },
+      { key: `quiz:lesson:${lessonId}:ip:${clientAddress}`, limit: 30, windowSeconds: 10 * 60 },
+    ])
+    if (result.allowed) return null
+    return NextResponse.json(
+      { error: 'Too many quiz attempts. Please wait before trying again.' },
+      { status: 429, headers: { 'Retry-After': String(result.retryAfterSeconds) } },
+    )
+  } catch (error) {
+    console.error('[Quiz] Rate-limit check failed:', error)
+    return NextResponse.json(
+      { error: 'Quizzes are temporarily unavailable. Please try again shortly.' },
+      { status: 503 },
+    )
+  }
 }

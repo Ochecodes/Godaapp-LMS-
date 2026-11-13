@@ -1,7 +1,43 @@
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { trackTinybirdEvent } from "@/lib/tinybird/client";
+import { isTinybirdConfigured, trackTinybirdEvent } from "@/lib/tinybird/client";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function getForwardedUserMetadata(value: unknown): Record<string, unknown> {
+  if (!isRecord(value)) return {};
+
+  const metadata: Record<string, unknown> = {};
+  const stringFields: Record<string, number> = {
+    full_name: 120,
+    name: 120,
+    avatar_url: 2048,
+    picture: 2048,
+    public_email: 254,
+    about: 1000,
+    location: 120,
+    phone: 40,
+    team: 120,
+    company: 120,
+    pronouns: 40,
+    website: 2048,
+  };
+
+  for (const [key, maxLength] of Object.entries(stringFields)) {
+    const field = value[key];
+    if (typeof field === "string") metadata[key] = field.slice(0, maxLength);
+  }
+
+  if (isRecord(value.student_learning)) {
+    const activityJson = JSON.stringify(value.student_learning);
+    if (activityJson.length <= 8000) metadata.student_learning = value.student_learning;
+  }
+
+  return metadata;
+}
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const { searchParams, pathname } = request.nextUrl;
@@ -12,6 +48,8 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
   const isPayloadPath =
     pathname.startsWith("/instructor-panel") || pathname.startsWith("/payload-api");
   if (isPayloadPath) return response;
+  const isAffiliatePath = pathname.startsWith("/affiliate-dashboard");
+  const isStudentPath = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
 
   const refCode = searchParams.get("ref");
   if (refCode) {
@@ -24,49 +62,73 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
     });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("[Middleware] Missing Supabase env vars — skipping auth checks");
-    scheduleAnalyticsPageView(request, response, event);
-    return response;
-  }
+  if (isAffiliatePath || isStudentPath) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("[Middleware] Missing Supabase environment variables for a protected route.");
+      return NextResponse.json({ error: "Authentication is not configured." }, { status: 503 });
+    }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll().map(({ name, value }) => ({ name, value }));
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll().map(({ name, value }) => ({ name, value }));
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set({ name, value, ...options }),
+          );
+          const existingCookies = response.cookies.getAll();
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
+          existingCookies.forEach(({ name, value, ...options }) => {
+            response.cookies.set(name, value, options);
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+        },
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) =>
-          request.cookies.set({ name, value, ...options }),
-        );
-        response = NextResponse.next({
-          request: { headers: request.headers },
-        });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
-      },
-    },
-  });
+    });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getClaims();
+    if (error && error.name !== "AuthSessionMissingError") {
+      console.error("[Middleware] Supabase session verification failed:", error);
+      return NextResponse.json({ error: "Your session could not be verified. Please try again." }, { status: 503 });
+    }
 
-  if (pathname.startsWith("/dashboard") && !user) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
-  }
-
-  if (pathname.startsWith("/affiliate-dashboard")) {
-    if (!user) {
+    const claims = data?.claims;
+    if (!claims || typeof claims.sub !== "string") {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-    const role = user.user_metadata?.role;
-    if (role !== "affiliate" && role !== "admin") {
+
+    const metadata = claims.user_metadata;
+    const role = isRecord(metadata) ? metadata.role : undefined;
+    if (isAffiliatePath && role !== "affiliate" && role !== "admin") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
+
+    const verifiedUser = JSON.stringify({
+      id: claims.sub,
+      email: typeof claims.email === "string" ? claims.email : null,
+      user_metadata: getForwardedUserMetadata(metadata),
+      email_verified:
+        claims.email_verified === true || typeof claims.email_confirmed_at === "string",
+    });
+    if (verifiedUser.length > 12_000) {
+      return NextResponse.json({ error: "Verified session data is too large." }, { status: 431 });
+    }
+
+    const forwardedHeaders = new Headers(request.headers);
+    forwardedHeaders.set("x-goda-verified-user", verifiedUser);
+    const refreshedCookies = response.cookies.getAll();
+    response = NextResponse.next({ request: { headers: forwardedHeaders } });
+    refreshedCookies.forEach(({ name, value, ...options }) => {
+      response.cookies.set(name, value, options);
+    });
+    response.headers.set("Cache-Control", "private, no-store");
   }
 
   scheduleAnalyticsPageView(request, response, event);
@@ -78,6 +140,9 @@ function scheduleAnalyticsPageView(
   response: NextResponse,
   event: NextFetchEvent,
 ) {
+  if (process.env.NODE_ENV !== "production") return;
+  if (!isTinybirdConfigured()) return;
+
   const { pathname } = request.nextUrl;
   const isInternalPath =
     pathname.startsWith("/_next") ||

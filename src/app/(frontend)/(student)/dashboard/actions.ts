@@ -81,12 +81,30 @@ export async function updateStudentProfile(formData: FormData): Promise<ProfileA
   const location = String(formData.get("location") ?? "").trim();
   const about = String(formData.get("about") ?? "").trim();
   const team = String(formData.get("team") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  const pronouns = String(formData.get("pronouns") ?? "").trim();
+  const website = String(formData.get("website") ?? "").trim();
+  const publicEmail = String(formData.get("publicEmail") ?? "").trim();
 
   if (!fullName || fullName.length > 120) return { error: "Enter a name of 1–120 characters." };
-  if (avatarUrl && (!/^https?:\/\//i.test(avatarUrl) || avatarUrl.length > 2048)) {
+  if (publicEmail && (!user.email_confirmed_at || publicEmail.toLowerCase() !== user.email?.toLowerCase())) {
+    return { error: "Choose your verified account email or select not to display an email." };
+  }
+  if (avatarUrl && !isHttpUrl(avatarUrl)) {
     return { error: "Profile picture must be a valid HTTP or HTTPS image URL." };
   }
-  if (phone.length > 40 || location.length > 120 || about.length > 1000 || team.length > 120) {
+  if (website && !isHttpUrl(website)) {
+    return { error: "Website must be a valid HTTP or HTTPS URL." };
+  }
+  if (
+    phone.length > 40 ||
+    location.length > 120 ||
+    about.length > 1000 ||
+    team.length > 120 ||
+    company.length > 120 ||
+    pronouns.length > 40 ||
+    website.length > 2048
+  ) {
     return { error: "One or more profile fields exceed their maximum length." };
   }
 
@@ -98,6 +116,10 @@ export async function updateStudentProfile(formData: FormData): Promise<ProfileA
       location: location || null,
       about: about || null,
       team: team || null,
+      company: company || null,
+      pronouns: pronouns || null,
+      website: website || null,
+      public_email: publicEmail || null,
     },
   });
   if (updateError) return { error: updateError.message };
@@ -119,6 +141,16 @@ export async function updateStudentProfile(formData: FormData): Promise<ProfileA
   });
 
   return { success: "Your profile has been updated." };
+}
+
+function isHttpUrl(value: string) {
+  if (value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export async function signOutStudent() {

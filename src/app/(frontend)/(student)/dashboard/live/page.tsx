@@ -1,23 +1,25 @@
+import dynamicImport from "next/dynamic";
 import { redirect } from "next/navigation";
 import { getPayload } from "payload";
 import config from "@/payload.config";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import { getCourseInstructorName } from "@/lib/course-instructor";
-import { StudentLiveClasses } from "@/components/StudentLiveClasses";
 import { normalizeStudentEmail } from "@/lib/student-email";
 import type { Course } from "../../../../../../payload-types";
 
 export const dynamic = "force-dynamic";
+
+const StudentLiveClasses = dynamicImport(
+  () => import("@/components/StudentLiveClasses").then((module) => module.StudentLiveClasses),
+  { loading: () => <div aria-hidden="true" className="mx-auto min-h-[30rem] w-full max-w-7xl animate-pulse motion-reduce:animate-none rounded-2xl bg-muted" /> },
+);
 
 function getRelationId(relation: number | Course): number {
   return typeof relation === "number" ? relation : relation.id;
 }
 
 export default async function StudentLiveClassesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthenticatedUser();
   if (!user) redirect("/sign-in");
 
   const payload = await getPayload({ config });

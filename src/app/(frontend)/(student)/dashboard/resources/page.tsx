@@ -4,14 +4,30 @@ import { StudentResourcesPage } from "@/components/StudentDashboardPages";
 
 export default async function StudentResourcesRoute() {
   const payload = await getPayload({ config });
+  const queryStartedAt = performance.now();
   const result = await payload.find({
     collection: "resources",
     where: { status: { equals: "published" } },
     sort: "sortOrder",
-    limit: 10000,
+    select: {
+      title: true,
+      category: true,
+      description: true,
+      externalUrl: true,
+      format: true,
+    },
+    depth: 0,
+    limit: 100,
     pagination: false,
     overrideAccess: true,
   });
+  const queryMs = performance.now() - queryStartedAt;
+  if (queryMs > 1000) {
+    console.warn("[Dashboard] Resources query was slow.", {
+      queryMs: Math.round(queryMs),
+      resourceCount: result.docs.length,
+    });
+  }
 
   return (
     <StudentResourcesPage

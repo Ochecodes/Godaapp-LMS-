@@ -1,11 +1,24 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import {
+  Check,
+  ChevronDown,
+  Clock,
+  LockKeyhole,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { DashboardIcon } from "@/components/DashboardIcon";
 import { DashboardPageBanner } from "@/components/DashboardPageBanner";
 import { recordStudentLessonActivity } from "@/app/(frontend)/(student)/dashboard/actions";
+import type {
+  StudentLessonOutlineItem,
+  StudentLessonOutlineModule,
+} from "@/lib/student-lesson-access";
 
 type QuizOption = {
   id: "A" | "B" | "C";
@@ -30,6 +43,13 @@ type LessonPlayerProps = {
   moduleTitle: string;
   courseTitle: string;
   videoId: string;
+  lessonOutline: StudentLessonOutlineModule[];
+  previousLesson: StudentLessonOutlineItem | null;
+  nextLesson: StudentLessonOutlineItem | null;
+  completedLessonCount: number;
+  totalLessonCount: number;
+  initiallyCompleted: boolean;
+  children: ReactNode;
 };
 
 type YouTubePlayerEvent = {
@@ -67,12 +87,35 @@ declare global {
 
 const QUIZ_INTERVAL_SECONDS = 120;
 
+function formatLessonDuration(durationSeconds?: number | null) {
+  if (typeof durationSeconds !== "number" || !Number.isFinite(durationSeconds) || durationSeconds < 0) {
+    return "Duration not set";
+  }
+
+  const totalSeconds = Math.floor(durationSeconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 export function LessonPlayer({
   lessonId,
   lessonTitle,
   moduleTitle,
   courseTitle,
   videoId,
+  lessonOutline,
+  previousLesson,
+  nextLesson,
+  completedLessonCount,
+  totalLessonCount,
+  initiallyCompleted,
+  children,
 }: LessonPlayerProps) {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
@@ -93,6 +136,8 @@ export function LessonPlayer({
   const [questionError, setQuestionError] = useState<string | null>(null);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [quizExhausted, setQuizExhausted] = useState(false);
+  const [isLessonCompleted, setIsLessonCompleted] = useState(initiallyCompleted);
+  const [isOutlineOpen, setIsOutlineOpen] = useState(true);
 
   const saveLessonActivity = useCallback(async (watchedSeconds = 0, completed = false) => {
     pendingActivityRef.current.watchedSeconds += watchedSeconds;
@@ -114,6 +159,7 @@ export function LessonPlayer({
           return;
         }
         activeBatch = null;
+        if (batch.completed) setIsLessonCompleted(true);
         setActivitySaveError("");
       }
     } catch {
@@ -161,7 +207,7 @@ export function LessonPlayer({
       },
     });
     return true;
-  }, [lessonId, saveLessonActivity, videoId]);
+  }, [saveLessonActivity, videoId]);
 
   const loadNextQuestion = useCallback(async () => {
     if (requestInProgressRef.current || quizExhausted) return;
@@ -357,6 +403,14 @@ export function LessonPlayer({
     }
   }, [initializePlayer]);
 
+  const effectiveCompletedCount = Math.min(
+    totalLessonCount,
+    completedLessonCount + (isLessonCompleted && !initiallyCompleted ? 1 : 0),
+  );
+  const courseProgress = totalLessonCount
+    ? Math.round((effectiveCompletedCount / totalLessonCount) * 100)
+    : 0;
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <Script
@@ -378,15 +432,59 @@ export function LessonPlayer({
           Back to my courses
         </Link>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        <section className="mb-6 rounded-xl border border-border bg-card p-4 sm:p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold">Course progress</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {effectiveCompletedCount} of {totalLessonCount} lessons completed
+              </p>
+            </div>
+            <span className="text-sm font-semibold tabular-nums">{courseProgress}%</span>
+          </div>
+          <div
+            aria-label="Course progress"
+            aria-valuemax={100}
+            aria-valuemin={0}
+            aria-valuenow={courseProgress}
+            className="mt-4 h-2 overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+          >
+            <div
+              className="h-full rounded-full bg-emerald-600 transition-[width] motion-reduce:transition-none"
+              style={{ width: `${courseProgress}%` }}
+            />
+          </div>
+        </section>
+
+        <button
+          aria-controls={isOutlineOpen ? "course-outline" : undefined}
+          aria-expanded={isOutlineOpen}
+          className="mb-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={() => setIsOutlineOpen((open) => !open)}
+          type="button"
+        >
+          {isOutlineOpen ? (
+            <PanelLeftClose aria-hidden="true" className="size-4" />
+          ) : (
+            <PanelLeftOpen aria-hidden="true" className="size-4" />
+          )}
+          {isOutlineOpen ? "Hide course outline" : "Show course outline"}
+        </button>
+
+        <div className={`grid gap-6 lg:gap-8 ${isOutlineOpen ? "lg:grid-cols-[minmax(0,1fr)_20rem]" : ""}`}>
           <section className="min-w-0">
             <p className="text-sm font-medium text-primary">{courseTitle}</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
               {lessonTitle}
-            </h1>
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">{moduleTitle}</p>
 
-            <div className="relative mt-6 aspect-video overflow-hidden rounded-xl border border-border bg-black shadow-sm">
+            <div
+              aria-label={`${lessonTitle} video player`}
+              className="relative mt-6 aspect-video overflow-hidden rounded-xl border border-border bg-black shadow-sm"
+              role="region"
+            >
               <div ref={playerContainerRef} className="absolute inset-0 size-full" />
               {playerError && (
                 <p
@@ -401,6 +499,24 @@ export function LessonPlayer({
             <p className="mt-4 text-sm text-muted-foreground">
               A short knowledge check will pause the video at two-minute intervals.
             </p>
+            {questionLoading && (
+              <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <DashboardIcon aria-hidden="true" className="size-4 animate-spin" icon="lucide:loader-circle" />
+                Loading your next check-in
+              </p>
+            )}
+            {questionError && !question && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <p role="alert" className="text-sm text-destructive">{questionError}</p>
+                <button
+                  className="rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={() => void loadNextQuestion()}
+                  type="button"
+                >
+                  Retry check-in
+                </button>
+              </div>
+            )}
             {activitySaveError && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <p className="text-sm text-destructive" role="alert">{activitySaveError}</p>
@@ -413,33 +529,147 @@ export function LessonPlayer({
                 </button>
               </div>
             )}
-          </section>
 
-          <aside className="h-fit rounded-xl border border-border bg-card p-5">
-            <h2 className="text-base font-semibold">Lesson progress</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Watch the lesson and answer each check-in to continue. Questions appear in sequence
-              and are not repeated during this viewing session.
-            </p>
-            {questionLoading && (
-              <p className="mt-4 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <DashboardIcon aria-hidden="true" className="size-4 animate-spin" icon="lucide:loader-circle" />
-                Loading your next check-in
-              </p>
-            )}
-            {questionError && !question && (
-              <div className="mt-4 space-y-3">
-                <p role="alert" className="text-sm text-destructive">{questionError}</p>
+            <section className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4">
+                <h3 className="text-base font-semibold">Lesson content</h3>
+                <span className="text-xs text-muted-foreground">Scroll to read</span>
+              </div>
+              <div
+                aria-label="Scrollable lesson content"
+                className="max-h-[28rem] overflow-y-auto border-t border-border px-5 py-5 text-sm leading-7 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_h1]:mb-3 [&_h1]:mt-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-4 [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-4 [&_ul]:list-disc"
+                tabIndex={0}
+              >
+                {children}
+              </div>
+            </section>
+
+            <nav aria-label="Lesson navigation" className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
+              {previousLesson?.canView ? (
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  href={`/dashboard/lessons/${previousLesson.id}`}
+                >
+                  Previous lesson
+                </Link>
+              ) : (
                 <button
-                  className="rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={() => void loadNextQuestion()}
+                  aria-label={previousLesson ? `Previous lesson locked: ${previousLesson.title}` : "No previous lesson"}
+                  className="inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-muted-foreground opacity-60"
+                  disabled
                   type="button"
                 >
-                  Retry check-in
+                  Previous lesson
                 </button>
-              </div>
-            )}
-          </aside>
+              )}
+              {nextLesson?.canView ? (
+                <Link
+                  className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  href={`/dashboard/lessons/${nextLesson.id}`}
+                >
+                  Next lesson
+                </Link>
+              ) : (
+                <button
+                  aria-label={nextLesson ? `Next lesson locked: ${nextLesson.title}` : "No next lesson"}
+                  className="inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-muted-foreground opacity-60"
+                  disabled
+                  type="button"
+                >
+                  Next lesson
+                </button>
+              )}
+            </nav>
+          </section>
+
+          {isOutlineOpen && (
+            <aside
+              className="h-fit min-w-0 rounded-xl border border-border bg-card lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto"
+              id="course-outline"
+            >
+                <div className="border-b border-border px-4 py-4">
+                  <h3 className="font-semibold">Course content</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {effectiveCompletedCount} of {totalLessonCount} lessons complete
+                  </p>
+                </div>
+                <div className="divide-y divide-border">
+                  {lessonOutline.map((courseModule) => (
+                    <details
+                      className="group"
+                      key={courseModule.id}
+                      open={courseModule.lessons.some((courseLesson) => courseLesson.isCurrent)}
+                    >
+                      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-medium outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm">{courseModule.name}</span>
+                          <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                            {courseModule.lessons.length} {courseModule.lessons.length === 1 ? "lesson" : "lessons"}
+                          </span>
+                        </span>
+                        <ChevronDown aria-hidden="true" className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+                      </summary>
+                      <ol className="space-y-1 px-2 pb-3">
+                        {courseModule.lessons.map((courseLesson) => {
+                          const isCompleted = courseLesson.isCompleted || (
+                            courseLesson.isCurrent && isLessonCompleted
+                          );
+                          const contents = (
+                            <>
+                              <span className="mt-0.5 shrink-0">
+                                {isCompleted ? (
+                                  <Check aria-label="Completed" className="size-4 text-emerald-600 dark:text-emerald-400" />
+                                ) : courseLesson.canView ? (
+                                  <span
+                                    aria-hidden="true"
+                                    className={`mt-0.5 block size-3.5 rounded-full border ${
+                                      courseLesson.isCurrent ? "border-primary bg-primary" : "border-muted-foreground/50"
+                                    }`}
+                                  />
+                                ) : (
+                                  <LockKeyhole aria-label="Locked" className="size-4 text-muted-foreground" />
+                                )}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="block text-sm leading-5">{courseLesson.title}</span>
+                                <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Clock aria-hidden="true" className="size-3" />
+                                  {formatLessonDuration(courseLesson.durationSeconds)}
+                                </span>
+                              </span>
+                            </>
+                          );
+
+                          return (
+                            <li key={courseLesson.id}>
+                              {courseLesson.canView ? (
+                                <Link
+                                  aria-current={courseLesson.isCurrent ? "page" : undefined}
+                                  className={`flex min-h-12 items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                    courseLesson.isCurrent ? "bg-primary/10" : ""
+                                  }`}
+                                  href={`/dashboard/lessons/${courseLesson.id}`}
+                                >
+                                  {contents}
+                                </Link>
+                              ) : (
+                                <div
+                                  aria-label={`Locked lesson: ${courseLesson.title}`}
+                                  className="flex min-h-12 items-start gap-3 rounded-lg px-3 py-2.5 text-muted-foreground"
+                                  role="group"
+                                >
+                                  {contents}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    </details>
+                  ))}
+                </div>
+            </aside>
+          )}
         </div>
       </div>
 

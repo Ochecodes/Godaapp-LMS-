@@ -93,7 +93,10 @@ export function ContactWithGlobe({ className = "" }: { className?: string }) {
   return (
     <section className={cn("relative isolate w-full overflow-hidden bg-white py-12 text-zinc-950 sm:py-16", className)}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-        <img src="/Zincbg.svg" alt="" className="h-full w-full object-cover object-center" />
+        <div
+          className="h-full w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/Zincbg.svg')" }}
+        />
         <div
           className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
           style={{
