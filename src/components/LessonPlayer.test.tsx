@@ -24,8 +24,13 @@ vi.mock("@/components/DashboardPageBanner", () => ({
 
 import { LessonPlayer } from "@/components/LessonPlayer";
 
-type PlayerOptions = ConstructorParameters<NonNullable<typeof window.YT>["Player"]>[1];
+type PlayerOptions = ConstructorParameters<
+  NonNullable<NonNullable<typeof window.YT>["Player"]>
+>[1];
 let playerStateChange: ((event: { data: number }) => void) | null = null;
+let playerError: ((event: { data: number }) => void) | null = null;
+let playerReady: (() => void) | null = null;
+let playerIframe: HTMLIFrameElement;
 
 const outline = [
   {
@@ -94,13 +99,19 @@ describe("LessonPlayer", () => {
     vi.clearAllMocks();
     mocks.recordStudentLessonActivity.mockResolvedValue({ success: true });
     playerStateChange = null;
+    playerError = null;
+    playerReady = null;
+    playerIframe = document.createElement("iframe");
     window.YT = {
       Player: class {
         constructor(_element: HTMLElement, options: PlayerOptions) {
           playerStateChange = options.events.onStateChange;
+          playerError = options.events.onError;
+          playerReady = options.events.onReady;
         }
         getCurrentTime() { return 0; }
         getDuration() { return 0; }
+        getIframe() { return playerIframe; }
         pauseVideo() {}
         playVideo() {}
         destroy() {}
@@ -129,6 +140,53 @@ describe("LessonPlayer", () => {
     expect(screen.getByRole("link", { current: "page" })).toHaveAttribute(
       "href",
       "/dashboard/lessons/2",
+    );
+  });
+
+  it("waits until the YouTube Player constructor is available before initializing", async () => {
+    window.YT = {
+      Player: undefined,
+      PlayerState: { PLAYING: 1, ENDED: 0 },
+    };
+
+    renderLessonPlayer();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    window.YT.Player = class {
+      constructor(_element: HTMLElement, options: PlayerOptions) {
+        playerStateChange = options.events.onStateChange;
+        playerError = options.events.onError;
+        playerReady = options.events.onReady;
+      }
+      getCurrentTime() { return 0; }
+      getDuration() { return 0; }
+      getIframe() { return playerIframe; }
+      pauseVideo() {}
+      playVideo() {}
+      destroy() {}
+    };
+
+    await waitFor(() => expect(playerStateChange).toBeTypeOf("function"));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("sizes the YouTube iframe to its responsive player container", async () => {
+    renderLessonPlayer();
+
+    await waitFor(() => expect(playerReady).toBeTypeOf("function"));
+    act(() => playerReady?.());
+
+    expect(playerIframe).toHaveStyle({ width: "100%", height: "100%" });
+  });
+
+  it("explains when YouTube rejects embedding the lesson video", async () => {
+    renderLessonPlayer();
+    await waitFor(() => expect(playerError).toBeTypeOf("function"));
+
+    act(() => playerError?.({ data: 101 }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "The video owner has disabled playback on other websites.",
     );
   });
 

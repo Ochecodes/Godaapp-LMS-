@@ -14,6 +14,11 @@ function getRelationId(relation: number | { id: number }) {
   return typeof relation === "number" ? relation : relation.id;
 }
 
+function getCourseThumbnailUrl(thumbnailUrl: string) {
+  if (!thumbnailUrl.startsWith("/") || thumbnailUrl.startsWith("//")) return thumbnailUrl;
+  return thumbnailUrl.replace(/\.(?:jpe?g|png|webp)(?=$|[?#])/i, ".avif");
+}
+
 type StudentCoursesPageProps = {
   searchParams: Promise<{ payment?: string }>;
 };
@@ -166,7 +171,7 @@ export default async function StudentCoursesPage({ searchParams }: StudentCourse
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1536px) 50vw, 33vw"
-                    src={course.thumbnailUrl}
+                    src={getCourseThumbnailUrl(course.thumbnailUrl)}
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-zinc-800">
                     {course.priceUSD === 0 ? "Free" : "Paid"}

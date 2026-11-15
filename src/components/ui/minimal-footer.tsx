@@ -5,11 +5,11 @@ import { cn } from '@/lib/utils';
 const Logo = ({ className }: { className?: string }) => {
     return (
         <Image
-            src="/logo-optimized.png"
+            src="/logo-optimized.avif"
             alt="Godaapp Logo" 
             className={cn('h-12 w-auto object-contain', className)}
-            width={700}
-            height={500}
+            width={140}
+            height={100}
             sizes="70px"
         />
     );
@@ -134,7 +134,7 @@ export function MinimalFooter() {
 
 			{/* Main Content Area */}
 			<footer className="relative w-full text-white border-t border-white/5 z-10 overflow-hidden">
-				<div className="mx-auto max-w-7xl px-6 py-16">
+				<div className="mx-auto max-w-6xl px-8 py-16 sm:px-12 lg:px-16">
 					<div className="grid grid-cols-6 gap-8">
 						
 						{/* Brand Left Column */}

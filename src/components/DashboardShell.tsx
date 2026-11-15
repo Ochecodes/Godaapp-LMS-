@@ -84,7 +84,7 @@ export function DashboardShell({
     return (
       <aside className={`flex h-full min-h-0 flex-col border-r border-zinc-700 bg-zinc-900 text-white transition-[width] duration-200 ${isCollapsed ? "w-16" : "w-64"}`}>
         <Link aria-label="GodaApp dashboard" className={`flex h-16 items-center gap-3 border-b border-zinc-700 ${isCollapsed ? "justify-center px-2" : "px-5"}`} href="/dashboard" title={isCollapsed ? "GodaApp dashboard" : undefined}>
-          <Image alt="GodaApp" className="h-9 w-9 rounded-md object-contain" height={36} src="/logotrans.png" width={36} />
+          <Image alt="GodaApp" className="h-9 w-9 rounded-md object-contain" height={36} src="/logotrans.avif" width={36} />
           {!isCollapsed && <span className="font-semibold tracking-tight">GodaApp <span className="text-zinc-400">learn</span></span>}
         </Link>
         <nav aria-label="Student dashboard" className={`flex-1 space-y-1 overflow-y-auto ${isCollapsed ? "p-2" : "p-3"}`}>
@@ -223,41 +223,41 @@ function Avatar({ avatarUrl }: { avatarUrl?: string }) {
 
 function ThemeSwitch() {
   const [mode, setMode] = useState<"light" | "dark" | "system">("system");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("godaapp-dashboard-theme");
-    if (stored === "light" || stored === "dark" || stored === "system") setMode(stored);
-  }, []);
-
-  function cycleMode() {
-    const next = mode === "system" ? "dark" : mode === "dark" ? "light" : "system";
-    setMode(next);
-    localStorage.setItem("godaapp-dashboard-theme", next);
-    const dark = next === "dark" || (next === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.toggle("dark", dark);
-  }
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
-      const activeMode = localStorage.getItem("godaapp-dashboard-theme") ?? "system";
-      document.documentElement.classList.toggle("dark", activeMode === "dark" || (activeMode === "system" && media.matches));
+      const stored = localStorage.getItem("godaapp-dashboard-theme");
+      const activeMode = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+      const dark = activeMode === "dark" || (activeMode === "system" && media.matches);
+      setMode(activeMode);
+      setIsDark(dark);
+      document.documentElement.classList.toggle("dark", dark);
     };
     apply();
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
   }, []);
 
+  function toggleTheme() {
+    const nextMode = document.documentElement.classList.contains("dark") ? "light" : "dark";
+    setMode(nextMode);
+    setIsDark(nextMode === "dark");
+    localStorage.setItem("godaapp-dashboard-theme", nextMode);
+    document.documentElement.classList.toggle("dark", nextMode === "dark");
+  }
+
   const label = mode === "system" ? "system theme" : `${mode} theme`;
   return (
     <button
       aria-label={`Theme: ${label}. Click to change.`}
       className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      onClick={cycleMode}
+      onClick={toggleTheme}
       title={`Theme: ${label}`}
       type="button"
     >
-      <DashboardIcon aria-hidden="true" className="size-4" icon={mode === "dark" ? "lucide:moon" : "lucide:sun"} />
+      <DashboardIcon aria-hidden="true" className="size-4" icon={isDark ? "lucide:moon" : "lucide:sun"} />
     </button>
   );
 }

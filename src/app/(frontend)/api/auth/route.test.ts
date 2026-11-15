@@ -65,6 +65,20 @@ describe("POST /api/auth", () => {
     expect(mocks.checkRateLimit).not.toHaveBeenCalled();
   });
 
+  it("accepts same-origin requests forwarded through a HTTPS proxy", async () => {
+    const response = await POST(
+      authRequest({ action: "google", next: "/dashboard/courses" }, {
+        origin: "https://godaapp.example",
+        "x-forwarded-host": "godaapp.example",
+        "x-forwarded-proto": "https",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    const call = mocks.signInWithOAuth.mock.calls[0][0];
+    expect(call.options.redirectTo).toContain("https://godaapp.example/callback");
+  });
+
   it("rejects malformed, oversized, unsupported, or invalid credential requests", async () => {
     const malformed = await POST(authRequest("{"));
     const unsupported = await POST(authRequest({ action: "delete-account" }));

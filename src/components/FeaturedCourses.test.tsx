@@ -58,6 +58,9 @@ describe("FeaturedCourses query cache", () => {
     const user = userEvent.setup();
     await user.click(exploreButtons[0]);
     expect(await screen.findByText("Market structure")).toBeInTheDocument();
+    expect(screen.queryByText("Coming soon")).not.toBeInTheDocument();
+    expect(screen.queryByText("Free")).not.toBeInTheDocument();
+    expect(screen.queryByText("Paid")).not.toBeInTheDocument();
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
     expect(fetch).toHaveBeenCalledWith("/api/catalog/featured-courses");
   });

@@ -1,5 +1,8 @@
 import dynamic from "next/dynamic";
 import { HeroSection } from "@/components/ui/hero-section1";
+import { HowItWorks } from "@/components/ui/HowItWorks";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { WhoWeAre } from "@/components/ui/WhoWeAre";
 import { CatalogStoreProvider } from "@/lib/catalog-store";
 
 const Testimonials = dynamic(() => import("@/components/ui/testimonials"), {
@@ -23,7 +26,15 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <Testimonials />
+      <HowItWorks />
+      <WhoWeAre />
+      <ScrollReveal
+        className="relative z-10 -mt-6 overflow-hidden rounded-t-3xl bg-white shadow-[0_-8px_24px_rgba(9,9,11,0.12)]"
+        direction="top"
+        duration={180}
+      >
+        <Testimonials />
+      </ScrollReveal>
       <CatalogStoreProvider>
         <FeaturedCourses />
       </CatalogStoreProvider>

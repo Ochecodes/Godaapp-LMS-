@@ -8,6 +8,8 @@ import * as migration_20261101_000000_add_course_original_price from './20261101
 import * as migration_20261108_000000_enable_payload_table_rls from './20261108_000000_enable_payload_table_rls';
 import * as migration_20261111_000000_add_app_rate_limits from './20261111_000000_add_app_rate_limits';
 import * as migration_20261118_000000_add_lesson_duration from './20261118_000000_add_lesson_duration';
+import * as migration_20261119_000000_add_affiliate_applications from './20261119_000000_add_affiliate_applications';
+import * as migration_20261120_000000_complete_affiliate_portal from './20261120_000000_complete_affiliate_portal';
 
 export const migrations = [
   {
@@ -59,5 +61,15 @@ export const migrations = [
     up: migration_20261118_000000_add_lesson_duration.up,
     down: migration_20261118_000000_add_lesson_duration.down,
     name: '20261118_000000_add_lesson_duration'
+  },
+  {
+    up: migration_20261119_000000_add_affiliate_applications.up,
+    down: migration_20261119_000000_add_affiliate_applications.down,
+    name: '20261119_000000_add_affiliate_applications'
+  },
+  {
+    up: migration_20261120_000000_complete_affiliate_portal.up,
+    down: migration_20261120_000000_complete_affiliate_portal.down,
+    name: '20261120_000000_complete_affiliate_portal'
   },
 ];

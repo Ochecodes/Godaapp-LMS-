@@ -105,3 +105,65 @@
 :root {
   --font-geist: 'Geist', sans-serif;
 }
+
+@keyframes button-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(-1px) rotate(-0.5deg);
+  }
+  70% {
+    transform: translateX(1px) rotate(0.5deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled):hover,
+  [data-slot="button"]:not(:disabled):hover,
+  .button-shake:hover {
+    animation: button-shake 180ms ease-in-out;
+  }
+}
+
+@keyframes scroll-reveal-bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.scroll-reveal[data-reveal-ready="true"][data-reveal-visible="false"] {
+  opacity: 0;
+  transform: translate3d(var(--reveal-x), var(--reveal-y), 0);
+}
+
+.scroll-reveal[data-reveal-ready="true"][data-reveal-visible="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity var(--reveal-duration, 300ms) ease var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 300ms) ease var(--reveal-delay, 0s);
+}
+
+.scroll-reveal--bounce[data-reveal-ready="true"][data-reveal-visible="true"] {
+  animation: scroll-reveal-bounce 420ms ease-out var(--reveal-delay, 0s) both;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}

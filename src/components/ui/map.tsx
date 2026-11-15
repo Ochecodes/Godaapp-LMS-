@@ -86,13 +86,6 @@ export function WorldMap({
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
-          <linearGradient id="path-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="white" stopOpacity="0" />
-            <stop offset="5%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="95%" stopColor={lineColor} stopOpacity="1" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          
           <filter id="glow">
             <feMorphology operator="dilate" radius="0.5" />
             <feGaussianBlur stdDeviation="1" result="coloredBlur" />
@@ -114,14 +107,31 @@ export function WorldMap({
           
           return (
             <g key={`path-group-${i}`}>
+              <defs>
+                <linearGradient
+                  id={`trail-gradient-${i}`}
+                  gradientUnits="userSpaceOnUse"
+                  x1={startPoint.x}
+                  y1={startPoint.y}
+                  x2={endPoint.x}
+                  y2={endPoint.y}
+                >
+                  <stop offset="0%" stopColor={lineColor} stopOpacity="0" />
+                  <stop offset="65%" stopColor={lineColor} stopOpacity="0.25" />
+                  <stop offset="100%" stopColor={lineColor} stopOpacity="1" />
+                </linearGradient>
+              </defs>
               <motion.path
                 d={createCurvedPath(startPoint, endPoint)}
                 fill="none"
-                stroke="url(#path-gradient)"
-                strokeWidth="0.6"
-                initial={{ pathLength: 0 }}
+                pathLength={loop ? 1 : undefined}
+                stroke={`url(#trail-gradient-${i})`}
+                strokeDasharray={loop ? "0.2 0.8" : undefined}
+                strokeWidth="0.7"
+                initial={loop ? { opacity: 0, strokeDashoffset: 0 } : { pathLength: 0 }}
                 animate={loop ? {
-                  pathLength: [0, 0, 1, 1, 0],
+                  opacity: [0, 0, 1, 1, 0],
+                  strokeDashoffset: [0, 0, -0.8, -0.8, 0],
                 } : {
                   pathLength: 1
                 }}
@@ -142,6 +152,7 @@ export function WorldMap({
                 <motion.circle
                   r="4"
                   fill={lineColor}
+                  filter="url(#glow)"
                   initial={{ offsetDistance: "0%", opacity: 0 }}
                   animate={{
                     offsetDistance: [null, "0%", "100%", "100%", "100%"],

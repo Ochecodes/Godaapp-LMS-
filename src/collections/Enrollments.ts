@@ -40,6 +40,15 @@ export const Enrollments: CollectionConfig = {
       index: true,
     },
     {
+      name: 'providerCheckoutId',
+      type: 'text',
+      unique: true,
+      index: true,
+      admin: {
+        description: 'Optional unique checkout identifier used to keep webhook enrollment retries idempotent.',
+      },
+    },
+    {
       name: 'isActive',
       type: 'checkbox',
       defaultValue: true,

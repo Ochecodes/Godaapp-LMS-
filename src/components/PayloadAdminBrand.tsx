@@ -8,7 +8,7 @@ import { useTheme } from "@payloadcms/ui";
 export function PayloadGraphic() {
   return (
     <span className="goda-admin-graphic">
-      <Image src="/logotrans.png" alt="GodaApp" width={42} height={32} />
+      <Image src="/logotrans.avif" alt="GodaApp" width={42} height={32} />
     </span>
   );
 }
@@ -17,7 +17,7 @@ export function PayloadNavBrand() {
   return (
     <Link className="goda-admin-nav-brand" href="/instructor-panel" aria-label="GodaApp dashboard">
       <span className="goda-admin-logo-frame">
-        <Image src="/logotrans.png" alt="GodaApp" width={82} height={58} />
+        <Image src="/logotrans.avif" alt="GodaApp" width={82} height={58} />
       </span>
       <span>GodaApp workspace</span>
     </Link>

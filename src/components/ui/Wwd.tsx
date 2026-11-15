@@ -4,9 +4,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 const communityImages = [
-  { src: "/American.jpg", alt: "GodaApp community member" },
-  { src: "/Nigerian.jpg", alt: "GodaApp community member" },
-  { src: "/Asian.jpg", alt: "GodaApp community member" },
+  { src: "/American.avif", alt: "GodaApp community member" },
+  { src: "/Nigerian.avif", alt: "GodaApp community member" },
+  { src: "/Asian.avif", alt: "GodaApp community member" },
 ];
 
 export default function Wwd() {
@@ -30,7 +30,7 @@ export default function Wwd() {
         <div className="relative mx-auto w-full max-w-xl">
           <div className="relative aspect-[1.05] overflow-hidden rounded-xl bg-zinc-100 shadow-xl shadow-zinc-900/10">
             <Image
-              src="/ContactIMG.jpg"
+              src="/ContactIMG.avif"
               alt="Global Digital Assets Academy community working together"
               fill
               sizes="(max-width: 1023px) 100vw, 50vw"

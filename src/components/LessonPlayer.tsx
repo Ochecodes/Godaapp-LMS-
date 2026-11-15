@@ -56,23 +56,29 @@ type YouTubePlayerEvent = {
   data: number;
 };
 
+type YouTubePlayerErrorEvent = {
+  data: number;
+};
+
 type YouTubePlayer = {
   getCurrentTime: () => number;
   getDuration: () => number;
+  getIframe: () => HTMLIFrameElement;
   pauseVideo: () => void;
   playVideo: () => void;
   destroy: () => void;
 };
 
 type YouTubeAPI = {
-  Player: new (
+  Player?: new (
     element: HTMLElement,
     options: {
       videoId: string;
-      playerVars: { rel: number; playsinline: number };
+      playerVars: { rel: number; playsinline: number; origin: string };
       events: {
         onReady: () => void;
         onStateChange: (event: YouTubePlayerEvent) => void;
+        onError: (event: YouTubePlayerErrorEvent) => void;
       };
     },
   ) => YouTubePlayer;
@@ -86,6 +92,24 @@ declare global {
 }
 
 const QUIZ_INTERVAL_SECONDS = 120;
+
+function getYouTubePlayerErrorMessage(errorCode: number) {
+  switch (errorCode) {
+    case 2:
+      return "This lesson has an invalid YouTube video ID.";
+    case 5:
+      return "YouTube could not play this video in the current browser.";
+    case 100:
+      return "This YouTube video is unavailable or has been removed.";
+    case 101:
+    case 150:
+      return "The video owner has disabled playback on other websites.";
+    case 153:
+      return "YouTube could not verify the video embed origin. Refresh the page and try again.";
+    default:
+      return "YouTube could not play this lesson. Refresh the page or contact support.";
+  }
+}
 
 function formatLessonDuration(durationSeconds?: number | null) {
   if (typeof durationSeconds !== "number" || !Number.isFinite(durationSeconds) || durationSeconds < 0) {
@@ -175,13 +199,21 @@ export function LessonPlayer({
 
   const initializePlayer = useCallback(() => {
     if (playerRef.current) return true;
-    if (!playerContainerRef.current || !window.YT) return false;
+    const api = window.YT;
+    if (!playerContainerRef.current || typeof api?.Player !== "function") return false;
 
-    playerRef.current = new window.YT.Player(playerContainerRef.current, {
+    playerRef.current = new api.Player(playerContainerRef.current, {
       videoId,
-      playerVars: { rel: 0, playsinline: 1 },
+      playerVars: { rel: 0, playsinline: 1, origin: window.location.origin },
       events: {
-        onReady: () => setPlayerError(null),
+        onReady: () => {
+          const iframe = playerRef.current?.getIframe();
+          if (iframe) {
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+          }
+          setPlayerError(null);
+        },
         onStateChange: (event) => {
           const api = window.YT;
           const player = playerRef.current;
@@ -203,6 +235,10 @@ export function LessonPlayer({
             if (watchedSeconds > 0) void saveLessonActivity(watchedSeconds, false);
           }
           setIsPlaying(event.data === api?.PlayerState.PLAYING);
+        },
+        onError: (event) => {
+          setIsPlaying(false);
+          setPlayerError(getYouTubePlayerErrorMessage(event.data));
         },
       },
     });
@@ -398,9 +434,7 @@ export function LessonPlayer({
   }
 
   const handleScriptReady = useCallback(() => {
-    if (!initializePlayer()) {
-      setPlayerError("The video player did not load. Refresh the page to try again.");
-    }
+    initializePlayer();
   }, [initializePlayer]);
 
   const effectiveCompletedCount = Math.min(
@@ -417,6 +451,7 @@ export function LessonPlayer({
         src="https://www.youtube.com/iframe_api"
         strategy="afterInteractive"
         onReady={handleScriptReady}
+        onError={() => setPlayerError("The video player could not be loaded. Refresh the page to try again.")}
       />
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <DashboardPageBanner

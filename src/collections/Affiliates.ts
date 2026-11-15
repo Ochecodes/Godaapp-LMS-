@@ -42,6 +42,15 @@ export const Affiliates: CollectionConfig = {
       }
     },
     {
+      name: 'referralLinkActive',
+      type: 'checkbox',
+      defaultValue: true,
+      required: true,
+      admin: {
+        description: 'Whether this code can create new referral attribution.',
+      },
+    },
+    {
       name: 'status',
       type: 'select',
       defaultValue: 'pending',
@@ -59,17 +68,14 @@ export const Affiliates: CollectionConfig = {
         {
           name: 'bankName',
           type: 'text',
-          required: true,
         },
         {
           name: 'accountNumber',
           type: 'text',
-          required: true,
         },
         {
           name: 'accountName',
           type: 'text',
-          required: true,
         },
       ],
     },

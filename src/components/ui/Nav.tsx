@@ -49,11 +49,11 @@ export function Nav() {
                 className="flex items-center space-x-2"
               >
                 <Image
-                  src="/logo-optimized.png"
+                  src="/logo-optimized.avif"
                   alt="Godaapp Logo"
                   className="h-12 w-auto object-contain"
-                  width={700}
-                  height={500}
+                  width={140}
+                  height={100}
                   sizes="70px"
                   priority
                 />

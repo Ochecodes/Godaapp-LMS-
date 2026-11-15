@@ -39,16 +39,22 @@ export function HeroSection() {
           <div className="relative pt-24 md:pt-36">
             <div
               className="hero-background-fade absolute inset-0 -z-30 h-full w-full overflow-hidden bg-black"
-              style={{ animation: "hero-background-fade 1.5s ease both" }}
+              style={{ animation: "hero-background-fade 0.4s ease both" }}
             >
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
+                poster="/bg-hero-poster.avif"
+                preload="metadata"
                 className="pointer-events-none h-full w-full object-cover object-center opacity-80"
               >
-                <source src="/bg-hero.webm" type="video/webm" />
+                <source
+                  src="/bg-hero-optimized.webm"
+                  type={'video/webm; codecs="vp9"'}
+                />
+                <source src="/bg-hero-fallback.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -58,13 +64,13 @@ export function HeroSection() {
               className="absolute inset-0 -z-10 size-full bg-gradient-to-b from-black/10 via-zinc-950/40 to-zinc-950"
             />
 
-            <div className="relative z-10 mx-auto max-w-7xl px-6">
+            <div className="relative z-10 mx-auto max-w-6xl px-8 sm:px-12 lg:px-16">
               <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                 <div
                   className="hero-content-rise"
                   style={{
                     animation:
-                      "hero-content-rise 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both",
+                      "hero-content-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both",
                   }}
                 >
                   <Link
@@ -87,7 +93,7 @@ export function HeroSection() {
                     </div>
                   </Link>
 
-                  <h1 className="mx-auto mt-8 max-w-4xl text-balance text-6xl font-medium tracking-tight text-zinc-100 drop-shadow-sm md:text-7xl lg:mt-16 xl:text-[5.25rem]">
+                  <h1 className="mx-auto mt-8 max-w-4xl text-balance text-4xl font-medium tracking-tight text-zinc-100 drop-shadow-sm sm:text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
                     Tailored <span className="text-[#068365]">Courses</span> for
                     Digital Learners
                   </h1>
@@ -102,7 +108,7 @@ export function HeroSection() {
                   className="hero-actions-rise mt-12 flex flex-col items-center justify-center gap-3 md:flex-row"
                   style={{
                     animation:
-                      "hero-content-rise 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both",
+                      "hero-content-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both",
                   }}
                 >
                   <div className="rounded-[14px] border border-white/10 bg-white/5 p-0.5 shadow-xl">
@@ -134,19 +140,19 @@ export function HeroSection() {
                 className="hero-preview-rise"
                 style={{
                   animation:
-                    "hero-content-rise 2s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both",
+                    "hero-content-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both",
                 }}
               >
-                <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
+                <div className="relative mx-auto mt-8 max-w-6xl overflow-hidden px-0 sm:mt-12 md:mt-20">
                   <div
                     aria-hidden="true"
                     className="absolute inset-0 z-10 bg-gradient-to-b from-transparent via-zinc-950/30 to-zinc-950"
                   />
-                  <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-900/40 p-4 shadow-2xl shadow-black/90 ring-1 ring-white/5 backdrop-blur-md">
+                  <div className="relative mx-auto w-full overflow-hidden rounded-xl border border-white/10 bg-zinc-900/40 p-2 shadow-2xl shadow-black/90 ring-1 ring-white/5 backdrop-blur-md sm:rounded-2xl sm:p-4">
                     <Image
-                      className="relative block w-full rounded-2xl border border-white/5"
+                      className="relative block h-auto w-full rounded-lg border border-white/5 sm:rounded-2xl"
                       alt="App screenshot"
-                      src="/DashIMG.jpeg"
+                      src="/DashIMG.avif"
                       width={1906}
                       height={1231}
                       sizes="(max-width: 640px) 100vw, 80vw"

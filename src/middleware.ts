@@ -53,13 +53,15 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
 
   const refCode = searchParams.get("ref");
   if (refCode) {
-    response.cookies.set("godaapp_affiliate_ref", refCode, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-    });
+    const destination = new URL(request.url);
+    destination.searchParams.delete("ref");
+    const validationUrl = new URL("/api/affiliate/referral", request.url);
+    validationUrl.searchParams.set("code", refCode);
+    validationUrl.searchParams.set(
+      "next",
+      `${destination.pathname}${destination.search}`,
+    );
+    return NextResponse.redirect(validationUrl);
   }
 
   if (isAffiliatePath || isStudentPath) {
@@ -101,15 +103,11 @@ export async function middleware(request: NextRequest, event: NextFetchEvent) {
 
     const claims = data?.claims;
     if (!claims || typeof claims.sub !== "string") {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+      const signInPath = isAffiliatePath ? "/affiliate/sign-in" : "/sign-in";
+      return NextResponse.redirect(new URL(signInPath, request.url));
     }
 
     const metadata = claims.user_metadata;
-    const role = isRecord(metadata) ? metadata.role : undefined;
-    if (isAffiliatePath && role !== "affiliate" && role !== "admin") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
     const verifiedUser = JSON.stringify({
       id: claims.sub,
       email: typeof claims.email === "string" ? claims.email : null,

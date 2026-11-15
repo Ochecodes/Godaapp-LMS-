@@ -1,8 +1,9 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
 
 import { AuroraHero } from "@/components/ui/AuroraHero";
@@ -11,14 +12,71 @@ import { Button } from "@/components/ui/button";
 export default function AffiliateSignUp() {
   const formRef = useRef<HTMLFormElement>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [applicationReceived, setApplicationReceived] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    setApplicationReceived(
+      new URLSearchParams(window.location.search).get("application") === "received",
+    );
+  }, []);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
 
-    window.setTimeout(() => {
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const fullName = [
+      formData.get("firstName"),
+      formData.get("lastName"),
+    ]
+      .filter((name): name is string => typeof name === "string")
+      .join(" ")
+      .trim();
+
+    setError("");
+    setLoading(true);
+    try {
+      const response = await fetch("/api/affiliate/applications", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          message: formData.get("message"),
+          termsAccepted: formData.get("termsAccepted") === "accepted",
+        }),
+      });
+
+      const result: unknown = await response.json();
+      if (!response.ok) {
+        const message =
+          typeof result === "object" &&
+          result !== null &&
+          "error" in result &&
+          typeof result.error === "string"
+            ? result.error
+            : "Your application could not be submitted.";
+        throw new Error(message);
+      }
+
+      const returnUrl = form.querySelector<HTMLInputElement>('input[name="_next"]');
+      if (returnUrl) {
+        returnUrl.value = new URL("/affiliate?application=received", window.location.origin).toString();
+      }
+      setSubmitted(true);
       formRef.current?.submit();
-    }, 850);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Your application could not be submitted. Please try again.",
+      );
+      setLoading(false);
+    }
   }
 
   return (
@@ -26,7 +84,7 @@ export default function AffiliateSignUp() {
       <div className="mx-auto grid w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid-cols-[0.9fr_1.1fr]">
         <div className="relative min-h-80 overflow-hidden lg:min-h-[38rem]">
           <Image
-            src="/AffiliateIMG.jpg"
+            src="/AffiliateIMG.avif"
             alt="Students learning together"
             fill
             sizes="(max-width: 1023px) 100vw, 45vw"
@@ -44,6 +102,20 @@ export default function AffiliateSignUp() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#068365]">Affiliate program</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">Become a partner</h1>
             <p className="mt-3 text-base leading-relaxed text-zinc-600">Refer to earn, join our affiliate program.</p>
+            <p className="mt-3 text-sm text-zinc-600">
+              Already approved?{" "}
+              <Link
+                className="font-semibold text-[#068365] underline-offset-4 hover:underline"
+                href="/affiliate/sign-in"
+              >
+                Sign in to your affiliate account
+              </Link>
+            </p>
+            {applicationReceived && (
+              <p className="mt-5 rounded-lg border border-[#068365]/20 bg-[#068365]/5 px-4 py-3 text-sm text-[#056d53]" role="status">
+                Your application has been received and is awaiting review. We will contact you when a decision is ready.
+              </p>
+            )}
 
             <form
               ref={formRef}
@@ -55,7 +127,7 @@ export default function AffiliateSignUp() {
               <input type="hidden" name="_subject" value="New GodaApp affiliate application" />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
-              <input type="hidden" name="_next" value="http://localhost:3000/affiliate" />
+              <input type="hidden" name="_next" />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="space-y-1.5 text-sm font-medium">
@@ -90,8 +162,10 @@ export default function AffiliateSignUp() {
                 </span>
               </label>
 
-              <Button type="submit" disabled={submitted} className="h-11 w-full rounded-lg bg-[#068365] font-semibold text-white transition-colors hover:bg-[#056d53] disabled:cursor-not-allowed disabled:opacity-100 disabled:text-white">
-                {submitted ? <><Check className="size-5" aria-label="Submitted" /> Submitted</> : <>Submit application <ArrowRight className="size-4" aria-hidden="true" /></>}
+              {error && <p className="text-sm text-red-700" role="alert">{error}</p>}
+
+              <Button type="submit" disabled={submitted || loading} className="h-11 w-full rounded-lg bg-[#068365] font-semibold text-white transition-colors hover:bg-[#056d53] disabled:cursor-not-allowed disabled:opacity-100 disabled:text-white">
+                {submitted ? <><Check className="size-5" aria-label="Submitted" /> Submitted</> : loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" aria-hidden="true" /></>}
               </Button>
             </form>
           </div>

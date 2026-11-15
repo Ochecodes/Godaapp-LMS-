@@ -5,6 +5,10 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { buildConfig } from 'payload'
 
 import { Affiliates } from './collections/Affiliates.ts'
+import { AffiliateApplications } from './collections/AffiliateApplications.ts'
+import { AffiliateDisputes } from './collections/AffiliateDisputes.ts'
+import { AffiliateKyc } from './collections/AffiliateKyc.ts'
+import { AffiliateLedgerAdjustments } from './collections/AffiliateLedgerAdjustments.ts'
 import { Courses } from './collections/Courses.ts'
 import { Enrollments } from './collections/Enrollments.ts'
 import { Instructors } from './collections/Instructors.ts'
@@ -75,5 +79,5 @@ export default buildConfig({
     },
     push: false,
   }),
-  collections: [Instructors, Users, Courses, Modules, Lessons, Enrollments, Resources, Affiliates, Referrals, PayoutRequests],
+  collections: [Instructors, Users, Courses, Modules, Lessons, Enrollments, Resources, Affiliates, AffiliateApplications, AffiliateDisputes, AffiliateKyc, AffiliateLedgerAdjustments, Referrals, PayoutRequests],
 })

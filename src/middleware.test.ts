@@ -70,12 +70,36 @@ describe("protected-route middleware", () => {
     expect(signedOut.status).toBe(307);
     expect(signedOut.headers.get("location")).toContain("/sign-in");
 
-    const wrongRole = await middleware(
+    mocks.getClaims.mockResolvedValueOnce({
+      data: {
+        claims: {
+          sub: "verified-user-1",
+          email: "student@example.com",
+          email_verified: true,
+          user_metadata: { role: "student" },
+        },
+      },
+      error: null,
+    });
+    const affiliateUser = await middleware(
       new NextRequest("https://godaapp.example/affiliate-dashboard"),
       nextEvent(),
     );
-    expect(wrongRole.status).toBe(307);
-    expect(wrongRole.headers.get("location")).toContain("/dashboard");
+    expect(affiliateUser.status).toBe(200);
+    expect(affiliateUser.headers.get("x-middleware-override-headers")).toContain(
+      "x-goda-verified-user",
+    );
+  });
+
+  it("sends signed-out affiliate portal visitors to affiliate sign-in", async () => {
+    mocks.getClaims.mockResolvedValueOnce({ data: { claims: null }, error: null });
+    const response = await middleware(
+      new NextRequest("https://godaapp.example/affiliate-dashboard"),
+      nextEvent(),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/affiliate/sign-in");
   });
 
   it("forwards a minimal verified identity, replaces caller input, and keeps refreshed cookies", async () => {
@@ -111,5 +135,18 @@ describe("protected-route middleware", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.createServerClient).not.toHaveBeenCalled();
+  });
+
+  it("sends referral parameters through server-side link validation", async () => {
+    const response = await middleware(
+      new NextRequest("https://godaapp.example/catalog?ref=GODA1234&category=design"),
+      nextEvent(),
+    );
+
+    const location = new URL(response.headers.get("location")!);
+    expect(location.pathname).toBe("/api/affiliate/referral");
+    expect(location.searchParams.get("code")).toBe("GODA1234");
+    expect(location.searchParams.get("next")).toBe("/catalog?category=design");
+    expect(response.headers.get("set-cookie")).toBeNull();
   });
 });

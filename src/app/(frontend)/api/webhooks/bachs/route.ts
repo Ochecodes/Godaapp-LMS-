@@ -138,14 +138,25 @@ export async function POST(request: Request) {
   if (!matchingEnrollment) {
     await payload.create({
       collection: "enrollments",
-      data: { email: normalizedEmail, user: student.id, course: course.id, isActive: true },
+      data: {
+        email: normalizedEmail,
+        user: student.id,
+        course: course.id,
+        isActive: true,
+        providerCheckoutId: data.checkout_id,
+      },
       overrideAccess: true,
     });
   } else if (!matchingEnrollment.isActive) {
     await payload.update({
       collection: "enrollments",
       id: matchingEnrollment.id,
-      data: { email: normalizedEmail, user: student.id, isActive: true },
+      data: {
+        email: normalizedEmail,
+        user: student.id,
+        isActive: true,
+        providerCheckoutId: data.checkout_id,
+      },
       overrideAccess: true,
     });
   }
@@ -157,6 +168,7 @@ export async function POST(request: Request) {
         and: [
           { referralCode: { equals: metadata.ref_code.toUpperCase().trim() } },
           { status: { equals: "approved" } },
+          { referralLinkActive: { equals: true } },
         ],
       },
       limit: 1,
@@ -164,30 +176,40 @@ export async function POST(request: Request) {
     });
     const affiliate = affiliateResult.docs[0];
     if (affiliate) {
-      const existingReferral = await payload.find({
-        collection: "referrals",
+      const membershipResult = await payload.find({
+        collection: "affiliate-applications",
         where: {
           and: [
             { affiliate: { equals: affiliate.id } },
-            { course: { equals: course.id } },
-            { referredEmail: { equals: normalizedEmail } },
+            { status: { equals: "approved" } },
           ],
         },
         limit: 1,
         overrideAccess: true,
       });
-      if (!existingReferral.docs.length) {
-        await payload.create({
+      if (membershipResult.docs.length) {
+        const existingReferral = await payload.find({
           collection: "referrals",
-          data: {
-            affiliate: affiliate.id,
-            course: course.id,
-            referredEmail: normalizedEmail,
-            commissionAmount: coursePrice * 0.25,
-            payoutStatus: "unpaid",
-          },
+          where: { providerCheckoutId: { equals: data.checkout_id } },
+          limit: 1,
           overrideAccess: true,
         });
+        if (!existingReferral.docs.length) {
+          await payload.create({
+            collection: "referrals",
+            data: {
+              affiliate: affiliate.id,
+              course: course.id,
+              referredEmail: normalizedEmail,
+              saleAmount: coursePrice,
+              commissionRate: 0.25,
+              commissionAmount: Math.round(coursePrice * 25) / 100,
+              providerCheckoutId: data.checkout_id,
+              payoutStatus: "unpaid",
+            },
+            overrideAccess: true,
+          });
+        }
       }
     }
   }

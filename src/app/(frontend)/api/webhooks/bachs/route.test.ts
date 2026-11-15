@@ -152,6 +152,7 @@ describe("POST /api/webhooks/bachs", () => {
         user: 2,
         course: 7,
         isActive: true,
+        providerCheckoutId: "checkout_123",
       },
       overrideAccess: true,
     });
@@ -191,8 +192,99 @@ describe("POST /api/webhooks/bachs", () => {
     expect(mocks.payloadUpdate).toHaveBeenCalledWith({
       collection: "enrollments",
       id: 3,
-      data: { email: "student@example.com", user: 2, isActive: true },
+      data: {
+        email: "student@example.com",
+        user: 2,
+        isActive: true,
+        providerCheckoutId: "checkout_123",
+      },
       overrideAccess: true,
     });
+  });
+
+  it("creates a commission only when the referral belongs to an approved membership", async () => {
+    const referredEvent = {
+      ...event,
+      data: {
+        ...event.data,
+        metadata: { ...event.data.metadata, ref_code: "GODA1234" },
+      },
+    };
+    mocks.payloadFind.mockReset();
+    mocks.payloadFind
+      .mockResolvedValueOnce({ docs: [{ id: 2, email: "student@example.com" }] })
+      .mockResolvedValueOnce({ docs: [] })
+      .mockResolvedValueOnce({ docs: [{ id: 9, status: "approved" }] })
+      .mockResolvedValueOnce({ docs: [{ id: 10, status: "approved" }] })
+      .mockResolvedValueOnce({ docs: [] });
+
+    const response = await POST(signedRequest(JSON.stringify(referredEvent)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.payloadCreate).toHaveBeenCalledWith({
+      collection: "referrals",
+      data: {
+        affiliate: 9,
+        course: 7,
+        referredEmail: "student@example.com",
+        saleAmount: 49.99,
+        commissionRate: 0.25,
+        commissionAmount: 12.5,
+        providerCheckoutId: "checkout_123",
+        payoutStatus: "unpaid",
+      },
+      overrideAccess: true,
+    });
+  });
+
+  it("does not create a second commission for a checkout already in the ledger", async () => {
+    const referredEvent = {
+      ...event,
+      data: {
+        ...event.data,
+        metadata: { ...event.data.metadata, ref_code: "GODA1234" },
+      },
+    };
+    mocks.payloadFind.mockReset();
+    mocks.payloadFind
+      .mockResolvedValueOnce({ docs: [{ id: 2, email: "student@example.com" }] })
+      .mockResolvedValueOnce({ docs: [{ id: 3, isActive: true }] })
+      .mockResolvedValueOnce({ docs: [{ id: 9, status: "approved" }] })
+      .mockResolvedValueOnce({ docs: [{ id: 10, status: "approved" }] })
+      .mockResolvedValueOnce({ docs: [{ id: 11, providerCheckoutId: "checkout_123" }] });
+
+    const response = await POST(signedRequest(JSON.stringify(referredEvent)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.payloadCreate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ collection: "referrals" }),
+    );
+  });
+
+  it("does not create a commission when the affiliate membership is no longer approved", async () => {
+    const referredEvent = {
+      ...event,
+      data: {
+        ...event.data,
+        metadata: { ...event.data.metadata, ref_code: "GODA1234" },
+      },
+    };
+    mocks.payloadFind.mockReset();
+    mocks.payloadFind
+      .mockResolvedValueOnce({ docs: [{ id: 2, email: "student@example.com" }] })
+      .mockResolvedValueOnce({ docs: [] })
+      .mockResolvedValueOnce({ docs: [{ id: 9, status: "approved" }] })
+      .mockResolvedValueOnce({ docs: [] });
+
+    const response = await POST(signedRequest(JSON.stringify(referredEvent)));
+
+    expect(response.status).toBe(200);
+    expect(mocks.payloadCreate).toHaveBeenCalledTimes(1);
+    expect(mocks.payloadCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: "enrollments" }),
+    );
+    expect(mocks.payloadCreate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ collection: "referrals" }),
+    );
   });
 });

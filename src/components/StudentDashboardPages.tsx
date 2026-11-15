@@ -9,6 +9,7 @@ const SOCIAL_LINKS = [
   { name: "LinkedIn", href: "https://www.linkedin.com/company/godaapp/", icon: "simple-icons:linkedin" },
   { name: "X", href: "https://x.com/godaapp", icon: "simple-icons:x" },
   { name: "YouTube", href: "https://www.youtube.com/@Godaapp", icon: "simple-icons:youtube" },
+  { name: "WhatsApp", href: "https://wa.me/2348145356898?text=Hello%20GodaApp%20Support", icon: "simple-icons:whatsapp" },
 ];
 
 type StudentResource = {
@@ -99,11 +100,11 @@ export function StudentCommunityPage() {
             Join the conversation, find new perspectives, and stay up to date with learning opportunities from GodaApp.
           </p>
           <div className="relative mt-5 aspect-[1.8] overflow-hidden rounded-xl bg-muted">
-            <Image alt="GodaApp learners connecting across a global community" className="object-cover" fill sizes="(max-width: 1279px) 100vw, 40vw" src="/ContactIMG.jpg" />
+            <Image alt="GodaApp learners connecting across a global community" className="object-cover" fill sizes="(max-width: 1279px) 100vw, 40vw" src="/ContactIMG.avif" />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-transparent to-transparent" />
             <div className="absolute inset-x-4 bottom-4 flex items-center gap-3">
               <div aria-hidden="true" className="flex shrink-0 pl-1">
-                {["/American.jpg", "/Nigerian.jpg", "/Asian.jpg"].map((src, index) => (
+                {["/American.avif", "/Nigerian.avif", "/Asian.avif"].map((src, index) => (
                   <Image alt="" className={`size-8 rounded-full border-2 border-white object-cover ${index ? "-ml-2.5" : ""}`} height={32} key={src} sizes="32px" src={src} width={32} />
                 ))}
                 <span className="-ml-2.5 grid size-8 place-items-center rounded-full border-2 border-white bg-[#068365] text-[9px] font-semibold text-white">50+</span>
@@ -111,20 +112,20 @@ export function StudentCommunityPage() {
               <p className="text-sm font-semibold text-white">A global network of learners</p>
             </div>
           </div>
-          <ul className="mt-5 divide-y divide-border">
+          <ul
+            aria-label="GodaApp social media links"
+            className="mt-5 grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4"
+          >
             {SOCIAL_LINKS.map((social) => (
               <li key={social.name}>
                 <a
-                  className="flex min-h-14 items-center justify-between gap-4 py-2 text-sm font-medium transition hover:text-[#068365] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={`GodaApp on ${social.name}`}
+                  className="mx-auto grid size-16 place-items-center rounded-full border border-border bg-muted/40 text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-20"
                   href={social.href}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span className="flex items-center gap-3">
-                    <DashboardIcon aria-hidden="true" className="size-5" icon={social.icon} />
-                    GodaApp on {social.name}
-                  </span>
-                  <DashboardIcon aria-hidden="true" className="size-4 text-muted-foreground" icon="lucide:external-link" />
+                  <DashboardIcon aria-hidden="true" className="size-7" icon={social.icon} />
                 </a>
               </li>
             ))}

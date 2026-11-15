@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ArrowRight, BookOpen, ChevronUp, LockKeyhole } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCatalogStore } from '@/lib/catalog-store';
+import { ScrollReveal } from '@/components/ui/ScrollReveal';
 
 interface GridItemType {
   tag: string;
@@ -14,7 +15,6 @@ interface GridItemType {
   courseSlug: string;
   title: string;
   desc: string;
-  badge: string;
   innerImageSrc: string;
   price: string;
 }
@@ -31,63 +31,57 @@ type FeaturedCourseDetails = {
 
 const GRID_ITEMS: GridItemType[] = [
   {
-    tag: "Udoyen Peter Snr",
+    tag: "GodaApp",
     category: "Crypto Markets",
     courseSlug: "cryptocurrency-market-and-trading-fundamentals",
     title: "Cryptocurrency Market and Trading Fundamentals",
     desc: "This course introduces the tools and concepts traders use to interpret market behaviour, understand liquidity, analyse price charts, and manage exposure to risk. You will also examine common security threats, trading mistakes, and the importance of disciplined decision-making.",
-    badge: "Free",
-    innerImageSrc: "/CryptoMarIMGCourse.jpg",
-    price: "$0"
+    innerImageSrc: "/CryptoMarIMGCourse.avif",
+    price: "$9.98"
   },
   {
-    tag: "Udoyen Peter Snr",
+    tag: "GodaApp",
     category: "Forex Trading",
     courseSlug: "forex-trading-and-beginners-fundamentals",
     title: "Forex Trading and Beginner Fundamentals",
     desc: "Understand how the foreign exchange market operates, from currency pairs, pips, and lot sizes to market sessions, price movements, and trading platforms. This course explores technical and fundamental analysis, economic events, leverage, and the practical mechanics of executing trades. It also examines risk management and the common weaknesses that can undermine trading decisions.",
-    badge: "Free",
-    innerImageSrc: "/ForexTradIMGCourse.jpg",
-    price: "$0"
+    innerImageSrc: "/ForexTradIMGCourse.avif",
+    price: "$9.98"
   },
   {
-    tag: "Udoyen Peter Snr",
+    tag: "GodaApp",
     category: "Trading Psychology",
     courseSlug: "risk-management-trading-psychology",
     title: "Risk Management & Trading Psychology",
     desc: "Develop a disciplined approach to managing trading risk, protecting capital, and making decisions under pressure. This course examines position sizing, risk-to-reward ratios, drawdowns, exposure control, and capital preservation alongside the psychological challenges of fear, greed, overtrading, and revenge trading. You will explore practical methods for evaluating risk, controlling emotional responses, and building a structured trading process.",
-    badge: "Paid",
-    innerImageSrc: "/RistMangIMGCourse.jpg",
+    innerImageSrc: "/RistMangIMGCourse.avif",
     price: "$8.88"
   },
   {
-    tag: "Udoyen Peter Snr",
+    tag: "GodaApp",
     category: "Forex Trading",
     courseSlug: "capital-management-and-prop-firm-preparation",
     title: "Capital Management and Prop Firm Preparation",
     desc: "This course examines prop firm evaluation models, profit targets, drawdown limits, risk restrictions, consistency requirements, and the rules that govern funded accounts. You will explore how to prepare for evaluations, control exposure, manage trading pressure, and develop a structured plan for operating within firm-specific conditions. The focus is on understanding the responsibilities and constraints of prop trading, making informed decisions, and preserving capital rather than pursuing funding at any cost.",
-    badge: "Paid",
-    innerImageSrc: "/CapiPropIMGCourse.jpg",
+    innerImageSrc: "/CapiPropIMGCourse.avif",
     price: "$9.98"
   },
   {
-    tag: "Oche Akor",
+    tag: "GodaApp",
     category: "Crypto Markets",
     courseSlug: "introduction-to-portfolio-management-and-copy-trading",
     title: "Introduction to Portfolio Management and Copy Trading",
     desc: "This course explores asset allocation, diversification, portfolio performance, and risk management, alongside the principles of copy trading and how investors assess traders before following their strategies. You will develop a clearer understanding of how individual investment decisions influence overall portfolio performance, the risks involved in copying trades, and the importance of making informed choices rather than relying solely on another investor’s decisions.",
-    badge: "Paid",
-    innerImageSrc: "/PortIMGCourse.jpg",
+    innerImageSrc: "/PortIMGCourse.avif",
     price: "$11.98"
   },
   {
-    tag: "Oche Akor",
+    tag: "GodaApp",
     category: "Algorithmic Trading using PineScript",
     courseSlug: "algorithmic-trading-using-pinescript",
     title: "Algorithmic Trading using PineScript",
     desc: "Learn how to develop, test, and refine rule-based trading strategies using Pine Script on TradingView. This course explores Pine Script fundamentals, indicator development, strategy logic, entry and exit conditions, trade alerts, and backtesting. You will examine how to translate trading ideas into code, evaluate strategy performance against historical market data, and identify limitations that can affect real-world results. The focus is on building a structured understanding of trading automation, systematic strategy development, and the role of coding in making trading decisions more consistent and measurable.",
-    badge: "Paid",
-    innerImageSrc: "/AlgoTradIMGCourse.jpg",
+    innerImageSrc: "/AlgoTradIMGCourse.avif",
     price: "$11.98"
   }
 ];
@@ -167,12 +161,23 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
         ========================================================================
       */}
       <div className={cn(
-        "relative z-20 mx-auto max-w-7xl",
-        compact ? "px-4 py-3 sm:px-6 sm:py-4" : "px-6 py-24 md:py-32",
+        "relative z-20 mx-auto max-w-6xl",
+        compact ? "px-4 py-3 sm:px-6 sm:py-4" : "px-8 py-8 sm:px-12 sm:py-12 lg:px-16 lg:py-16",
       )}>
         
         {/* Relative wrapper holding the grid to safely anchor the absolute side tab */}
         <div className="relative w-full">
+
+          {!compact && (
+            <header className="mb-8 text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 sm:text-4xl">
+                Explore our courses
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-sm font-normal leading-relaxed text-zinc-600">
+                Build practical knowledge and develop a more disciplined approach to digital asset markets.
+              </p>
+            </header>
+          )}
 
           {selectedCourse && (
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white/90 px-4 py-3">
@@ -195,7 +200,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
           
           {filteredItems.length > 0 ? (
             <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 w-full justify-center", compact && "gap-5")}>
-            {filteredItems.map((item: GridItemType) => {
+            {filteredItems.map((item: GridItemType, index: number) => {
               const isExpanded = expandedCourse === item.category;
               const details = courseDetails[item.courseSlug];
               const currentPrice = details?.priceUSD ?? getStaticPrice(item.price);
@@ -205,16 +210,17 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
               const isHalfPrice = originalPrice !== null &&
                 Math.round(originalPrice * 100) === Math.round(currentPrice * 200);
               const courseIsPublished = Boolean(details);
-              const courseBadge = courseDetailsLoaded && !details
-                ? 'Coming soon'
-                : details
-                  ? currentPrice === 0 ? 'Free' : 'Paid'
-                  : item.badge;
 
               return (
-              <div key={item.title} id={getCourseId(item.category)} className="w-full group scroll-mt-8">
+              <ScrollReveal
+                key={item.title}
+                className="group h-full w-full scroll-mt-8"
+                delay={Math.min(index * 0.05, 0.25)}
+                direction="bottom"
+                id={getCourseId(item.category)}
+              >
                 
-                <div className={cn("relative border border-zinc-200/80 overflow-hidden bg-white rounded-xl flex flex-col hover:border-zinc-300 transition-all duration-300 shadow-xl shadow-zinc-900/[0.03]", selectedCourse === item.category && "border-[#068365]/60 ring-2 ring-[#068365]/20")}>
+                <div className={cn("relative flex h-full flex-col overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-none transition-all duration-300 hover:border-zinc-300", selectedCourse === item.category && "border-[#068365]/60 ring-2 ring-[#068365]/20")}>
                   
                   {/* Course Card Preview Screenshot Area */}
                   <div className={cn("flex justify-center relative", compact ? "p-3" : "p-4")}>
@@ -248,7 +254,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
                     </p>
                     
                     {/* Action row layout */}
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div className="flex flex-wrap items-center gap-3">
                         {compact && (
                           <button
@@ -264,7 +270,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
                         {courseIsPublished ? (
                           <Link
                             href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
-                            className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
+                            className="button-shake flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
                           >
                             Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
                           </Link>
@@ -273,7 +279,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
                         ) : (
                           <Link
                             href={`/sign-up?course=${encodeURIComponent(item.courseSlug)}`}
-                            className="flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
+                            className="button-shake flex items-center rounded-lg bg-[#F57C00] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm transition hover:bg-[#E65100] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F57C00]/60"
                           >
                             Enroll <ArrowRight className="ml-1.5 size-3" aria-hidden="true" />
                           </Link>
@@ -293,15 +299,6 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
                         </span>
                       </div>
 
-                      <span className={`text-[11px] font-semibold px-3 py-0.5 rounded-full border ${
-                        courseBadge === 'Free'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60' 
-                          : courseBadge === 'Coming soon'
-                            ? 'bg-zinc-100 text-zinc-700 border-zinc-200'
-                            : 'bg-indigo-50 text-indigo-700 border-indigo-200/60'
-                      }`}>
-                        {courseBadge}
-                      </span>
                     </div>
                   </div>
 
@@ -341,7 +338,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
                   )}
 
                 </div>
-              </div>
+                </ScrollReveal>
               );
             })}
             </div>
@@ -359,7 +356,7 @@ export default function FeaturedCourses({ compact = false }: FeaturedCoursesProp
           */}
           <div className="hidden xl:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-24 z-30">
   <Link 
-    href="#catalog"
+    href="/catalog"
     className="flex items-center justify-center bg-[#068365] hover:bg-[#056d53] text-zinc-100 hover:text-white font-bold text-xs rounded-xl px-5 py-4 shadow-zinc-900/[0.04] transition-all duration-200 border border-white/10 tracking-wider shadow-lg"
     style={{ writingMode: 'vertical-rl' }}
   >

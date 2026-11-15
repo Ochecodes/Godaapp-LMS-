@@ -25,7 +25,17 @@ async function requestAuth(body: Record<string, string>): Promise<AuthApiRespons
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const result: unknown = await response.json();
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!/\bjson\b/i.test(contentType)) {
+    throw new Error("The authentication service is temporarily unavailable. Please try again shortly.");
+  }
+
+  let result: unknown;
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error("The authentication service returned an invalid response. Please try again shortly.");
+  }
   if (!isRecord(result)) {
     throw new Error("Authentication is temporarily unavailable. Please try again.");
   }
@@ -126,7 +136,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             className="object-cover object-center"
             fill
             sizes="(max-width: 1023px) 100vw, 45vw"
-            src={isSignUp ? "/SignupIMG.jpg" : "/SigninIMG.jpeg"}
+            src={isSignUp ? "/SignupIMG.avif" : "/SigninIMG.avif"}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">

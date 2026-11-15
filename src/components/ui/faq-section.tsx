@@ -7,7 +7,7 @@ interface FaqItemType {
 
 const FAQ_DATA: FaqItemType[] = [
   {
-    question: "Why doesnt Global Digital Assets Academy issue certificates?",
+    question: "Why doesnt Global Digital Asset's Academy issue certificates?",
     answer: "Financial markets do not reward certificates, they reward competence, discipline, and execution. Our focus is on developing practical market understanding and real-world capability rather than symbolic credentials."
   },
   {
@@ -23,7 +23,7 @@ const FAQ_DATA: FaqItemType[] = [
     answer: "No. Global Digital Assets Academy is an independent educational platform and does not provide accredited academic, regulatory, or professional licensing qualifications."
   },
   {
-    question: "What is the primary goal of the Academys education programs?",
+    question: "What is the primary goal of the Academy's education programs?",
     answer: "Our goal is to develop informed, disciplined, and strategically minded market participants by teaching practical frameworks for understanding and engaging with financial markets responsibly."
   },
   {
@@ -51,16 +51,11 @@ export default function FaqSection({ contactHeader = false }: FaqSectionProps) {
 
       {/* 💡 Grid container maximized to 7xl to match page layout edges perfectly */}
       {/* Updated code: tightly snaps the top margin while keeping a healthy bottom cushion */}
-<div className="relative z-10 mx-auto max-w-7xl px-6 pt-6 pb-20 md:pt-8 md:pb-24">
+      <div className="relative z-10 mx-auto max-w-6xl px-8 py-8 sm:px-12 sm:py-12 lg:px-16 lg:py-16">
 
         
         {/* Section Header */}
-        <div className={`mb-10 max-w-3xl text-left md:mb-12 ${contactHeader ? "" : "mb-20 md:mb-20"}`}>
-          {!contactHeader && (
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#068365]">
-              Support
-            </span>
-          )}
+        <div className="mx-auto mb-8 max-w-3xl text-center">
           <h2 className="mt-2 text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
             {contactHeader ? (
               <>

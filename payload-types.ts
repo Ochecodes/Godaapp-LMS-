@@ -75,6 +75,10 @@ export interface Config {
     enrollments: Enrollment;
     resources: Resource;
     affiliates: Affiliate;
+    'affiliate-applications': AffiliateApplication;
+    'affiliate-disputes': AffiliateDispute;
+    'affiliate-kyc': AffiliateKyc;
+    'affiliate-ledger-adjustments': AffiliateLedgerAdjustment;
     referrals: Referral;
     'payout-requests': PayoutRequest;
     'payload-locked-documents': PayloadLockedDocument;
@@ -91,6 +95,10 @@ export interface Config {
     enrollments: EnrollmentsSelect<false> | EnrollmentsSelect<true>;
     resources: ResourcesSelect<false> | ResourcesSelect<true>;
     affiliates: AffiliatesSelect<false> | AffiliatesSelect<true>;
+    'affiliate-applications': AffiliateApplicationsSelect<false> | AffiliateApplicationsSelect<true>;
+    'affiliate-disputes': AffiliateDisputesSelect<false> | AffiliateDisputesSelect<true>;
+    'affiliate-kyc': AffiliateKycSelect<false> | AffiliateKycSelect<true>;
+    'affiliate-ledger-adjustments': AffiliateLedgerAdjustmentsSelect<false> | AffiliateLedgerAdjustmentsSelect<true>;
     referrals: ReferralsSelect<false> | ReferralsSelect<true>;
     'payout-requests': PayoutRequestsSelect<false> | PayoutRequestsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -249,7 +257,7 @@ export interface Lesson {
    */
   youtubeVideoId: string;
   /**
-   * Optional lesson duration in seconds.
+   * Optional lesson duration in seconds, used in the student course outline.
    */
   durationSeconds?: number | null;
   /**
@@ -309,6 +317,7 @@ export interface Enrollment {
    */
   user?: (number | null) | User;
   course: number | Course;
+  providerCheckoutId?: string | null;
   isActive: boolean;
   updatedAt: string;
   createdAt: string;
@@ -343,12 +352,97 @@ export interface Affiliate {
    * The uppercase tracking slug appended to URLs (e.g. BTC60).
    */
   referralCode: string;
+  referralLinkActive: boolean;
   status: 'pending' | 'approved' | 'suspended';
-  bankDetails: {
-    bankName: string;
-    accountNumber: string;
-    accountName: string;
+  bankDetails?: {
+    bankName?: string | null;
+    accountNumber?: string | null;
+    accountName?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Review applications here. Current membership status controls affiliate portal access.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-applications".
+ */
+export interface AffiliateApplication {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  message: string;
+  /**
+   * Recorded when the applicant accepts the program terms.
+   */
+  termsAcceptedAt: string;
+  status: 'pending' | 'approved' | 'denied' | 'revoked' | 'archived';
+  /**
+   * Internal super-admin review notes.
+   */
+  reviewNotes?: string | null;
+  decisionHistory?: unknown;
+  approvalNotificationStatus: 'not_sent' | 'sent' | 'failed';
+  lastApprovalNotificationAt?: string | null;
+  /**
+   * Created after the approved applicant verifies their email.
+   */
+  affiliate?: (number | null) | Affiliate;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-disputes".
+ */
+export interface AffiliateDispute {
+  id: number;
+  affiliate: number | Affiliate;
+  subject: string;
+  category: 'referral' | 'payout' | 'account' | 'other';
+  details: string;
+  status: 'submitted' | 'under_review' | 'resolved' | 'closed';
+  adminResponse?: string | null;
+  resolvedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-kyc".
+ */
+export interface AffiliateKyc {
+  id: number;
+  affiliate: number | Affiliate;
+  legalName: string;
+  dateOfBirth: string;
+  country: string;
+  residentialAddress: string;
+  identityType: 'passport' | 'national_id' | 'drivers_license';
+  identityLastFour: string;
+  status: 'submitted' | 'under_review' | 'verified' | 'needs_information' | 'rejected';
+  reviewNotes?: string | null;
+  submittedAt?: string | null;
+  reviewedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-ledger-adjustments".
+ */
+export interface AffiliateLedgerAdjustment {
+  id: number;
+  affiliate: number | Affiliate;
+  referral: number | Referral;
+  amount: number;
+  reason: 'refund' | 'chargeback' | 'manual_correction';
+  reference?: string | null;
+  providerEventId?: string | null;
+  status: 'unapplied' | 'reserved' | 'applied';
+  payoutRequest?: (number | null) | PayoutRequest;
   updatedAt: string;
   createdAt: string;
 }
@@ -371,6 +465,12 @@ export interface Referral {
    * The actual dollar commission value calculated at 25% of the total checkout purchase price.
    */
   commissionAmount: number;
+  saleAmount?: number | null;
+  commissionRate?: number | null;
+  providerCheckoutId?: string | null;
+  isReversed: boolean;
+  payoutRequest?: (number | null) | PayoutRequest;
+  payoutHistory?: unknown;
   payoutStatus: 'unpaid' | 'pending' | 'paid';
   updatedAt: string;
   createdAt: string;
@@ -386,6 +486,18 @@ export interface PayoutRequest {
    * The total value in USD requested for processing (e.g. 180).
    */
   amountRequested: number;
+  priorPayoutOffset?: number | null;
+  adjustmentOffset?: number | null;
+  payoutMethod?: 'bank_transfer' | 'usdt_trc20' | null;
+  country?: string | null;
+  accountName?: string | null;
+  bankName?: string | null;
+  accountNumber?: string | null;
+  walletAddress?: string | null;
+  network?: string | null;
+  transactionReference?: string | null;
+  paidAt?: string | null;
+  rejectionReason?: string | null;
   status: 'pending' | 'approved' | 'rejected';
   /**
    * Optional internal transaction audit logs or reference IDs from corporate bank transfers.
@@ -432,6 +544,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'affiliates';
         value: number | Affiliate;
+      } | null)
+    | ({
+        relationTo: 'affiliate-applications';
+        value: number | AffiliateApplication;
+      } | null)
+    | ({
+        relationTo: 'affiliate-disputes';
+        value: number | AffiliateDispute;
+      } | null)
+    | ({
+        relationTo: 'affiliate-kyc';
+        value: number | AffiliateKyc;
+      } | null)
+    | ({
+        relationTo: 'affiliate-ledger-adjustments';
+        value: number | AffiliateLedgerAdjustment;
       } | null)
     | ({
         relationTo: 'referrals';
@@ -585,6 +713,7 @@ export interface EnrollmentsSelect<T extends boolean = true> {
   email?: T;
   user?: T;
   course?: T;
+  providerCheckoutId?: T;
   isActive?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -611,6 +740,7 @@ export interface ResourcesSelect<T extends boolean = true> {
 export interface AffiliatesSelect<T extends boolean = true> {
   user?: T;
   referralCode?: T;
+  referralLinkActive?: T;
   status?: T;
   bankDetails?:
     | T
@@ -624,6 +754,75 @@ export interface AffiliatesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-applications_select".
+ */
+export interface AffiliateApplicationsSelect<T extends boolean = true> {
+  fullName?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  termsAcceptedAt?: T;
+  status?: T;
+  reviewNotes?: T;
+  decisionHistory?: T;
+  approvalNotificationStatus?: T;
+  lastApprovalNotificationAt?: T;
+  affiliate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-disputes_select".
+ */
+export interface AffiliateDisputesSelect<T extends boolean = true> {
+  affiliate?: T;
+  subject?: T;
+  category?: T;
+  details?: T;
+  status?: T;
+  adminResponse?: T;
+  resolvedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-kyc_select".
+ */
+export interface AffiliateKycSelect<T extends boolean = true> {
+  affiliate?: T;
+  legalName?: T;
+  dateOfBirth?: T;
+  country?: T;
+  residentialAddress?: T;
+  identityType?: T;
+  identityLastFour?: T;
+  status?: T;
+  reviewNotes?: T;
+  submittedAt?: T;
+  reviewedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-ledger-adjustments_select".
+ */
+export interface AffiliateLedgerAdjustmentsSelect<T extends boolean = true> {
+  affiliate?: T;
+  referral?: T;
+  amount?: T;
+  reason?: T;
+  reference?: T;
+  providerEventId?: T;
+  status?: T;
+  payoutRequest?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "referrals_select".
  */
 export interface ReferralsSelect<T extends boolean = true> {
@@ -631,6 +830,12 @@ export interface ReferralsSelect<T extends boolean = true> {
   course?: T;
   referredEmail?: T;
   commissionAmount?: T;
+  saleAmount?: T;
+  commissionRate?: T;
+  providerCheckoutId?: T;
+  isReversed?: T;
+  payoutRequest?: T;
+  payoutHistory?: T;
   payoutStatus?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -642,6 +847,18 @@ export interface ReferralsSelect<T extends boolean = true> {
 export interface PayoutRequestsSelect<T extends boolean = true> {
   affiliate?: T;
   amountRequested?: T;
+  priorPayoutOffset?: T;
+  adjustmentOffset?: T;
+  payoutMethod?: T;
+  country?: T;
+  accountName?: T;
+  bankName?: T;
+  accountNumber?: T;
+  walletAddress?: T;
+  network?: T;
+  transactionReference?: T;
+  paidAt?: T;
+  rejectionReason?: T;
   status?: T;
   adminNotes?: T;
   updatedAt?: T;

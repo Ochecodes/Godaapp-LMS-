@@ -85,7 +85,7 @@ export function InstructorAdminLogin() {
       <div className={styles.layout}>
         <section className={styles.brandPanel} aria-label="GodaApp instructor portal">
           <div className={styles.brandTop}>
-            <Image className={styles.logo} src="/logotrans.png" alt="GodaApp" width={112} height={80} />
+            <Image className={styles.logo} src="/logotrans.avif" alt="GodaApp" width={112} height={80} />
             <p className={styles.brandEyebrow}>Instructor portal</p>
           </div>
 

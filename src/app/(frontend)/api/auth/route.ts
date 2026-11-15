@@ -23,6 +23,31 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function getRequestOrigin(request: Request): string | null {
+  const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers
+    .get("x-forwarded-host")
+    ?.split(",")[0]
+    .trim();
+  const host = forwardedHost || request.headers.get("host");
+  if (!host) return requestUrl.origin;
+
+  const forwardedProtocol = request.headers
+    .get("x-forwarded-proto")
+    ?.split(",")[0]
+    .trim();
+  const protocol =
+    forwardedProtocol === "https" || forwardedProtocol === "http"
+      ? forwardedProtocol
+      : requestUrl.protocol.slice(0, -1);
+
+  try {
+    return new URL(`${protocol}://${host}`).origin;
+  } catch {
+    return null;
+  }
+}
+
 async function readJsonBody(request: Request): Promise<unknown> {
   const reader = request.body?.getReader();
   if (!reader) throw new Error("Authentication request body is missing.");
@@ -102,8 +127,17 @@ async function applyRateLimit(
 }
 
 export async function POST(request: Request) {
+  const requestOrigin = getRequestOrigin(request);
   const origin = request.headers.get("origin");
-  if (!origin || new URL(request.url).origin !== origin) {
+  let normalizedOrigin: string | null = null;
+  if (origin) {
+    try {
+      normalizedOrigin = new URL(origin).origin;
+    } catch {
+      normalizedOrigin = null;
+    }
+  }
+  if (!requestOrigin || !normalizedOrigin || requestOrigin !== normalizedOrigin) {
     return NextResponse.json({ error: "Invalid authentication request." }, { status: 403 });
   }
 
@@ -166,7 +200,7 @@ export async function POST(request: Request) {
     }
 
     const nextPath = getSafeNextPath(body.next);
-    const callbackUrl = new URL("/callback", new URL(request.url).origin);
+    const callbackUrl = new URL("/callback", requestOrigin);
     callbackUrl.searchParams.set("next", nextPath);
 
     if (action === "sign-up") {

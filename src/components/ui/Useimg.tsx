@@ -2,16 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 
 const communityImages = [
-  { src: "/students.jfif", alt: "Students learning together" },
-  { src: "/Nigerian.jpg", alt: "GodaApp trader" },
-  { src: "/American.jpg", alt: "GodaApp community member" },
-  { src: "/Asian.jpg", alt: "GodaApp community member" },
-  { src: "/boy.jfif", alt: "Young digital asset learner" },
-  { src: "/girl.jfif", alt: "Digital asset learner" },
-  { src: "/engineer.jfif", alt: "GodaApp systems builder" },
-  { src: "/man.jfif", alt: "GodaApp trader" },
-  { src: "/team.jfif", alt: "GodaApp team" },
-  { src: "/Capital.jpg", alt: "GodaApp learning community" },
+  { src: "/students.avif", alt: "Students learning together" },
+  { src: "/Nigerian.avif", alt: "GodaApp trader" },
+  { src: "/American.avif", alt: "GodaApp community member" },
+  { src: "/Asian.avif", alt: "GodaApp community member" },
+  { src: "/boy.avif", alt: "Young digital asset learner" },
+  { src: "/girl.avif", alt: "Digital asset learner" },
+  { src: "/engineer.avif", alt: "GodaApp systems builder" },
+  { src: "/man.avif", alt: "GodaApp trader" },
+  { src: "/team.avif", alt: "GodaApp team" },
+  { src: "/Capital.avif", alt: "GodaApp learning community" },
 ];
 
 export default function Useimg() {
@@ -51,18 +51,18 @@ export default function Useimg() {
           box-shadow: 0 22px 42px rgba(30, 41, 59, 0.2);
         }
         .community-orbit:has(.community-bubble:hover) .community-bubble {
-          animation: community-wave 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation: community-wave 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(1) { animation-delay: 0ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(2) { animation-delay: 45ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(3) { animation-delay: 90ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(4) { animation-delay: 135ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(5) { animation-delay: 180ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(6) { animation-delay: 225ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(7) { animation-delay: 270ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(8) { animation-delay: 315ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(9) { animation-delay: 360ms; }
-        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(10) { animation-delay: 405ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(2) { animation-delay: 20ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(3) { animation-delay: 40ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(4) { animation-delay: 60ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(5) { animation-delay: 80ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(6) { animation-delay: 100ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(7) { animation-delay: 120ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(8) { animation-delay: 140ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(9) { animation-delay: 160ms; }
+        .community-orbit:has(.community-bubble:hover) .community-bubble:nth-child(10) { animation-delay: 180ms; }
         @media (prefers-reduced-motion: reduce) {
           .community-bubble,
           .community-orbit:has(.community-bubble:hover) .community-bubble {
@@ -110,7 +110,7 @@ export default function Useimg() {
         />
       </div>
 
-      <div className="mx-auto max-w-6xl px-8 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
+      <div className="mx-auto max-w-6xl px-8 py-8 sm:px-12 sm:py-12 lg:px-16 lg:py-16">
         <header className="max-w-full text-center">
           <h2 className="community-heading flex items-center justify-center gap-2 whitespace-nowrap text-lg font-medium leading-tight text-zinc-950 sm:text-2xl">
             <span>Learn alongside a growing community</span>
