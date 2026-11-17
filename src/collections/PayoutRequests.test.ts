@@ -18,16 +18,16 @@ describe("PayoutRequests settlement", () => {
     const hook = getStatusBeforeChange();
 
     await expect(
-      hook({
+      Promise.resolve().then(() => hook({
         value: "pending",
         originalDoc: { status: "approved" },
-      } as never),
+      } as never)),
     ).rejects.toThrow("A settled or rejected payout request cannot be reopened.");
     await expect(
-      hook({
+      Promise.resolve().then(() => hook({
         value: "approved",
         originalDoc: { status: "rejected" },
-      } as never),
+      } as never)),
     ).rejects.toThrow("A settled or rejected payout request cannot be reopened.");
   });
 

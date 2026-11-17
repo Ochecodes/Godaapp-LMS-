@@ -22,6 +22,7 @@ import { Users } from './collections/Users.ts'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const databaseURL = process.env.DATABASE_URI ? new URL(process.env.DATABASE_URI) : null
+const payloadSecret = process.env.PAYLOAD_SECRET
 
 if (databaseURL && !['localhost', '127.0.0.1'].includes(databaseURL.hostname)) {
   if (!databaseURL.searchParams.get('sslmode')) {
@@ -32,8 +33,12 @@ if (databaseURL && !['localhost', '127.0.0.1'].includes(databaseURL.hostname)) {
   }
 }
 
+if (process.env.NODE_ENV === 'production' && (!payloadSecret || payloadSecret.length < 32)) {
+  throw new Error('PAYLOAD_SECRET must be configured with at least 32 characters in production.')
+}
+
 export default buildConfig({
-  secret: process.env.PAYLOAD_SECRET || 'replace-this-development-secret-before-production',
+  secret: payloadSecret || 'development-only-payload-secret',
   editor: lexicalEditor(),
   admin: {
     user: Instructors.slug,

@@ -1,7 +1,6 @@
 "use server";
 
 import { getPayload } from "payload";
-import { redirect } from "next/navigation";
 import config from "@/payload.config";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -12,7 +11,11 @@ import { getAuthorizedStudentLesson } from "@/lib/student-lesson-access";
 import { getStudentLearningActivity } from "@/lib/student-learning-activity";
 import { normalizeStudentEmail } from "@/lib/student-email";
 
-export type ProfileActionResult = { success?: string; error?: string };
+export type ProfileActionResult = {
+  success?: string;
+  error?: string;
+  logoutUserId?: string;
+};
 
 export async function recordStudentLessonActivity(
   lessonId: number,
@@ -36,7 +39,10 @@ export async function recordStudentLessonActivity(
 
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError) return { error: "Your session could not be verified. Please sign in again." };
+  if (authError) {
+    console.error("[Student activity] Session verification failed:", authError);
+    return { error: "Your session could not be verified. Please sign in again." };
+  }
   if (!user) return { error: "Please sign in before recording lesson activity." };
 
   const currentActivity = getStudentLearningActivity(user.user_metadata?.student_learning);
@@ -64,7 +70,10 @@ export async function recordStudentLessonActivity(
   const { error: updateError } = await supabase.auth.updateUser({
     data: { student_learning: currentActivity },
   });
-  if (updateError) return { error: "Your lesson activity could not be saved. Please try again." };
+  if (updateError) {
+    console.error("[Student activity] Learning progress update failed:", updateError);
+    return { error: "Your lesson activity could not be saved. Please try again." };
+  }
 
   return { success: true };
 }
@@ -72,7 +81,10 @@ export async function recordStudentLessonActivity(
 export async function updateStudentProfile(formData: FormData): Promise<ProfileActionResult> {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError) return { error: "Your session could not be verified. Please sign in again." };
+  if (authError) {
+    console.error("[Student profile] Session verification failed:", authError);
+    return { error: "Your session could not be verified. Please sign in again." };
+  }
   if (!user) return { error: "Please sign in before changing your profile." };
 
   const fullName = String(formData.get("fullName") ?? "").trim();
@@ -122,23 +134,31 @@ export async function updateStudentProfile(formData: FormData): Promise<ProfileA
       public_email: publicEmail || null,
     },
   });
-  if (updateError) return { error: updateError.message };
+  if (updateError) {
+    console.error("[Student profile] Supabase profile update failed:", updateError);
+    return { error: "Your profile could not be updated. Please try again." };
+  }
 
-  const payload = await getPayload({ config });
-  const students = await payload.find({
-    collection: "users",
-    where: { supabase_uid: { equals: user.id } },
-    limit: 1,
-    overrideAccess: true,
-  });
-  if (!students.docs[0]) return { error: "Your student profile could not be found." };
+  try {
+    const payload = await getPayload({ config });
+    const students = await payload.find({
+      collection: "users",
+      where: { supabase_uid: { equals: user.id } },
+      limit: 1,
+      overrideAccess: true,
+    });
+    if (!students.docs[0]) return { error: "Your student profile could not be found." };
 
-  await payload.update({
-    collection: "users",
-    id: students.docs[0].id,
-    data: { fullName, avatarUrl: avatarUrl || null },
-    overrideAccess: true,
-  });
+    await payload.update({
+      collection: "users",
+      id: students.docs[0].id,
+      data: { fullName, avatarUrl: avatarUrl || null },
+      overrideAccess: true,
+    });
+  } catch (error) {
+    console.error("[Student profile] Payload profile update failed:", error);
+    return { error: "Your profile could not be updated. Please try again." };
+  }
 
   return { success: "Your profile has been updated." };
 }
@@ -154,46 +174,67 @@ function isHttpUrl(value: string) {
 }
 
 export async function signOutStudent() {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-  redirect("/sign-in");
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("[Auth] Student session lookup before sign out failed:", userError);
+    }
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("[Auth] Student sign out failed:", error);
+      return { error: "You could not be signed out. Please try again." };
+    }
+    return { success: true, userId: userError ? null : user?.id ?? null };
+  } catch (error) {
+    console.error("[Auth] Student sign out failed:", error);
+    return { error: "You could not be signed out. Please try again." };
+  }
 }
 
 export async function deleteStudentAccount(): Promise<ProfileActionResult> {
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError) return { error: "Your session could not be verified. Please sign in again." };
+  if (authError) {
+    console.error("[Account deletion] Session verification failed:", authError);
+    return { error: "Your session could not be verified. Please sign in again." };
+  }
   if (!user) return { error: "Please sign in before deleting your account." };
 
   let admin: ReturnType<typeof createAdminClient>;
   try {
     admin = createAdminClient();
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Account deletion is not configured." };
+    console.error("[Account deletion] Admin client could not be configured:", error);
+    return { error: "Account deletion is temporarily unavailable. Please try again later." };
   }
 
-  const payload = await getPayload({ config });
-  const student = await payload.find({
-    collection: "users",
-    where: { supabase_uid: { equals: user.id } },
-    limit: 1,
-    overrideAccess: true,
-  });
-  const studentId = student.docs[0]?.id;
+  try {
+    const payload = await getPayload({ config });
+    const student = await payload.find({
+      collection: "users",
+      where: { supabase_uid: { equals: user.id } },
+      limit: 1,
+      overrideAccess: true,
+    });
+    const studentId = student.docs[0]?.id;
 
-  const enrollments = await payload.find({
-    collection: "enrollments",
-    where: { email: { equals: normalizeStudentEmail(user.email ?? "") } },
-    limit: 1000,
-    pagination: false,
-    overrideAccess: true,
-  });
-  for (const enrollment of enrollments.docs) {
-    await payload.delete({ collection: "enrollments", id: enrollment.id, overrideAccess: true });
-  }
-  if (studentId) {
-    await payload.delete({ collection: "users", id: studentId, overrideAccess: true });
+    const enrollments = await payload.find({
+      collection: "enrollments",
+      where: { email: { equals: normalizeStudentEmail(user.email ?? "") } },
+      limit: 1000,
+      pagination: false,
+      overrideAccess: true,
+    });
+    for (const enrollment of enrollments.docs) {
+      await payload.delete({ collection: "enrollments", id: enrollment.id, overrideAccess: true });
+    }
+    if (studentId) {
+      await payload.delete({ collection: "users", id: studentId, overrideAccess: true });
+    }
+  } catch (error) {
+    console.error("[Account deletion] Payload cleanup failed:", error);
+    return { error: "Account deletion could not be completed. Please contact support." };
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
@@ -218,5 +259,5 @@ export async function deleteStudentAccount(): Promise<ProfileActionResult> {
     console.error("[Account deletion] Account was deleted but its browser session could not be cleared:", signOutError.message);
     return { error: "Your account was deleted, but the session could not be cleared. Close this browser tab and sign in again." };
   }
-  return { success: "Your account has been deleted." };
+  return { success: "Your account has been deleted.", logoutUserId: user.id };
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteStudentAccount } from "../actions";
+import { broadcastAuthSignOut } from "@/components/auth/AuthLogoutSync";
 
 export default function DeleteAccountPage() {
   const [error, setError] = useState("");
@@ -18,6 +19,9 @@ export default function DeleteAccountPage() {
       setError(result.error);
       setDeleting(false);
       return;
+    }
+    if (result.logoutUserId) {
+      broadcastAuthSignOut(result.logoutUserId, "/sign-in");
     }
     router.replace("/sign-in?account=deleted");
   }

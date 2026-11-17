@@ -9,7 +9,11 @@ import { readJsonBody, RequestBodyTooLargeError } from "@/lib/request-body";
 
 export const runtime = "nodejs";
 
-const categories = new Set(["referral", "payout", "account", "other"]);
+type DisputeCategory = "referral" | "payout" | "account" | "other";
+
+function isDisputeCategory(value: unknown): value is DisputeCategory {
+  return value === "referral" || value === "payout" || value === "account" || value === "other";
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -34,12 +38,12 @@ export async function POST(request: Request) {
   }
 
   const subject = typeof body.subject === "string" ? body.subject.trim() : "";
-  const category = typeof body.category === "string" ? body.category : "";
+  const category = body.category;
   const details = typeof body.details === "string" ? body.details.trim() : "";
   if (subject.length < 3 || subject.length > 160) {
     return NextResponse.json({ error: "Subject must be between 3 and 160 characters." }, { status: 400 });
   }
-  if (!categories.has(category)) {
+  if (!isDisputeCategory(category)) {
     return NextResponse.json({ error: "Choose a dispute category." }, { status: 400 });
   }
   if (details.length < 20 || details.length > 4000) {

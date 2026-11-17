@@ -2,6 +2,8 @@ import { createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  enforceApiRateLimit: vi.fn(),
+  getClientAddress: vi.fn(),
   findPublishedCourseBySlug: vi.fn(),
   getPayload: vi.fn(),
   payloadCreate: vi.fn(),
@@ -17,6 +19,12 @@ vi.mock("@/lib/course-enrollment", () => ({
 }));
 vi.mock("@/lib/tinybird/client", () => ({
   trackTinybirdEvent: mocks.trackTinybirdEvent,
+}));
+vi.mock("@/lib/rate-limit", () => ({
+  getClientAddress: mocks.getClientAddress,
+}));
+vi.mock("@/lib/api-rate-limit", () => ({
+  enforceApiRateLimit: mocks.enforceApiRateLimit,
 }));
 
 import { POST } from "@/app/(frontend)/api/webhooks/bachs/route";
@@ -57,6 +65,8 @@ function signedRequest(rawBody: string, timestamp = String(Math.floor(Date.now()
 describe("POST /api/webhooks/bachs", () => {
   beforeEach(() => {
     vi.stubEnv("BACHS_WEBHOOK_SECRET", secret);
+    mocks.getClientAddress.mockReturnValue("203.0.113.20");
+    mocks.enforceApiRateLimit.mockResolvedValue(null);
     mocks.findPublishedCourseBySlug.mockResolvedValue(course);
     mocks.getPayload.mockResolvedValue({
       create: mocks.payloadCreate,
@@ -101,6 +111,23 @@ describe("POST /api/webhooks/bachs", () => {
     expect(unsigned.status).toBe(401);
     expect(invalid.status).toBe(401);
     expect(stale.status).toBe(401);
+    expect(mocks.enforceApiRateLimit).not.toHaveBeenCalled();
+    expect(mocks.getPayload).not.toHaveBeenCalled();
+  });
+
+  it("stops a signed webhook when its IP rate limit is exhausted", async () => {
+    const limited = Response.json({ error: "Too many requests." }, { status: 429 });
+    mocks.enforceApiRateLimit.mockResolvedValueOnce(limited);
+
+    const response = await POST(signedRequest(JSON.stringify(event)));
+
+    expect(response.status).toBe(429);
+    expect(mocks.enforceApiRateLimit).toHaveBeenCalledWith(
+      "bachs-webhook:ip:203.0.113.20",
+      1200,
+      60 * 60,
+      "Bachs webhook",
+    );
     expect(mocks.getPayload).not.toHaveBeenCalled();
   });
 
@@ -231,6 +258,7 @@ describe("POST /api/webhooks/bachs", () => {
         commissionRate: 0.25,
         commissionAmount: 12.5,
         providerCheckoutId: "checkout_123",
+        isReversed: false,
         payoutStatus: "unpaid",
       },
       overrideAccess: true,

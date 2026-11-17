@@ -73,7 +73,7 @@ Create a local `.env.local` file. The current integration code references these 
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase-backed authentication | Public/anonymous Supabase key. Do not put a service-role key here. |
 | `SUPABASE_SECRET_KEY` | Server-side account administration and distributed rate limiting | Server-only Supabase secret key (`sb_secret_...`). Required by the database-backed rate limiter; never expose or commit it. `SUPABASE_SERVICE_ROLE_KEY` remains a temporary fallback during migration. |
 | `DATABASE_URI` | Payload/PostgreSQL | PostgreSQL connection string used by the Payload adapter. |
-| `PAYLOAD_SECRET` | Payload CMS | Set a strong, unique secret in every non-local environment. The source currently contains a development fallback; replace it for deployment. |
+| `PAYLOAD_SECRET` | Payload CMS | Set a strong, unique secret of at least 32 characters in every production environment; production startup fails if it is missing or too short. |
 | `BACHS_API_KEY` | Bachs checkout session creation | Use a sandbox key (`sk_sandbox_...`) for development and a live key (`sk_live_...`) in production. Server-only. |
 | `BACHS_WEBHOOK_SECRET` | Bachs webhook verification | Signing secret for the configured webhook endpoint. Server-only. |
 | `APP_BASE_URL` | Bachs checkout return URLs | Public HTTPS URL for this app. Bachs rejects localhost; for local checkout testing, use an HTTPS tunnel that forwards to the local Next.js server. |
@@ -83,6 +83,8 @@ Create a local `.env.local` file. The current integration code references these 
 | `NEXT_PUBLIC_SITE_URL` | Canonical metadata and `sitemap.xml` | Public production origin using HTTPS. The sitemap falls back to `APP_BASE_URL`, Vercel's deployment URL, then `https://godaapp.com`. |
 
 Never place secret values in `NEXT_PUBLIC_*` variables; Next.js exposes those values to browser bundles.
+
+All values in `.env.example` are placeholders, not production credentials. Store real server-side secrets (including `SUPABASE_SECRET_KEY`, `DATABASE_URI`, `PAYLOAD_SECRET`, and payment/analytics credentials) in the deployment platform's secret store, not in the repository or a committed environment file.
 
 The generated `src/app/sitemap.ts` serves `/sitemap.xml` and includes indexable public pages only. Signed-in dashboard, payment, API, and CMS routes are intentionally excluded from search-engine discovery. The footer's Sitemap link points to this XML document.
 
@@ -100,11 +102,13 @@ Apply pending migrations only after confirming `DATABASE_URI` points to the inte
 pnpm exec payload migrate
 ```
 
-The authentication, checkout-initialization, and lesson-quiz rate limits use the `consume_app_rate_limits` Postgres function created by migration `20261111_000000_add_app_rate_limits`. Apply that migration before deploying the new authentication route. In development, a process-local limiter is used and a warning is logged; it is only for a single local process. In production, limits are atomic and shared across app instances; configure `SUPABASE_SECRET_KEY` and apply the migration or protected requests return `503` rather than silently bypassing limits.
+The authentication, checkout, lesson-quiz, callback, catalog, webhook, Payload REST, affiliate, and admin API rate limits use the `consume_app_rate_limits` Postgres function created by migration `20261111_000000_add_app_rate_limits`. Apply that migration to the production Postgres database before deployment. In development, a process-local limiter is used and a warning is logged; it is only for a single local process. In production, limits are atomic and shared across app instances; the limiter requires `SUPABASE_SECRET_KEY` and the migration. If either is unavailable, protected requests fail closed with `503` rather than silently bypassing limits. Retain the hosting provider's network/WAF limits as an outer layer; application limits alone cannot prevent distributed traffic from causing infrastructure cost.
 
 The app's `/api/auth` route adds protection to the app's sign-in, sign-up, and OAuth entry points. Because Supabase's Auth API is public by design, this route cannot prevent clients from calling Supabase Auth directly with the public anon key. Keep Supabase Auth's built-in rate limits and abuse protections enabled as well.
 
 The sign-in and sign-up forms submit credentials to the same-origin `/api/auth` route. Configure an asymmetric JWT signing key (RSA or ECDSA) in Supabase Auth so `auth.getClaims()` can verify claims using the cached JWKS rather than making an Auth network request. Supabase's `getClaims()` may still use the Auth server for projects using a symmetric signing key, so local verification—and its latency benefit—depends on the signing-key algorithm. Middleware refreshes sessions and verifies claims on protected dashboard routes, then forwards a minimal, server-only verified identity header; dashboard server components consume that header rather than verifying the same token again. Keep remote `getUser()` checks for operations that need a current, authoritative user record.
+
+Affiliate sign-in emails use Supabase Magic Links, which Supabase documents as one-time links that expire after one hour by default. Set the email OTP expiration to 48 hours in the production Supabase Auth settings if supported by the project, and allow the production `/affiliate/callback` redirect URL. Link expiration is controlled by Supabase Auth, not by the application route. Each explicit affiliate sign-in request asks Supabase to send a new link. An affiliate record is created in Payload only after the approved applicant verifies/signs in; the approved application remains visible under Affiliate Applications until then.
 
 The database-backed rate limiter makes an additional Supabase Postgres RPC before sign-in, sign-up, checkout initialization, and quiz requests. Place Vercel functions in the same region as the Supabase database and monitor this RPC's latency; it is an abuse-control trade-off, not a way to make an unhealthy database connection faster.
 
@@ -112,7 +116,7 @@ For Supabase Postgres connection issues, copy the connection string from **Proje
 
 ## Database Backups
 
-On paid Supabase plans, review scheduled backups in **Database → Backups** and consider Point-in-Time Recovery for tighter recovery objectives. Free-plan projects should keep an off-site logical backup. On Windows, install compatible PostgreSQL command-line tools and run `pg_dump` with the host, port, username, and database shown by Supabase **Connect**; let `pg_dump` prompt for the password rather than putting it in the command or shell history. Store the resulting dump securely, verify it with `pg_restore --list`, and periodically rehearse a restore into a separate test project. Database dumps do not include Supabase Storage objects.
+The production Supabase project owner is responsible for provisioning and monitoring backups in Supabase; the application repository does not create or configure backups. Set an appropriate scheduled-backup and Point-in-Time Recovery (PITR) plan in **Database → Backups** for the recovery objectives. Also maintain off-site, encrypted logical backups; periodically verify them and rehearse a restore into a separate test project. Include Supabase Storage objects in the backup and restore plan if the application stores user or business data there. On Windows, `pg_dump` can create a logical backup using the connection details from Supabase **Connect**; let it prompt for the password instead of putting credentials in a command or shell history. Database dumps do not include Supabase Storage objects.
 
 Do not introduce database sharding without measured evidence that indexing, query optimization, connection pooling, and a suitable compute size are insufficient. Sharding changes application routing and cross-table operations; it is not a remedy for invalid credentials or transient connection failures.
 
@@ -247,3 +251,5 @@ These areas should be completed and tested before relying on the corresponding w
 - Use `pnpm build` for the production compilation check, followed by `pnpm start` to run the generated build.
 - Do not run development and production build processes concurrently because both operate on `.next`.
 - Configure real production secrets in the deployment environment, never in source control.
+- If a secret is committed, revoke and rotate it immediately at its provider; deleting it from the current tree or repository history does not make it safe.
+- Configure the server-side Sentry DSN and actionable production alerts with the monitoring provider, then verify delivery with a test event. Provider setup is external to this repository. Ensure application and monitoring logs exclude request bodies, tokens, and personally identifiable information (PII).

@@ -317,6 +317,9 @@ export interface Enrollment {
    */
   user?: (number | null) | User;
   course: number | Course;
+  /**
+   * Optional unique checkout identifier used to keep webhook enrollment retries idempotent.
+   */
   providerCheckoutId?: string | null;
   isActive: boolean;
   updatedAt: string;
@@ -352,6 +355,9 @@ export interface Affiliate {
    * The uppercase tracking slug appended to URLs (e.g. BTC60).
    */
   referralCode: string;
+  /**
+   * Whether this code can create new referral attribution.
+   */
   referralLinkActive: boolean;
   status: 'pending' | 'approved' | 'suspended';
   bankDetails?: {
@@ -383,7 +389,21 @@ export interface AffiliateApplication {
    * Internal super-admin review notes.
    */
   reviewNotes?: string | null;
-  decisionHistory?: unknown;
+  /**
+   * Append-only record of application status changes.
+   */
+  decisionHistory?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * The result of the Supabase sign-in email sent when an application is approved.
+   */
   approvalNotificationStatus: 'not_sent' | 'sent' | 'failed';
   lastApprovalNotificationAt?: string | null;
   /**
@@ -394,6 +414,8 @@ export interface AffiliateApplication {
   createdAt: string;
 }
 /**
+ * Affiliate support and payout disputes submitted from the portal.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "affiliate-disputes".
  */
@@ -404,12 +426,17 @@ export interface AffiliateDispute {
   category: 'referral' | 'payout' | 'account' | 'other';
   details: string;
   status: 'submitted' | 'under_review' | 'resolved' | 'closed';
+  /**
+   * This response is visible to the affiliate. Do not include sensitive payout credentials.
+   */
   adminResponse?: string | null;
   resolvedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Restricted identity verification records for affiliate payout eligibility.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "affiliate-kyc".
  */
@@ -421,8 +448,14 @@ export interface AffiliateKyc {
   country: string;
   residentialAddress: string;
   identityType: 'passport' | 'national_id' | 'drivers_license';
+  /**
+   * Only the last four digits are collected; do not enter a full ID number.
+   */
   identityLastFour: string;
   status: 'submitted' | 'under_review' | 'verified' | 'needs_information' | 'rejected';
+  /**
+   * Instructions for the affiliate if additional information is needed.
+   */
   reviewNotes?: string | null;
   submittedAt?: string | null;
   reviewedAt?: string | null;
@@ -430,6 +463,8 @@ export interface AffiliateKyc {
   createdAt: string;
 }
 /**
+ * Admin-entered refund, chargeback, and correction offsets against future affiliate commissions.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "affiliate-ledger-adjustments".
  */
@@ -437,9 +472,18 @@ export interface AffiliateLedgerAdjustment {
   id: number;
   affiliate: number | Affiliate;
   referral: number | Referral;
+  /**
+   * USD commission amount to offset from a future offline payout.
+   */
   amount: number;
   reason: 'refund' | 'chargeback' | 'manual_correction';
+  /**
+   * Optional provider case or internal audit reference; do not enter credentials.
+   */
   reference?: string | null;
+  /**
+   * Optional unique refund or chargeback event ID for audit and duplicate prevention.
+   */
   providerEventId?: string | null;
   status: 'unapplied' | 'reserved' | 'applied';
   payoutRequest?: (number | null) | PayoutRequest;
@@ -465,12 +509,38 @@ export interface Referral {
    * The actual dollar commission value calculated at 25% of the total checkout purchase price.
    */
   commissionAmount: number;
+  /**
+   * The USD course sale amount used to calculate this commission.
+   */
   saleAmount?: number | null;
+  /**
+   * The commission rate applied to the sale.
+   */
   commissionRate?: number | null;
+  /**
+   * Unique paid checkout identifier used to prevent duplicate credits.
+   */
   providerCheckoutId?: string | null;
+  /**
+   * Marks a refunded or charged-back sale as ineligible for future payout.
+   */
   isReversed: boolean;
+  /**
+   * The payout request reserving or settling this commission credit.
+   */
   payoutRequest?: (number | null) | PayoutRequest;
-  payoutHistory?: unknown;
+  /**
+   * Append-only record of payout reservations, releases, and settlements.
+   */
+  payoutHistory?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   payoutStatus: 'unpaid' | 'pending' | 'paid';
   updatedAt: string;
   createdAt: string;
@@ -483,24 +553,42 @@ export interface PayoutRequest {
   id: number;
   affiliate: number | Affiliate;
   /**
-   * The total value in USD requested for processing (e.g. 180).
+   * The USD amount requested for manual offline processing.
    */
   amountRequested: number;
+  /**
+   * Amount of previously paid legacy balance deducted from this request.
+   */
   priorPayoutOffset?: number | null;
+  /**
+   * Refund, chargeback, or correction amount applied to this payout.
+   */
   adjustmentOffset?: number | null;
-  payoutMethod?: 'bank_transfer' | 'usdt_trc20' | null;
+  payoutMethod?: ('bank_transfer' | 'usdt_trc20') | null;
   country?: string | null;
   accountName?: string | null;
   bankName?: string | null;
+  /**
+   * Sensitive payout details are visible only to super admins.
+   */
   accountNumber?: string | null;
+  /**
+   * USDT payout address on the TRC-20 network.
+   */
   walletAddress?: string | null;
   network?: string | null;
+  /**
+   * Optional reference for a payment completed manually outside GodaApp.
+   */
   transactionReference?: string | null;
   paidAt?: string | null;
+  /**
+   * Reason provided when a payout request is rejected.
+   */
   rejectionReason?: string | null;
   status: 'pending' | 'approved' | 'rejected';
   /**
-   * Optional internal transaction audit logs or reference IDs from corporate bank transfers.
+   * Internal notes for offline payout processing.
    */
   adminNotes?: string | null;
   updatedAt: string;

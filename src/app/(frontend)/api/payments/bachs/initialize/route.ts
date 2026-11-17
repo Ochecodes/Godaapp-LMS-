@@ -7,6 +7,7 @@ import { checkRateLimit, getClientAddress } from "@/lib/rate-limit";
 import config from "@/payload.config";
 import { ensurePayloadStudent, findPublishedCourseBySlug } from "@/lib/course-enrollment";
 import { trackTinybirdEvent } from "@/lib/tinybird/client";
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/request-body";
 import {
   BachsApiError,
   BachsConfigurationError,
@@ -15,6 +16,9 @@ import {
 } from "@/lib/bachs/client";
 
 export async function POST(request: Request) {
+  if (Number(request.headers.get("content-length") ?? 0) > 16_384) {
+    return NextResponse.json({ error: "Checkout request is too large." }, { status: 413 });
+  }
   const clientAddress = getClientAddress(request);
   if (!clientAddress) {
     return NextResponse.json({ error: "Unable to verify this request." }, { status: 400 });
@@ -45,8 +49,11 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonBody(request, 16_384);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: error.message }, { status: 413 });
+    }
     return NextResponse.json({ error: "Invalid checkout request." }, { status: 400 });
   }
   if (
@@ -124,7 +131,10 @@ export async function POST(request: Request) {
         code: error.code,
         message: error.message,
       });
-      return NextResponse.json({ error: error.message }, { status: 502 });
+      return NextResponse.json(
+        { error: "Bachs could not start checkout. Please try again or contact support." },
+        { status: 502 },
+      );
     }
     console.error("[Bachs] Checkout session creation failed:", error);
     return NextResponse.json(

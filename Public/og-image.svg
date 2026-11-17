@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">GodaApp — Digital Asset Education</title>
+  <desc id="description">Practical courses. Clear thinking. Better decisions.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="0.58" stop-color="#14233f"/>
+      <stop offset="1" stop-color="#183c48"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8ef0c8"/>
+      <stop offset="1" stop-color="#56c9ae"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1055" cy="85" r="205" fill="#78e6c1" opacity=".06"/>
+  <circle cx="1075" cy="570" r="290" fill="#78e6c1" opacity=".04"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="88" y="146" fill="url(#mark)" font-size="26" font-weight="700" letter-spacing="5">GODAAPP</text>
+    <text x="88" y="270" fill="#ffffff" font-size="68" font-weight="700">Learn digital assets</text>
+    <text x="88" y="350" fill="#ffffff" font-size="68" font-weight="700">with confidence.</text>
+    <text x="90" y="419" fill="#c5d2df" font-size="29">Practical courses. Clear thinking. Better decisions.</text>
+  </g>
+  <rect x="938" y="215" width="174" height="174" rx="32" fill="none" stroke="#78e6c1" stroke-opacity=".72" stroke-width="3"/>
+  <path d="M1025 258c-35 0-58 25-58 59s23 59 58 59c18 0 33-7 43-18v15h28v-61h-65v25h34c-6 10-19 16-39 16-21 0-34-14-34-36s13-35 34-35c15 0 27 6 33 18l25-13c-11-20-32-29-59-29z" fill="#78e6c1"/>
+</svg>

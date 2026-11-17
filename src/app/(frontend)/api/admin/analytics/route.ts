@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getPayload } from "payload";
 import config from "@/payload.config";
 import { isActivePayloadAdmin } from "@/lib/payload-access";
+import { enforceApiRateLimit } from "@/lib/api-rate-limit";
 import { getTinybirdAnalytics, isTinybirdConfigured } from "@/lib/tinybird/client";
 import type { Course, Enrollment, PayoutRequest, Referral } from "../../../../../../payload-types";
 
@@ -19,6 +20,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Administrator access is required." }, { status: 403 });
   }
 
+  const rateLimited = await enforceApiRateLimit(
+    `admin-analytics:user:${user.id}`,
+    30,
+    60,
+    "Admin analytics",
+  );
+  if (rateLimited) return rateLimited;
+
+  try {
   const [
     usersResult,
     instructorsResult,
@@ -102,4 +112,11 @@ export async function GET(request: Request) {
     dailyActivity: tinybird?.dailyActivity ?? [],
     courseActivity: tinybird?.courseActivity ?? [],
   });
+  } catch (error) {
+    console.error("[Admin analytics] Dashboard query failed:", error);
+    return NextResponse.json(
+      { error: "Analytics are temporarily unavailable. Please try again shortly." },
+      { status: 500 },
+    );
+  }
 }

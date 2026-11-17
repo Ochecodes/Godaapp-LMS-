@@ -26,6 +26,7 @@ const syncAffiliateStatus: CollectionAfterChangeHook = async ({
       collection: "affiliates",
       id: affiliateId,
       data: { status },
+      req,
       overrideAccess: true,
     });
   }
@@ -40,6 +41,7 @@ const syncAffiliateStatus: CollectionAfterChangeHook = async ({
       collection: "affiliate-applications",
       id: doc.id,
       data: { approvalNotificationStatus: "failed" },
+      req,
       overrideAccess: true,
     });
     return doc;
@@ -52,7 +54,6 @@ const syncAffiliateStatus: CollectionAfterChangeHook = async ({
     }
 
     const callbackUrl = new URL("/affiliate/callback", origin);
-    callbackUrl.searchParams.set("next", "/affiliate/sign-in?approved=1");
     const { error } = await createAdminClient().auth.signInWithOtp({
       email: doc.email,
       options: {
@@ -70,6 +71,7 @@ const syncAffiliateStatus: CollectionAfterChangeHook = async ({
         approvalNotificationStatus: "sent",
         lastApprovalNotificationAt: new Date().toISOString(),
       },
+      req,
       overrideAccess: true,
     });
   } catch (error) {
@@ -78,6 +80,7 @@ const syncAffiliateStatus: CollectionAfterChangeHook = async ({
       collection: "affiliate-applications",
       id: doc.id,
       data: { approvalNotificationStatus: "failed" },
+      req,
       overrideAccess: true,
     });
   }
@@ -139,6 +142,7 @@ const suspendAffiliateOnDelete: CollectionAfterDeleteHook = async ({
     collection: "affiliates",
     id: affiliateId,
     data: { status: "suspended" },
+    req,
     overrideAccess: true,
   });
 

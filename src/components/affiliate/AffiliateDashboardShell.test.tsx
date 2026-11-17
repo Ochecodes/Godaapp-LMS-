@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/affiliate-dashboard/links",
+  useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }),
 }));
 vi.mock("@/app/(frontend)/(affiliate-portal)/affiliate-dashboard/actions", () => ({
   signOutAffiliate: vi.fn(),

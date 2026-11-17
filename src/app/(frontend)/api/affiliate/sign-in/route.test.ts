@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   findApprovedAffiliateApplication: vi.fn(),
   getClientAddress: vi.fn(),
   getPayload: vi.fn(),
+  getUser: vi.fn(),
   signInWithOtp: vi.fn(),
 }));
 
@@ -46,9 +47,13 @@ describe("POST /api/affiliate/sign-in", () => {
       id: 1,
       fullName: "Alex Affiliate",
     });
+    mocks.getUser.mockResolvedValue({ data: { user: null }, error: null });
     mocks.signInWithOtp.mockResolvedValue({ error: null });
     mocks.createClient.mockResolvedValue({
-      auth: { signInWithOtp: mocks.signInWithOtp },
+      auth: {
+        getUser: mocks.getUser,
+        signInWithOtp: mocks.signInWithOtp,
+      },
     });
   });
 
@@ -64,6 +69,23 @@ describe("POST /api/affiliate/sign-in", () => {
         data: { full_name: "Alex Affiliate" },
       },
     });
+  });
+
+  it("sends a fresh link even when the browser already has an affiliate session", async () => {
+    mocks.getUser.mockResolvedValueOnce({
+      data: {
+        user: {
+          email: "alex@example.com",
+          email_confirmed_at: "2026-11-14T12:00:00.000Z",
+        },
+      },
+      error: null,
+    });
+
+    const response = await POST(signInRequest(body));
+
+    expect(response.status).toBe(200);
+    expect(mocks.signInWithOtp).toHaveBeenCalledOnce();
   });
 
   it("does not reveal membership status or send a link for an unapproved applicant", async () => {

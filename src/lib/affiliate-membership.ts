@@ -109,7 +109,7 @@ export async function ensureAffiliateMembership(
 
 export async function requireAffiliatePortalContext() {
   const authUser = await getAuthenticatedUser();
-  if (!authUser?.email || !authUser.email_verified) return null;
+  if (!authUser?.email) return null;
 
   const payload = await getPayload({ config });
   const membership = await ensureAffiliateMembership(payload, {

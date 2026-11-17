@@ -1,0 +1,61 @@
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'payload-types.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'pnpm-lock.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/payload.config.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mindex cfe29f0..00f63d9 100644[m
+[1m--- a/.gitignore[m
+[1m+++ b/.gitignore[m
+[36m@@ -14,6 +14,9 @@[m [mcoverage/[m
+ [m
+ # Environment files contain local configuration and are not committed[m
+ .env*[m
+[32m+[m[32m!.env.example[m
+[32m+[m[32m**/.env*[m
+[32m+[m[32m!**/.env.example[m
+ **/.tinyb[m
+ [m
+ # Logs and local OS/editor artifacts[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 83e3d3b..3c0dd96 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -73,7 +73,7 @@[m [mCreate a local `.env.local` file. The current integration code references these[m
+ | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase-backed authentication | Public/anonymous Supabase key. Do not put a service-role key here. |[m
+ | `SUPABASE_SECRET_KEY` | Server-side account administration and distributed rate limiting | Server-only Supabase secret key (`sb_secret_...`). Required by the database-backed rate limiter; never expose or commit it. `SUPABASE_SERVICE_ROLE_KEY` remains a temporary fallback during migration. |[m
+ | `DATABASE_URI` | Payload/PostgreSQL | PostgreSQL connection string used by the Payload adapter. |[m
+[31m-| `PAYLOAD_SECRET` | Payload CMS | Set a strong, unique secret in every non-local environment. The source currently contains a development fallback; replace it for deployment. |[m
+[32m+[m[32m| `PAYLOAD_SECRET` | Payload CMS | Set a strong, unique secret of at least 32 characters in every production environment; production startup fails if it is missing or too short. |[m
+ | `BACHS_API_KEY` | Bachs checkout session creation | Use a sandbox key (`sk_sandbox_...`) for development and a live key (`sk_live_...`) in production. Server-only. |[m
+ | `BACHS_WEBHOOK_SECRET` | Bachs webhook verification | Signing secret for the configured webhook endpoint. Server-only. |[m
+ | `APP_BASE_URL` | Bachs checkout return URLs | Public HTTPS URL for this app. Bachs rejects localhost; for local checkout testing, use an HTTPS tunnel that forwards to the local Next.js server. |[m
+[36m@@ -84,6 +84,8 @@[m [mCreate a local `.env.local` file. The current integration code references these[m
+ [m
+ Never place secret values in `NEXT_PUBLIC_*` variables; Next.js exposes those values to browser bundles.[m
+ [m
+[32m+[m[32mAll values in `.env.example` are placeholders, not production credentials. Store real server-side secrets (including `SUPABASE_SECRET_KEY`, `DATABASE_URI`, `PAYLOAD_SECRET`, and payment/analytics credentials) in the deployment platform's secret store, not in the repository or a committed environment file.[m
+[32m+[m
+ The generated `src/app/sitemap.ts` serves `/sitemap.xml` and includes indexable public pages only. Signed-in dashboard, payment, API, and CMS routes are intentionally excluded from search-engine discovery. The footer's Sitemap link points to this XML document.[m
+ [m
+ The public catalog uses Zustand for its transient search/category selection and TanStack Query for the public featured-course details endpoint. Its five-minute client stale window aligns with that endpoint's public cache policy. Do not reuse this cache for user-specific, authentication, enrollment, or payment data; these libraries do not eliminate server/database latency and are not a blanket performance fix.[m
+[36m@@ -100,19 +102,21 @@[m [mApply pending migrations only after confirming `DATABASE_URI` points to the inte[m
+ pnpm exec payload migrate[m
+ ```[m
+ [m
+[31m-The authentication, checkout-initialization, and lesson-quiz rate limits use the `consume_app_rate_limits` Postgres function created by migration `20261111_000000_add_app_rate_limits`. Apply that migration before deploying the new authentication route. In development, a process-local limiter is used and a warning is logged; it is only for a single local process. In production, limits are atomic and shared across app instances; configure `SUPABASE_SECRET_KEY` and apply the migration or protected requests return `503` rather than silently bypassing limits.[m
+[32m+[m[32mThe authentication, checkout, lesson-quiz, callback, catalog, webhook, Payload REST, affiliate, and admin API rate limits use the `consume_app_rate_limits` Postgres function created by migration `20261111_000000_add_app_rate_limits`. Apply that migration to the production Postgres database before deployment. In development, a process-local limiter is used and a warning is logged; it is only for a single local process. In production, limits are atomic and shared across app instances; the limiter requires `SUPABASE_SECRET_KEY` and the migration. If either is unavailable, protected requests fail closed with `503` rather than silently bypassing limits. Retain the hosting provider's network/WAF limits as an outer layer; application limits alone cannot prevent distributed traffic from causing infrastructure cost.[m
+ [m
+ The app's `/api/auth` route adds protection to the app's sign-in, sign-up, and OAuth entry points. Because Supabase's Auth API is public by design, this route cannot prevent clients from calling Supabase Auth directly with the public anon key. Keep Supabase Auth's built-in rate limits and abuse protections enabled as well.[m
+ [m
+ The sign-in and sign-up forms submit credentials to the same-origin `/api/auth` route. Configure an asymmetric JWT signing key (RSA or ECDSA) in Supabase Auth so `auth.getClaims()` can verify claims using the cached JWKS rather than making an Auth network request. Supabase's `getClaims()` may still use the Auth server for projects using a symmetric signing key, so local verification—and its latency benefit—depends on the signing-key algorithm. Middleware refreshes sessions and verifies claims on protected dashboard routes, then forwards a minimal, server-only verified identity header; dashboard server components consume that header rather than verifying the same token again. Keep remote `getUser()` checks for operations that need a current, authoritative user record.[m
+ [m
+[32m+[m[32mAffiliate sign-in emails use Supabase Magic Links, which Supabase documents as one-time links that expire after one hour by default. Set the email OTP expiration to 48 hours in the production Supabase Auth settings if supported by the project, and allow the production `/affiliate/callback` redirect URL. Link expiration is controlled by Supabase Auth, not by the application route. Each explicit affiliate sign-in request asks Supabase to send a new link. An affiliate record is created in Payload only after the approved applicant verifies/signs in; the approved application remains visible under Affiliate Applications until then.[m
+[32m+[m
+ The database-backed rate limiter makes an additional Supabase Postgres RPC before sign-in, sign-up, checkout initialization, and quiz requests. Place Vercel functions in the same region as the Supabase database and monitor this RPC's latency; it is an abuse-control trade-off, not a way to make an unhealthy database connection faster.[m
+ [m
+ For Supabase Postgres connection issues, copy the connection string from **Project Settings → Database → Connection string** and use the pooler/session mode credentials when direct connections are unavailable. Keep the complete connection string server-only. Supabase authentication variables (`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`) are separate from `DATABASE_URI`.[m
+ [m
+ ## Database Backups[m
+ [m
+[31m-On paid Supabase plans, review scheduled backups in **Database → Backups** and consider Point-in-Time Recovery for tighter recovery objectives. Free-plan projects should keep an off-

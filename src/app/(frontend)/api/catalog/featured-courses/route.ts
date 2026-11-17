@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getPayload } from "payload";
 import type { Course, Lesson, Module } from "../../../../../../payload-types";
 import config from "@/payload.config";
+import { getClientAddress } from "@/lib/rate-limit";
+import { enforceApiRateLimit } from "@/lib/api-rate-limit";
 
 export const dynamic = "force-dynamic";
 const cacheHeaders = {
@@ -23,7 +25,20 @@ function getRelationId(relation: number | { id: number }) {
   return typeof relation === "number" ? relation : relation.id;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const address = getClientAddress(request);
+  if (!address) {
+    return NextResponse.json({ error: "Catalog is temporarily unavailable." }, { status: 503 });
+  }
+  const rateLimited = await enforceApiRateLimit(
+    `featured-courses:ip:${address}`,
+    120,
+    15 * 60,
+    "Featured catalog",
+  );
+  if (rateLimited) return rateLimited;
+
+  try {
   const startedAt = Date.now();
   const payload = await getPayload({ config });
   const payloadReadyAt = Date.now();
@@ -131,4 +146,11 @@ export async function GET() {
   }
 
   return NextResponse.json(featuredCourseDetails, { headers: cacheHeaders });
+  } catch (error) {
+    console.error("[Catalog] Featured course query failed:", error);
+    return NextResponse.json(
+      { error: "Featured courses are temporarily unavailable. Please try again shortly." },
+      { status: 503, headers: cacheHeaders },
+    );
+  }
 }

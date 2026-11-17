@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { checkRateLimit, getClientAddress } from '@/lib/rate-limit'
+import { readJsonBody, RequestBodyTooLargeError } from '@/lib/request-body'
 import {
   getAuthorizedStudentLesson,
   type LessonQuizQuestion,
@@ -62,8 +63,11 @@ export async function POST(request: Request, { params }: RouteContext) {
 
   let body: unknown
   try {
-    body = await request.json()
-  } catch {
+    body = await readJsonBody(request, 8_192)
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: error.message }, { status: 413 })
+    }
     return NextResponse.json({ error: 'Invalid JSON request body.' }, { status: 400 })
   }
 

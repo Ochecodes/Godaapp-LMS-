@@ -4,12 +4,15 @@ import config from "@/payload.config";
 import { ensureAffiliateMembership } from "@/lib/affiliate-membership";
 import { createClient } from "@/lib/supabase/server";
 import { getRequestOrigin } from "@/lib/request-origin";
+import { getClientAddress } from "@/lib/rate-limit";
+import { enforceApiRateLimit } from "@/lib/api-rate-limit";
 
 export const runtime = "nodejs";
 
 function getAffiliateDestination(value: string | null): string {
   if (
     !value ||
+    value.length > 2048 ||
     !value.startsWith("/") ||
     value.startsWith("//") ||
     value.startsWith("/\\")
@@ -18,14 +21,10 @@ function getAffiliateDestination(value: string | null): string {
   }
 
   const destination = new URL(value, "https://godaapp.invalid");
-  const isApprovalSignIn =
-    destination.pathname === "/affiliate/sign-in" &&
-    destination.searchParams.get("approved") === "1";
   if (
     destination.origin !== "https://godaapp.invalid" ||
     (destination.pathname !== "/affiliate-dashboard" &&
-      !destination.pathname.startsWith("/affiliate-dashboard/") &&
-      !isApprovalSignIn)
+      !destination.pathname.startsWith("/affiliate-dashboard/"))
   ) {
     return "/affiliate-dashboard";
   }
@@ -37,7 +36,20 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const origin = getRequestOrigin(request) ?? requestUrl.origin;
   const code = requestUrl.searchParams.get("code");
-  if (!code) {
+
+  const address = getClientAddress(request);
+  if (!address) {
+    return NextResponse.json({ error: "Sign-in is temporarily unavailable." }, { status: 503 });
+  }
+  const rateLimited = await enforceApiRateLimit(
+    `affiliate-auth-callback:ip:${address}`,
+    60,
+    15 * 60,
+    "Affiliate auth callback",
+  );
+  if (rateLimited) return rateLimited;
+
+  if (!code || code.length > 4096) {
     return NextResponse.redirect(new URL("/affiliate/sign-in?error=verification", origin));
   }
 

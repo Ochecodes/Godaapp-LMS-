@@ -5,6 +5,11 @@ import config from "@/payload.config";
 import { findPublishedCourseBySlug } from "@/lib/course-enrollment";
 import { normalizeStudentEmail } from "@/lib/student-email";
 import { trackTinybirdEvent } from "@/lib/tinybird/client";
+import { readTextBody, RequestBodyTooLargeError } from "@/lib/request-body";
+import { getClientAddress } from "@/lib/rate-limit";
+import { enforceApiRateLimit } from "@/lib/api-rate-limit";
+
+const MAX_WEBHOOK_BODY_BYTES = 65_536;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -43,10 +48,33 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payment service is not configured." }, { status: 503 });
   }
 
-  const rawBody = await request.text();
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_WEBHOOK_BODY_BYTES) {
+    return NextResponse.json({ error: "Webhook payload is too large." }, { status: 413 });
+  }
+  let rawBody: string;
+  try {
+    rawBody = await readTextBody(request, MAX_WEBHOOK_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: "Webhook payload is too large." }, { status: 413 });
+    }
+    return NextResponse.json({ error: "Invalid webhook payload." }, { status: 400 });
+  }
   if (!verifyBachsSignature(rawBody, request.headers, secret)) {
     return NextResponse.json({ error: "Unauthorized payload signature." }, { status: 401 });
   }
+
+  const address = getClientAddress(request);
+  if (!address) {
+    return NextResponse.json({ error: "Payment service is temporarily unavailable." }, { status: 503 });
+  }
+  const rateLimited = await enforceApiRateLimit(
+    `bachs-webhook:ip:${address}`,
+    1200,
+    60 * 60,
+    "Bachs webhook",
+  );
+  if (rateLimited) return rateLimited;
 
   let parsedEvent: unknown;
   try {
@@ -205,6 +233,7 @@ export async function POST(request: Request) {
               commissionRate: 0.25,
               commissionAmount: Math.round(coursePrice * 25) / 100,
               providerCheckoutId: data.checkout_id,
+              isReversed: false,
               payoutStatus: "unpaid",
             },
             overrideAccess: true,

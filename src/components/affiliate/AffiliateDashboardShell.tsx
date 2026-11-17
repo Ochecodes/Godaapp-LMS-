@@ -2,7 +2,8 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   BadgeCheck,
   ChevronDown,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { signOutAffiliate } from "@/app/(frontend)/(affiliate-portal)/affiliate-dashboard/actions";
 import { AffiliateReferralLink } from "./AffiliateReferralLink";
+import { broadcastAuthSignOut } from "@/components/auth/AuthLogoutSync";
 
 const navigation = [
   { href: "/affiliate-dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -40,6 +42,22 @@ export function AffiliateDashboardShell({
   referralLinkActive = true,
 }: AffiliateDashboardShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [signOutError, setSignOutError] = useState("");
+
+  async function handleSignOut() {
+    setSignOutError("");
+    const result = await signOutAffiliate();
+    if (result.error) {
+      setSignOutError(result.error);
+      return;
+    }
+    if (result.userId) {
+      broadcastAuthSignOut(result.userId, "/affiliate/sign-in");
+    }
+    router.replace("/affiliate/sign-in");
+    router.refresh();
+  }
 
   return (
     <div className="min-h-screen bg-muted/40 text-foreground lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
@@ -95,7 +113,12 @@ export function AffiliateDashboardShell({
             >
               Profile
             </Link>
-            <form action={signOutAffiliate}>
+            {signOutError && (
+              <p className="px-3 py-2 text-sm text-destructive" role="alert">
+                {signOutError}
+              </p>
+            )}
+            <form action={handleSignOut}>
               <button
                 className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 type="submit"

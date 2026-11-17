@@ -4,7 +4,6 @@ import { getPayload } from "payload";
 import config from "@/payload.config";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { normalizeAffiliateEmail } from "@/lib/affiliate-application";
 import { generateUniqueAffiliateReferralCode } from "@/lib/affiliate-membership";
 
@@ -771,7 +770,7 @@ export async function submitAffiliateKyc(
   } catch (error) {
     console.error("[Affiliate] KYC submission failed:", error);
     return {
-      error: error instanceof Error ? error.message : "The KYC submission could not be completed.",
+      error: "The KYC submission could not be completed. Please try again.",
     };
   }
 }
@@ -792,7 +791,7 @@ export async function rotateAffiliateReferralLink(): Promise<ReferralLinkActionR
   } catch (error) {
     console.error("[Affiliate] Referral link creation failed:", error);
     return {
-      error: error instanceof Error ? error.message : "A referral link could not be created.",
+      error: "A referral link could not be created. Please try again.",
     };
   }
 }
@@ -812,7 +811,7 @@ export async function deactivateAffiliateReferralLink(): Promise<ReferralLinkAct
   } catch (error) {
     console.error("[Affiliate] Referral link deactivation failed:", error);
     return {
-      error: error instanceof Error ? error.message : "The referral link could not be deactivated.",
+      error: "The referral link could not be deactivated. Please try again.",
     };
   }
 }
@@ -1011,17 +1010,26 @@ export async function requestAffiliateWithdrawal(
   } catch (error) {
     console.error("[Affiliate] Payout request failed:", error);
     return {
-      error: error instanceof Error ? error.message : "The payout request could not be completed.",
+      error: "The payout request could not be completed. Please try again.",
     };
   }
 }
 
 export async function signOutAffiliate() {
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signOut();
-  if (error) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("[Affiliate] Session lookup before sign out failed:", userError);
+    }
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("[Affiliate] Sign out failed:", error);
+      return { error: "You could not be signed out. Please try again." };
+    }
+    return { success: true, userId: userError ? null : user?.id ?? null };
+  } catch (error) {
     console.error("[Affiliate] Sign out failed:", error);
-    throw new Error("You could not be signed out. Please try again.");
+    return { error: "You could not be signed out. Please try again." };
   }
-  redirect("/affiliate/sign-in");
 }

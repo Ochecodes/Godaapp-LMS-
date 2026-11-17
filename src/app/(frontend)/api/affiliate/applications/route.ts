@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       data: {
         ...input,
         status: "pending",
+        approvalNotificationStatus: "not_sent",
         termsAcceptedAt: new Date().toISOString(),
       },
       overrideAccess: true,

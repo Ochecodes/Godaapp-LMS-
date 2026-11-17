@@ -4,13 +4,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
+  enforceApiRateLimit: vi.fn(),
   ensureAffiliateMembership: vi.fn(),
   exchangeCodeForSession: vi.fn(),
   getPayload: vi.fn(),
   getUser: vi.fn(),
   signOut: vi.fn(),
+  getClientAddress: vi.fn(),
 }));
 
+vi.mock("@/lib/rate-limit", () => ({
+  getClientAddress: mocks.getClientAddress,
+}));
+vi.mock("@/lib/api-rate-limit", () => ({
+  enforceApiRateLimit: mocks.enforceApiRateLimit,
+}));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: mocks.createClient,
 }));
@@ -29,6 +37,8 @@ function callbackRequest(query = "?code=valid-code") {
 describe("GET /affiliate/callback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getClientAddress.mockReturnValue("203.0.113.20");
+    mocks.enforceApiRateLimit.mockResolvedValue(null);
     mocks.exchangeCodeForSession.mockResolvedValue({ error: null });
     mocks.getUser.mockResolvedValue({
       data: {

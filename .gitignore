@@ -14,6 +14,9 @@ coverage/
 
 # Environment files contain local configuration and are not committed
 .env*
+!.env.example
+**/.env*
+!**/.env.example
 **/.tinyb
 
 # Logs and local OS/editor artifacts

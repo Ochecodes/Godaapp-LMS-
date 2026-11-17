@@ -81,6 +81,7 @@ async function readJsonBody(request: Request): Promise<unknown> {
 function getSafeNextPath(value: unknown): string {
   if (
     typeof value !== "string" ||
+    value.length > 2048 ||
     !value.startsWith("/") ||
     value.startsWith("//") ||
     value.startsWith("/\\")
@@ -195,7 +196,10 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     if (action === "sign-in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return NextResponse.json({ error: error.message }, { status: 401 });
+      if (error) {
+        console.error("[Auth] Sign-in was rejected:", error.message);
+        return NextResponse.json({ error: "Email or password is incorrect." }, { status: 401 });
+      }
       return NextResponse.json({ ok: true });
     }
 
@@ -212,7 +216,10 @@ export async function POST(request: Request) {
           emailRedirectTo: callbackUrl.toString(),
         },
       });
-      if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+      if (error) {
+        console.error("[Auth] Sign-up was rejected:", error.message);
+        return NextResponse.json({ error: "Your account could not be created. Please check your details and try again." }, { status: 400 });
+      }
       return NextResponse.json({ requiresEmailVerification: !data.session });
     }
 
@@ -220,7 +227,10 @@ export async function POST(request: Request) {
       provider: "google",
       options: { redirectTo: callbackUrl.toString() },
     });
-    if (error) return NextResponse.json({ error: error.message }, { status: 502 });
+    if (error) {
+      console.error("[Auth] Google sign-in could not be started:", error.message);
+      return NextResponse.json({ error: "Google sign-in could not be started. Please try again." }, { status: 502 });
+    }
     if (!data.url) {
       return NextResponse.json({ error: "Google sign-in could not be started." }, { status: 502 });
     }

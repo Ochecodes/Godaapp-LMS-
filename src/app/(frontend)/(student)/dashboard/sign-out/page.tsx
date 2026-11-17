@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { signOutStudent } from "../actions";
+import { StudentSignOutForm } from "@/components/auth/StudentSignOutForm";
 
 export default function SignOutConfirmationPage() {
   return (
@@ -13,11 +13,7 @@ export default function SignOutConfirmationPage() {
           <Link className="inline-flex min-h-10 items-center rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-muted" href="/dashboard">
             Cancel
           </Link>
-          <form action={signOutStudent}>
-            <button className="min-h-10 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90" type="submit">
-              Confirm sign out
-            </button>
-          </form>
+          <StudentSignOutForm />
         </div>
       </section>
     </main>

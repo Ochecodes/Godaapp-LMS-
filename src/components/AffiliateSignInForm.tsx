@@ -15,9 +15,13 @@ export function AffiliateSignInForm() {
   const [approvalEmailOpened, setApprovalEmailOpened] = useState(false);
 
   useEffect(() => {
-    setApprovalEmailOpened(
-      new URLSearchParams(window.location.search).get("approved") === "1",
-    );
+    const searchParams = new URLSearchParams(window.location.search);
+    setApprovalEmailOpened(searchParams.get("approved") === "1");
+    if (searchParams.get("error") === "verification") {
+      setError(
+        "This sign-in link has expired or is invalid. Enter your details below to request a new link.",
+      );
+    }
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {

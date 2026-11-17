@@ -8,6 +8,13 @@ export async function readJsonBody(
   request: Request,
   maxBytes: number,
 ): Promise<unknown> {
+  return JSON.parse(await readTextBody(request, maxBytes)) as unknown;
+}
+
+export async function readTextBody(
+  request: Request,
+  maxBytes: number,
+): Promise<string> {
   const reader = request.body?.getReader();
   if (!reader) throw new Error("Request body is missing.");
 
@@ -34,6 +41,5 @@ export async function readJsonBody(
     body.set(chunk, offset);
     offset += chunk.byteLength;
   }
-
-  return JSON.parse(new TextDecoder().decode(body)) as unknown;
+  return new TextDecoder().decode(body);
 }

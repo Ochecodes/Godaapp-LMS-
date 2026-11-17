@@ -61,6 +61,7 @@ describe("POST /api/affiliate/applications", () => {
         phone: "+1 555 555 0100",
         message: "I would like to promote GodaApp courses.",
         status: "pending",
+        approvalNotificationStatus: "not_sent",
         termsAcceptedAt: expect.any(String),
       },
       overrideAccess: true,

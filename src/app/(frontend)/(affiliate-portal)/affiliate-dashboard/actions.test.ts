@@ -200,19 +200,19 @@ describe("affiliate payout actions", () => {
   it("requires a verified member and completed KYC before creating a payout", async () => {
     const unauthenticated = setup({ user: null });
     await expect(requestAffiliateWithdrawal({}, createForm())).resolves.toEqual({
-      error: "Authentication required.",
+      error: "The payout request could not be completed. Please try again.",
     });
     expect(unauthenticated.create).not.toHaveBeenCalled();
 
     const unverified = setup({ kycStatus: "submitted" });
-    await expect(requestAffiliateWithdrawal({}, createForm())).resolves.toEqual({
+    await expect(requestAffiliateWithdrawal({}, createForm("20"))).resolves.toEqual({
       error: "Complete KYC verification before requesting a payout.",
     });
     expect(unverified.create).not.toHaveBeenCalled();
 
     const suspended = setup({ affiliateStatus: "suspended" });
-    await expect(requestAffiliateWithdrawal({}, createForm("20"))).resolves.toEqual({
-      error: "Affiliate membership is not active.",
+    await expect(requestAffiliateWithdrawal({}, createForm())).resolves.toEqual({
+      error: "The payout request could not be completed. Please try again.",
     });
     expect(suspended.create).not.toHaveBeenCalled();
   });
@@ -341,7 +341,7 @@ describe("affiliate payout actions", () => {
       ],
     });
 
-    await expect(requestAffiliateWithdrawal({}, createForm())).resolves.toEqual({
+    await expect(requestAffiliateWithdrawal({}, createForm("20"))).resolves.toEqual({
       success: "Your offline payout request was submitted for review.",
       requestId: 31,
     });

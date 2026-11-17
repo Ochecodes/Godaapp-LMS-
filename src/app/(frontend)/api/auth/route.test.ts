@@ -176,6 +176,6 @@ describe("POST /api/auth", () => {
     );
 
     expect(response.status).toBe(401);
-    expect(await response.json()).toEqual({ error: "Invalid login credentials" });
+    expect(await response.json()).toEqual({ error: "Email or password is incorrect." });
   });
 });

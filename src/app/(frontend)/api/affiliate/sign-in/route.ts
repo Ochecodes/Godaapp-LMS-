@@ -96,27 +96,6 @@ export async function POST(request: Request) {
       normalizeName(application.fullName) === normalizeName(fullName)
     ) {
       const supabase = await createClient();
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getUser();
-      if (sessionError) {
-        console.error("[Affiliate] Existing sign-in session could not be verified:", sessionError);
-        return NextResponse.json(
-          { error: "The sign-in service is temporarily unavailable." },
-          { status: 503 },
-        );
-      }
-
-      if (
-        sessionData.user?.email_confirmed_at &&
-        typeof sessionData.user.email === "string" &&
-        normalizeAffiliateEmail(sessionData.user.email) === email
-      ) {
-        return NextResponse.json({
-          redirectUrl: "/affiliate-dashboard",
-          message: "Your approved affiliate session is ready.",
-        });
-      }
-
       const callbackUrl = new URL("/affiliate/callback", origin).toString();
       const { error } = await supabase.auth.signInWithOtp({
         email,
