@@ -63,6 +63,10 @@ The first request to a route may take longer while Next.js compiles it. Avoid ru
 
 The test suite uses Vitest and React Testing Library. External Supabase, Payload, Bachs, and Tinybird boundaries are mocked so tests do not require credentials, network access, or a live database. The current suites cover verified middleware identity forwarding, authentication and rate limits, student enrollment synchronization, lesson access and viewer interactions, affiliate payout actions and application-form behavior, Bachs checkout initialization and signed webhook fulfillment, quiz authorization and answer disclosure, the Bachs API client, Tinybird analytics shaping, and accessible loading/checkout UI states. Coverage output is informational and does not claim that every route or component is tested; add tests alongside new behavior and expand integration/browser coverage as features require it.
 
+## CI/CD
+
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs lint, typecheck, and tests for pull requests targeting `main` and pushes to `main`. It does not need application secrets. Connect the repository to Vercel for Preview deployments on pull requests and Production deployments from `main`; protect `main` by requiring the `CI / Lint, typecheck, and test` check before merging. Vercel runs the production build with its environment-specific variables. Keep Payload migrations as a reviewed, one-time release step rather than running them automatically in every build.
+
 ## Environment Configuration
 
 Create a local `.env.local` file. The current integration code references these variables:
