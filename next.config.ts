@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(withPayload(nextConfig), {
+  org: "global-digital-assets-academy",
+  project: "godaapp-lms",
   silent: !process.env.CI,
   sourcemaps: {
     filesToDeleteAfterUpload: [".next/static/**/*.map"],

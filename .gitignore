@@ -31,3 +31,6 @@ Microsoft/Windows/PowerShell/ModuleAnalysisCache
 # Local package archives
 swc-*.tgz
 next-*.tgz
+
+# Sentry Config File
+.env.sentry-build-plugin
