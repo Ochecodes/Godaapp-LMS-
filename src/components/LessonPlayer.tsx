@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { DashboardIcon } from "@/components/DashboardIcon";
 import { DashboardPageBanner } from "@/components/DashboardPageBanner";
+import { LessonContentSlider } from "@/components/LessonContentSlider";
 import { recordStudentLessonActivity } from "@/app/(frontend)/(student)/dashboard/actions";
 import type {
   StudentLessonOutlineItem,
@@ -568,15 +569,9 @@ export function LessonPlayer({
             <section className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
               <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4">
                 <h3 className="text-base font-semibold">Lesson content</h3>
-                <span className="text-xs text-muted-foreground">Scroll to read</span>
+                <span className="text-xs text-muted-foreground">Browse one section at a time</span>
               </div>
-              <div
-                aria-label="Scrollable lesson content"
-                className="max-h-[28rem] overflow-y-auto border-t border-border px-5 py-5 text-sm leading-7 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_h1]:mb-3 [&_h1]:mt-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:mb-4 [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-4 [&_ul]:list-disc"
-                tabIndex={0}
-              >
-                {children}
-              </div>
+              <LessonContentSlider>{children}</LessonContentSlider>
             </section>
 
             <nav aria-label="Lesson navigation" className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">

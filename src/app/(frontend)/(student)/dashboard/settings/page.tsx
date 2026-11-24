@@ -37,7 +37,7 @@ export default function StudentSettingsPage() {
       <section className="mt-6 rounded-xl border border-destructive/30 bg-card p-5 sm:p-7">
         <h2 className="font-semibold text-destructive">Delete account</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Permanently delete your GodaApp sign-in, profile, and course enrollments. This action cannot be undone.
+          Permanently delete your Godaapp sign-in, profile, and course enrollments. This action cannot be undone.
         </p>
         <a className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-destructive/50 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10" href="/dashboard/delete-account">
           Review account deletion

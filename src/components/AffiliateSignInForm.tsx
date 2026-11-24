@@ -83,7 +83,7 @@ export function AffiliateSignInForm() {
       <main className="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-white/15 bg-zinc-950/60 shadow-2xl shadow-black/30 backdrop-blur-md lg:grid lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative min-h-64 overflow-hidden sm:min-h-80 lg:min-h-[42rem]">
           <Image
-            alt="Affiliate learning with the GodaApp community"
+            alt="Affiliate learning with the Godaapp community"
             className="object-cover object-center"
             fill
             priority
@@ -93,7 +93,7 @@ export function AffiliateSignInForm() {
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">
-              GodaApp Affiliates
+              Godaapp Affiliates
             </p>
             <h1 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
               Share skills. Grow with us.
@@ -108,7 +108,7 @@ export function AffiliateSignInForm() {
               href="/"
             >
               <ArrowLeft aria-hidden="true" className="size-4" />
-              Back to GodaApp
+              Back to Godaapp
             </Link>
             <p className="mt-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#068365]">
               Affiliate portal
@@ -181,8 +181,8 @@ export function AffiliateSignInForm() {
             </p>
             <p className="mt-4 text-center text-xs leading-relaxed text-zinc-500">
               If your application was declined or access was revoked, contact{" "}
-              <a className="font-semibold text-[#068365] underline" href="mailto:godaappinfo@gmail.com">
-                GodaApp support
+              <a className="font-semibold text-[#068365] underline" href="mailto:Support@godaapp.com">
+                Godaapp support
               </a>
               .
             </p>

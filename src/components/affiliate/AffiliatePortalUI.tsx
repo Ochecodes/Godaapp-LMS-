@@ -37,10 +37,10 @@ export function AffiliateMetricCard({
   tone?: "green" | "orange" | "blue" | "neutral";
 }) {
   const toneClass = {
-    green: "bg-primary/10 text-primary",
-    orange: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
-    blue: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
-    neutral: "bg-muted text-muted-foreground",
+    green: "bg-primary/10",
+    orange: "bg-orange-500/10",
+    blue: "bg-sky-500/10",
+    neutral: "bg-muted",
   }[tone];
 
   return (
@@ -50,7 +50,7 @@ export function AffiliateMetricCard({
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <p className="mt-2 truncate text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
         </div>
-        <span className={`grid size-10 shrink-0 place-items-center rounded-lg ${toneClass}`}>
+        <span className={`grid size-10 shrink-0 place-items-center rounded-lg text-zinc-950 dark:text-white ${toneClass}`}>
           <Icon aria-hidden="true" className="size-5" />
         </span>
       </div>

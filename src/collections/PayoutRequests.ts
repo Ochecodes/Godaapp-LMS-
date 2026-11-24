@@ -139,7 +139,7 @@ export const PayoutRequests: CollectionConfig = {
       type: "text",
       maxLength: 160,
       admin: {
-        description: "Optional reference for a payment completed manually outside GodaApp.",
+        description: "Optional reference for a payment completed manually outside Godaapp.",
       },
     },
     {

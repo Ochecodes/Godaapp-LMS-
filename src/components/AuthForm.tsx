@@ -140,7 +140,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">GodaApp learning</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">Godaapp learning</p>
             <h1 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">
               {isSignUp ? "Build knowledge that moves you forward." : "Welcome back to your learning journey."}
             </h1>
@@ -156,13 +156,13 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div className="mx-auto max-w-xl">
             <Link className="inline-flex items-center gap-2 text-sm text-zinc-600 transition hover:text-zinc-950" href="/">
               <ArrowLeft aria-hidden="true" className="size-4" />
-              Back to GodaApp
+              Back to Godaapp
             </Link>
             <p className="mt-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#068365]">
               {isSignUp ? "Get started" : "Welcome back"}
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              {isSignUp ? "Create your account" : "Sign in to GodaApp"}
+              {isSignUp ? "Create your account" : "Sign in to Godaapp"}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-600">
               {isSignUp ? "Your student dashboard is one step away." : "Sign in to continue to your student dashboard."}
@@ -224,7 +224,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               </button>
             </form>
             <p className="mt-6 text-center text-sm text-zinc-600">
-              {isSignUp ? "Already have an account?" : "New to GodaApp?"}{" "}
+              {isSignUp ? "Already have an account?" : "New to Godaapp?"}{" "}
               <Link className="font-semibold text-[#068365] underline-offset-4 hover:underline" href={isSignUp ? toAuthLink("/sign-in") : toAuthLink("/sign-up")}>
                 {isSignUp ? "Sign in" : "Create an account"}
               </Link>

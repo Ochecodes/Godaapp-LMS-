@@ -31,7 +31,7 @@ type FeaturedCourseDetails = {
 
 const GRID_ITEMS: GridItemType[] = [
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Crypto Markets",
     courseSlug: "cryptocurrency-market-and-trading-fundamentals",
     title: "Cryptocurrency Market and Trading Fundamentals",
@@ -40,7 +40,7 @@ const GRID_ITEMS: GridItemType[] = [
     price: "$9.98"
   },
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Forex Trading",
     courseSlug: "forex-trading-and-beginners-fundamentals",
     title: "Forex Trading and Beginner Fundamentals",
@@ -49,7 +49,7 @@ const GRID_ITEMS: GridItemType[] = [
     price: "$9.98"
   },
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Trading Psychology",
     courseSlug: "risk-management-trading-psychology",
     title: "Risk Management & Trading Psychology",
@@ -58,7 +58,7 @@ const GRID_ITEMS: GridItemType[] = [
     price: "$8.88"
   },
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Forex Trading",
     courseSlug: "capital-management-and-prop-firm-preparation",
     title: "Capital Management and Prop Firm Preparation",
@@ -67,7 +67,7 @@ const GRID_ITEMS: GridItemType[] = [
     price: "$9.98"
   },
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Crypto Markets",
     courseSlug: "introduction-to-portfolio-management-and-copy-trading",
     title: "Introduction to Portfolio Management and Copy Trading",
@@ -76,7 +76,7 @@ const GRID_ITEMS: GridItemType[] = [
     price: "$11.98"
   },
   {
-    tag: "GodaApp",
+    tag: "Godaapp",
     category: "Algorithmic Trading using PineScript",
     courseSlug: "algorithmic-trading-using-pinescript",
     title: "Algorithmic Trading using PineScript",

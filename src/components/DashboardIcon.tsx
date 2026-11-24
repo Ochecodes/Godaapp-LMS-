@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -48,11 +49,11 @@ import {
   Video,
   X,
   Youtube,
-  type LucideIcon,
   type LucideProps,
 } from "lucide-react";
+import { TikTokIcon } from "@/components/ui/TikTokIcon";
 
-const icons: Record<string, LucideIcon> = {
+const icons: Record<string, ComponentType<LucideProps>> = {
   "lucide:arrow-left": ArrowLeft,
   "lucide:arrow-right": ArrowRight,
   "lucide:arrow-up-right": ArrowUpRight,
@@ -101,6 +102,7 @@ const icons: Record<string, LucideIcon> = {
   "simple-icons:instagram": Instagram,
   "simple-icons:linkedin": Linkedin,
   "simple-icons:whatsapp": MessageCircle,
+  "simple-icons:tiktok": TikTokIcon,
   "simple-icons:x": X,
   "simple-icons:youtube": Youtube,
 };

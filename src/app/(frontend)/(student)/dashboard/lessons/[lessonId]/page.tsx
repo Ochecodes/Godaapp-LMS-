@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { notFound, redirect } from "next/navigation";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { getStudentLessonView } from "@/lib/student-lesson-access";
+import { splitLessonContent } from "@/lib/lesson-content";
 import { getAuthenticatedUser } from "@/lib/supabase/server";
 
 const LessonPlayer = dynamic(() => import("@/components/LessonPlayer").then((module) => module.LessonPlayer), {
@@ -26,6 +27,7 @@ export default async function StudentLessonPage({ params }: LessonPageProps) {
 
   const access = await getStudentLessonView(lessonId);
   if (!access) notFound();
+  const lessonContentSlides = splitLessonContent(access.lesson.contentBody);
   if (!access.canView) {
     const isPaidCourse = access.course.priceUSD > 0;
     return (
@@ -67,8 +69,10 @@ export default async function StudentLessonPage({ params }: LessonPageProps) {
           .find((courseLesson) => courseLesson.isCurrent)?.isCompleted ?? false
       }
     >
-      {access.lesson.contentBody ? (
-        <RichText data={access.lesson.contentBody} />
+      {lessonContentSlides.length ? (
+        lessonContentSlides.map((content, index) => (
+          <RichText data={content} key={index} />
+        ))
       ) : (
         <p className="text-muted-foreground">Lesson notes have not been added yet.</p>
       )}

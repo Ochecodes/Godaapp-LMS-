@@ -34,7 +34,7 @@ export function DashboardContactForm({
 
   return (
     <form
-      action="https://formsubmit.co/godaappinfo@gmail.com"
+      action="https://formsubmit.co/Admin@godaapp.com"
       className="space-y-4 rounded-2xl border border-border bg-card p-5 sm:p-7"
       method="POST"
       onSubmit={submit}
@@ -48,7 +48,7 @@ export function DashboardContactForm({
         <h2 className="text-lg font-semibold">{heading}</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
       </div>
-      {sent && <p className="rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-300" role="status">Thanks for reaching out. Your message has been sent to the GodaApp team.</p>}
+      {sent && <p className="rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-800 dark:text-emerald-300" role="status">Thanks for reaching out. Your message has been sent to the Godaapp team.</p>}
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5 text-sm font-medium">
           Full name

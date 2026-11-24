@@ -211,7 +211,7 @@ function downloadCalendarEvent(liveClass: StudentLiveClass) {
   const event = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//GodaApp//Student Dashboard//EN",
+    "PRODID:-//Godaapp//Student Dashboard//EN",
     "BEGIN:VEVENT",
     `UID:${encodeURIComponent(liveClass.id)}@godaapp`,
     `DTSTAMP:${toCalendarDate(new Date().toISOString())}`,

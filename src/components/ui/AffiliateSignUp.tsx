@@ -63,11 +63,9 @@ export default function AffiliateSignUp() {
         throw new Error(message);
       }
 
-      const returnUrl = form.querySelector<HTMLInputElement>('input[name="_next"]');
-      if (returnUrl) {
-        returnUrl.value = new URL("/affiliate?application=received", window.location.origin).toString();
-      }
+      setApplicationReceived(true);
       setSubmitted(true);
+      setLoading(false);
       formRef.current?.submit();
     } catch (caught) {
       setError(
@@ -92,7 +90,7 @@ export default function AffiliateSignUp() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/10 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6 max-w-sm text-white sm:bottom-8 sm:left-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">GodaApp Affiliates</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#F57C00]">Godaapp Affiliates</p>
             <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">Build with a system that compounds.</h2>
           </div>
         </div>
@@ -112,22 +110,36 @@ export default function AffiliateSignUp() {
               </Link>
             </p>
             {applicationReceived && (
-              <p className="mt-5 rounded-lg border border-[#068365]/20 bg-[#068365]/5 px-4 py-3 text-sm text-[#056d53]" role="status">
-                Your application has been received and is awaiting review. We will contact you when a decision is ready.
-              </p>
+              <div className="mt-5 rounded-lg border border-[#068365]/20 bg-[#068365]/5 px-4 py-3 text-sm leading-relaxed text-[#056d53]" role="status">
+                <p className="font-semibold">Your application is under review.</p>
+                <p className="mt-1">
+                  You can sign in after approval. We&apos;ll email you with the decision and next steps. If approved, return to{" "}
+                  <Link className="font-semibold underline underline-offset-2" href="/affiliate/sign-in">
+                    affiliate sign-in
+                  </Link>{" "}
+                  and request a fresh sign-in link to open your dashboard.
+                </p>
+                <p className="mt-2">
+                  Questions? Email{" "}
+                  <a className="font-semibold underline underline-offset-2" href="mailto:Support@godaapp.com">
+                    Support@godaapp.com
+                  </a>
+                  .
+                </p>
+              </div>
             )}
 
             <form
               ref={formRef}
-              action="https://formsubmit.co/godaappinfo@gmail.com"
+              action="https://formsubmit.co/Admin@godaapp.com"
               method="POST"
+              target="affiliate-application-notification"
               onSubmit={handleSubmit}
               className="mt-8 space-y-4"
             >
-              <input type="hidden" name="_subject" value="New GodaApp affiliate application" />
+              <input type="hidden" name="_subject" value="New Godaapp affiliate application" />
               <input type="hidden" name="_captcha" value="false" />
               <input type="hidden" name="_template" value="table" />
-              <input type="hidden" name="_next" />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="space-y-1.5 text-sm font-medium">
@@ -168,6 +180,13 @@ export default function AffiliateSignUp() {
                 {submitted ? <><Check className="size-5" aria-label="Submitted" /> Submitted</> : loading ? "Submitting…" : <>Submit application <ArrowRight className="size-4" aria-hidden="true" /></>}
               </Button>
             </form>
+            <iframe
+              aria-hidden="true"
+              className="hidden"
+              name="affiliate-application-notification"
+              tabIndex={-1}
+              title="Affiliate application notification"
+            />
           </div>
         </div>
       </div>

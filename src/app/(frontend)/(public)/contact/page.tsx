@@ -21,7 +21,7 @@ export default function HomePage() {
         <Nav />
         <AuroraHero>
           <h1 className="mx-auto mt-8 w-full whitespace-nowrap text-center text-base font-medium tracking-tight text-zinc-100 drop-shadow-sm min-[375px]:text-xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl">
-            Talk to the <span className="text-[#068365]">GodaApp</span> team
+            Talk to the <span className="text-[#068365]">Godaapp</span> team
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-center text-lg text-zinc-400">
             Have a question about our courses or platform? Send us a message and

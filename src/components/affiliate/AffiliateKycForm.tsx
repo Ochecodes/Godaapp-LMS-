@@ -64,7 +64,7 @@ export function AffiliateKycForm({ values }: { values: KycFormValues }) {
         <div className="mb-5">
           <h2 className="font-semibold">Verification details</h2>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            Provide accurate details for the GodaApp super-admin team to review.
+            Provide accurate details for the Godaapp super-admin team to review.
             Do not enter a full identity number or upload documents here.
           </p>
         </div>
@@ -160,7 +160,7 @@ export function AffiliateKycForm({ values }: { values: KycFormValues }) {
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         KYC information is stored in the restricted Payload admin collection and
-        is available only to authorized GodaApp super-admins. GodaApp does not
+        is available only to authorized Godaapp super-admins. Godaapp does not
         request bank details or full identity-document numbers on this form.
       </p>
     </div>

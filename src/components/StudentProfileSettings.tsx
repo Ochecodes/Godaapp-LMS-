@@ -56,7 +56,7 @@ export function StudentProfileSettings(props: StudentProfileSettingsProps) {
             <label className="block space-y-1.5 text-sm font-medium">
               Name
               <input autoComplete="name" className={inputClass} defaultValue={props.fullName} maxLength={120} name="fullName" required />
-              <span className="block text-xs font-normal text-muted-foreground">Your name may appear around GodaApp when you learn or participate in the community.</span>
+              <span className="block text-xs font-normal text-muted-foreground">Your name may appear around Godaapp when you learn or participate in the community.</span>
             </label>
             <label className="block space-y-1.5 text-sm font-medium">
               Public email

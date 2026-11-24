@@ -29,7 +29,7 @@ export default async function AffiliateBalancePage({ searchParams }: BalancePage
     <div className="space-y-6">
       <AffiliatePageHeader
         title="Balance"
-        description="Review eligible commission credits. A payout request reserves all currently available credits while GodaApp staff review it."
+        description="Review eligible commission credits. A payout request reserves all currently available credits while Godaapp staff review it."
         actions={
           data.metrics.kycStatus === "verified" && data.metrics.availableBalance > 0 ? (
             <AffiliatePayoutRequestDialog availableBalance={data.metrics.availableBalance} />

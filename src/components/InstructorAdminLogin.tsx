@@ -83,9 +83,9 @@ export function InstructorAdminLogin() {
       </button>
 
       <div className={styles.layout}>
-        <section className={styles.brandPanel} aria-label="GodaApp instructor portal">
+        <section className={styles.brandPanel} aria-label="Godaapp instructor portal">
           <div className={styles.brandTop}>
-            <Image className={styles.logo} src="/logotrans.avif" alt="GodaApp" width={112} height={80} />
+            <Image className={styles.logo} src="/logotrans.avif" alt="Godaapp" width={112} height={80} />
             <p className={styles.brandEyebrow}>Instructor portal</p>
           </div>
 
@@ -104,7 +104,7 @@ export function InstructorAdminLogin() {
           <div className={styles.formContent}>
             <div className={styles.headingGroup}>
               <p className={styles.formEyebrow}>Welcome back</p>
-              <h2 id="login-heading">Sign in to GodaApp</h2>
+              <h2 id="login-heading">Sign in to Godaapp</h2>
               <p className={styles.formDescription}>
                 Use your instructor account details to continue.
               </p>
@@ -188,7 +188,7 @@ export function InstructorAdminLogin() {
             <p className={styles.supportText}>
               Need an instructor account?{" "}
               <Link className={styles.contactLink} href="/contact">
-                Contact your GodaApp administrator.
+                Contact your Godaapp administrator.
               </Link>
             </p>
           </div>

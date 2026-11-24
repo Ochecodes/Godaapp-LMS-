@@ -4,9 +4,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 const communityImages = [
-  { src: "/American.avif", alt: "GodaApp community member" },
-  { src: "/Nigerian.avif", alt: "GodaApp community member" },
-  { src: "/Asian.avif", alt: "GodaApp community member" },
+  { src: "/American.avif", alt: "Godaapp community member" },
+  { src: "/Nigerian.avif", alt: "Godaapp community member" },
+  { src: "/Asian.avif", alt: "Godaapp community member" },
 ];
 
 export default function Wwd() {
@@ -79,6 +79,9 @@ export default function Wwd() {
               financial growth.
             </p>
           </div>
+          <p className="mt-4 text-sm font-medium text-zinc-600">
+            Company registration number: RC9992443
+          </p>
           <Button
             asChild
             size="lg"

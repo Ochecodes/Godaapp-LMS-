@@ -47,7 +47,8 @@ export const Lessons: CollectionConfig = {
       name: 'contentBody',
       type: 'richText',
       admin: {
-        description: 'Detailed lesson notes, code snippets, or reading materials.',
+        description:
+          'Lesson notes with formatting tools for fonts, size, color, alignment, links, and more.',
       },
     },
     {

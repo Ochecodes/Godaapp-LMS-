@@ -31,7 +31,7 @@ export default async function AffiliateDisputesPage() {
       <section className="space-y-3">
         <div>
           <h2 className="font-semibold">Your cases</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Updates from the GodaApp team appear here.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Updates from the Godaapp team appear here.</p>
         </div>
         {disputes.length ? (
           <div className="space-y-3">
