@@ -1,7 +1,12 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  defaultColors,
+  FixedToolbarFeature,
+  lexicalEditor,
+  TextStateFeature,
+} from '@payloadcms/richtext-lexical'
 import { buildConfig } from 'payload'
 
 import { Affiliates } from './collections/Affiliates.ts'
@@ -39,7 +44,28 @@ if (process.env.NODE_ENV === 'production' && (!payloadSecret || payloadSecret.le
 
 export default buildConfig({
   secret: payloadSecret || 'development-only-payload-secret',
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      FixedToolbarFeature(),
+      TextStateFeature({
+        state: {
+          color: defaultColors.text,
+          fontFamily: {
+            sans: { label: 'Sans serif', css: { 'font-family': 'Arial, sans-serif' } },
+            serif: { label: 'Serif', css: { 'font-family': 'Georgia, serif' } },
+            mono: { label: 'Monospace', css: { 'font-family': 'monospace' } },
+          },
+          fontSize: {
+            small: { label: 'Small', css: { 'font-size': '0.875rem' } },
+            normal: { label: 'Normal', css: { 'font-size': '1rem' } },
+            large: { label: 'Large', css: { 'font-size': '1.25rem' } },
+            xlarge: { label: 'Extra large', css: { 'font-size': '1.5rem' } },
+          },
+        },
+      }),
+    ],
+  }),
   admin: {
     user: Instructors.slug,
     components: {

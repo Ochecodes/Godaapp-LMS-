@@ -18,7 +18,7 @@ describe("course instructor selection", () => {
     ["Algorithmic systems", "Oche Akor"],
     ["Crypto risk management", "Udoyen Peter Snr"],
     ["Forex capital", "Udoyen Peter Snr"],
-    ["Options fundamentals", "GodaApp Instructor"],
+    ["Options fundamentals", "Godaapp Instructor"],
   ])("maps %s to %s", (title, instructor) => {
     expect(getCourseInstructorName(title)).toBe(instructor);
   });

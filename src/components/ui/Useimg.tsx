@@ -3,15 +3,15 @@ import Image from "next/image";
 
 const communityImages = [
   { src: "/students.avif", alt: "Students learning together" },
-  { src: "/Nigerian.avif", alt: "GodaApp trader" },
-  { src: "/American.avif", alt: "GodaApp community member" },
-  { src: "/Asian.avif", alt: "GodaApp community member" },
+  { src: "/Nigerian.avif", alt: "Godaapp trader" },
+  { src: "/American.avif", alt: "Godaapp community member" },
+  { src: "/Asian.avif", alt: "Godaapp community member" },
   { src: "/boy.avif", alt: "Young digital asset learner" },
   { src: "/girl.avif", alt: "Digital asset learner" },
-  { src: "/engineer.avif", alt: "GodaApp systems builder" },
-  { src: "/man.avif", alt: "GodaApp trader" },
-  { src: "/team.avif", alt: "GodaApp team" },
-  { src: "/Capital.avif", alt: "GodaApp learning community" },
+  { src: "/engineer.avif", alt: "Godaapp systems builder" },
+  { src: "/man.avif", alt: "Godaapp trader" },
+  { src: "/team.avif", alt: "Godaapp team" },
+  { src: "/Capital.avif", alt: "Godaapp learning community" },
 ];
 
 export default function Useimg() {
@@ -116,7 +116,7 @@ export default function Useimg() {
             <span>Learn alongside a growing community</span>
             <Link
               href="/sign-up"
-              aria-label="Join the GodaApp community"
+              aria-label="Join the Godaapp community"
               className="shrink-0 text-sm font-semibold text-[#068365] transition-colors hover:text-[#056d53] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#068365] focus-visible:ring-offset-2 sm:text-base"
             >
               Get Started
@@ -124,7 +124,7 @@ export default function Useimg() {
           </h2>
         </header>
 
-        <div className="community-orbit mx-auto mt-8 max-w-5xl sm:mt-10" aria-label="GodaApp community members">
+        <div className="community-orbit mx-auto mt-8 max-w-5xl sm:mt-10" aria-label="Godaapp community members">
           {communityImages.map((image) => (
             <figure key={image.src} className="community-bubble">
               <Image

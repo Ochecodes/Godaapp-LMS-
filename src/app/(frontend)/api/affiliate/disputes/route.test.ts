@@ -99,9 +99,9 @@ describe("POST /api/affiliate/disputes", () => {
       }),
     );
     expect(fetch).toHaveBeenCalledWith(
-      "https://formsubmit.co/ajax/godaappinfo@gmail.com",
+      "https://formsubmit.co/ajax/Admin@godaapp.com",
       expect.objectContaining({
-        body: expect.stringContaining("Affiliate dispute — GodaApp"),
+        body: expect.stringContaining("Affiliate dispute — Godaapp"),
       }),
     );
   });

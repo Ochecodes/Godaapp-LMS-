@@ -106,7 +106,7 @@ export function AffiliateDisputeForm() {
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Contact GodaApp support</DialogTitle>
+            <DialogTitle>Contact Godaapp support</DialogTitle>
             <DialogDescription>
               Describe the referral, payout, or account issue. Your case is saved
               in the portal and support is notified by email.

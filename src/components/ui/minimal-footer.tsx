@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { TikTokIcon } from '@/components/ui/TikTokIcon';
 import { cn } from '@/lib/utils';
 
 const Logo = ({ className }: { className?: string }) => {
@@ -81,6 +82,11 @@ export function MinimalFooter() {
 				</svg>
 			),
 			link: 'https://x.com/godaapp',
+		},
+		{
+			name: 'TikTok',
+			icon: <TikTokIcon className="size-4" aria-hidden="true" />,
+			link: 'https://www.tiktok.com/@godaapp',
 		},
 		{
 			name: 'Youtube',
@@ -203,7 +209,7 @@ export function MinimalFooter() {
 					{/* Bottom Copyright Strip Area */}
 					<div className="mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
 						<p className="text-xs text-zinc-500 font-normal">
-						&copy; {year} Goda App. All rights reserved.
+						&copy; {year} Godaapp. All rights reserved.
 						</p>
 						<p className="text-[11px] text-zinc-600 font-normal">
 							Designed by <a href="https://x.com/ocheakor4" target="_blank" rel="noopener noreferrer" className="hover:underline">Davoc Technology</a>

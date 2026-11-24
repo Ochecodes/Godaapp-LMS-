@@ -5,7 +5,7 @@ const validApplication = {
   fullName: "Alex Affiliate",
   email: "  Alex@Example.com ",
   phone: "+1 555 555 0100",
-  message: "I would like to promote GodaApp courses.",
+  message: "I would like to promote Godaapp courses.",
   termsAccepted: true,
 };
 
@@ -16,7 +16,7 @@ describe("affiliate application input", () => {
       fullName: "Alex Affiliate",
       email: "alex@example.com",
       phone: "+1 555 555 0100",
-      message: "I would like to promote GodaApp courses.",
+      message: "I would like to promote Godaapp courses.",
     });
   });
 

@@ -45,7 +45,7 @@ export function HowItWorks() {
                     Create your learner account
                   </h3>
                   <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground sm:text-base">
-                    Sign up for GodaApp to set up your learner profile and open your personal
+                    Sign up for Godaapp to set up your learner profile and open your personal
                     dashboard.
                   </p>
                 </div>

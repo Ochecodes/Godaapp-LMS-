@@ -18,7 +18,7 @@ describe("AffiliateSignUp", () => {
     );
   });
 
-  it("stores applicant details before sending the notification form", async () => {
+  it("confirms the review process and sends the notification without leaving the form", async () => {
     const formSubmit = vi.spyOn(HTMLFormElement.prototype, "submit").mockImplementation(() => {});
     const { container } = render(<AffiliateSignUp />);
     const form = container.querySelector("form");
@@ -36,7 +36,7 @@ describe("AffiliateSignUp", () => {
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
     fireEvent.change(screen.getByLabelText("Phone number"), { target: { value: "+1 555 555 0100" } });
     fireEvent.change(screen.getByLabelText("Why do you want to join?"), {
-      target: { value: "I would like to promote GodaApp courses." },
+      target: { value: "I would like to promote Godaapp courses." },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.submit(form!);
@@ -50,15 +50,19 @@ describe("AffiliateSignUp", () => {
           fullName: "Alex Affiliate",
           email: "alex@example.com",
           phone: "+1 555 555 0100",
-          message: "I would like to promote GodaApp courses.",
+          message: "I would like to promote Godaapp courses.",
           termsAccepted: true,
         }),
       }),
     );
-    expect(form!.querySelector<HTMLInputElement>('input[name="_next"]')?.value).toContain(
-      "/affiliate?application=received",
-    );
+    expect(form).toHaveAttribute("target", "affiliate-application-notification");
     expect(screen.getByRole("button", { name: /submitted/i })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent(/Your application is under review\./);
+    expect(screen.getByRole("status")).toHaveTextContent(/You can sign in after approval\./);
+    expect(screen.getByRole("link", { name: "affiliate sign-in" })).toHaveAttribute(
+      "href",
+      "/affiliate/sign-in",
+    );
   });
 
   it("shows a persistence failure and does not send the notification form", async () => {
@@ -77,7 +81,7 @@ describe("AffiliateSignUp", () => {
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
     fireEvent.change(screen.getByLabelText("Phone number"), { target: { value: "+1 555 555 0100" } });
     fireEvent.change(screen.getByLabelText("Why do you want to join?"), {
-      target: { value: "I would like to promote GodaApp courses." },
+      target: { value: "I would like to promote Godaapp courses." },
     });
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.submit(container.querySelector("form")!);
@@ -91,7 +95,7 @@ describe("AffiliateSignUp", () => {
     render(<AffiliateSignUp />);
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Your application has been received and is awaiting review.",
+      "Your application is under review.",
     );
   });
 });

@@ -7,7 +7,7 @@ interface FaqItemType {
 
 const FAQ_DATA: FaqItemType[] = [
   {
-    question: "Why doesnt Global Digital Asset's Academy issue certificates?",
+    question: "Why Global Digital Assets Academy does not issue Certificate?",
     answer: "Financial markets do not reward certificates, they reward competence, discipline, and execution. Our focus is on developing practical market understanding and real-world capability rather than symbolic credentials."
   },
   {

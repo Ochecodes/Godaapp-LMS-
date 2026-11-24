@@ -21,7 +21,7 @@ const validBody = {
   fullName: "Alex Affiliate",
   email: "Alex@example.com",
   phone: "+1 555 555 0100",
-  message: "I would like to promote GodaApp courses.",
+  message: "I would like to promote Godaapp courses.",
   termsAccepted: true,
 };
 
@@ -51,7 +51,7 @@ describe("POST /api/affiliate/applications", () => {
 
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({
-      message: "Your application was received and is awaiting review.",
+      message: "Your application is under review. We will email you once a decision is made.",
     });
     expect(create).toHaveBeenCalledWith({
       collection: "affiliate-applications",
@@ -59,7 +59,7 @@ describe("POST /api/affiliate/applications", () => {
         fullName: "Alex Affiliate",
         email: "alex@example.com",
         phone: "+1 555 555 0100",
-        message: "I would like to promote GodaApp courses.",
+        message: "I would like to promote Godaapp courses.",
         status: "pending",
         approvalNotificationStatus: "not_sent",
         termsAcceptedAt: expect.any(String),

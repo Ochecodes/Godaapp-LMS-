@@ -17,7 +17,7 @@ export default function HomePage() {
             Frequently Asked <span className="text-[#068365]">Questions</span>
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-center text-lg text-zinc-400">
-            Find clear answers about learning with GodaApp and our digital asset
+            Find clear answers about learning with Godaapp and our digital asset
             education programs.
           </p>
         </AuroraHero>

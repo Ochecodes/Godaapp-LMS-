@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { message: "Your application was received and is awaiting review." },
+      { message: "Your application is under review. We will email you once a decision is made." },
       { status: 201 },
     );
   } catch (error) {

@@ -93,7 +93,7 @@ export function AffiliateLinkManager({
             <div>
               <h2 className="font-semibold">Your active catalog link</h2>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                Use this link to share GodaApp courses. A referral is recorded only
+                Use this link to share Godaapp courses. A referral is recorded only
                 after the visitor completes a verified paid checkout.
               </p>
             </div>
@@ -133,7 +133,7 @@ export function AffiliateLinkManager({
       <section className="rounded-xl border border-border bg-muted/30 p-5 sm:p-6">
         <h2 className="font-semibold">Attribution rule</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          GodaApp uses a 30-day cookie and last valid link wins. A new approved,
+          Godaapp uses a 30-day cookie and last valid link wins. A new approved,
           active affiliate link replaces the prior valid attribution. Invalid or
           deactivated links cannot overwrite it or create a commission.
         </p>

@@ -1,15 +1,19 @@
 "use client";
 
 import type { CSSProperties, FormEvent } from "react";
-import { useRef, useState } from "react";
-import { ArrowRight, Check, Headphones, Mail, Phone } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Check, Headphones, Mail, MessageCircle, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { TikTokIcon } from "@/components/ui/TikTokIcon";
 import { cn } from "@/lib/utils";
 
 const CONTACT_LINKS = [
-  { icon: Mail, label: "godaappinfo@gmail.com", href: "mailto:godaappinfo@gmail.com" },
-  { icon: Phone, label: "+234 814 535 6898", href: "tel:+2348145356898" },
+  { icon: Mail, label: "Support@godaapp.com", href: "mailto:Support@godaapp.com" },
+  { icon: Mail, label: "info@godaapp.com", href: "mailto:info@godaapp.com" },
+  { icon: Mail, label: "Admin@godaapp.com", href: "mailto:Admin@godaapp.com" },
+  { icon: Phone, label: "+234 814 535 6889", href: "tel:+2348145356889" },
+  { icon: MessageCircle, label: "WhatsApp support", href: "https://wa.me/2348145356889?text=Hello%20Godaapp%20Support" },
   { icon: Headphones, label: "Contact support", href: "#contact-form" },
 ];
 
@@ -38,6 +42,11 @@ const SOCIAL_LINKS = [
     name: "Twitter",
     href: "https://x.com/godaapp",
     icon: <svg className="size-4 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>,
+  },
+  {
+    name: "TikTok",
+    href: "https://www.tiktok.com/@godaapp",
+    icon: <TikTokIcon className="size-4" aria-hidden="true" />,
   },
   {
     name: "Youtube",
@@ -80,6 +89,16 @@ function FormDots() {
 export function ContactWithGlobe({ className = "" }: { className?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const returnUrl = formRef.current?.querySelector<HTMLInputElement>('input[name="_next"]');
+    if (returnUrl) {
+      returnUrl.value = new URL("/contact?sent=1", window.location.origin).toString();
+    }
+    if (new URLSearchParams(window.location.search).get("sent") === "1") {
+      setSubmitted(true);
+    }
+  }, []);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -152,15 +171,15 @@ export function ContactWithGlobe({ className = "" }: { className?: string }) {
           <form
             ref={formRef}
             id="contact-form"
-            action="https://formsubmit.co/godaappinfo@gmail.com"
+            action="https://formsubmit.co/Admin@godaapp.com"
             method="POST"
             onSubmit={handleSubmit}
             className="flex flex-col gap-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8"
           >
-            <input type="hidden" name="_subject" value="New GodaApp contact message" />
+            <input type="hidden" name="_subject" value="New Godaapp contact message" />
             <input type="hidden" name="_captcha" value="false" />
             <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_next" value="http://localhost:3000/contact" />
+            <input type="hidden" name="_next" value="" />
 
             <div>
               <h3 className="text-lg font-semibold text-zinc-900">Send a message</h3>
@@ -190,6 +209,11 @@ export function ContactWithGlobe({ className = "" }: { className?: string }) {
             </label>
 
             <div className="relative z-10 w-fit">
+              {submitted && (
+                <p className="mb-3 text-sm font-medium text-[#056d53]" role="status">
+                  Your message has been sent. We&apos;ll be in touch soon.
+                </p>
+              )}
               {submitted && (
                 <div className="pointer-events-none absolute inset-0 z-20 overflow-visible" aria-hidden="true">
                   {ribbons.map((ribbon, index) => (

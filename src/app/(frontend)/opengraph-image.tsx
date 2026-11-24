@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "GodaApp - Digital Asset Education";
+export const alt = "Godaapp - Digital Asset Education";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,7 +22,7 @@ export default function OpenGraphImage() {
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div style={{ color: "#78e6c1", fontSize: 28, fontWeight: 700, letterSpacing: 4 }}>
-            GODAAPP
+            Godaapp
           </div>
           <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.08, maxWidth: 760 }}>
             Learn digital assets with confidence.

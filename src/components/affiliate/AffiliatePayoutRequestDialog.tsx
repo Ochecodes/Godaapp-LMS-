@@ -100,7 +100,7 @@ export function AffiliatePayoutRequestDialog({
             </p>
             <DialogTitle>Request a payout</DialogTitle>
             <DialogDescription>
-              Your available balance is reserved when you submit. GodaApp staff
+              Your available balance is reserved when you submit. Godaapp staff
               review and complete payouts manually outside the app.
             </DialogDescription>
           </DialogHeader>

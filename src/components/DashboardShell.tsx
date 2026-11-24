@@ -83,9 +83,9 @@ export function DashboardShell({
     const isCollapsed = !isMobile && sidebarCollapsed;
     return (
       <aside className={`flex h-full min-h-0 flex-col border-r border-zinc-700 bg-zinc-900 text-white transition-[width] duration-200 ${isCollapsed ? "w-16" : "w-64"}`}>
-        <Link aria-label="GodaApp dashboard" className={`flex h-16 items-center gap-3 border-b border-zinc-700 ${isCollapsed ? "justify-center px-2" : "px-5"}`} href="/dashboard" title={isCollapsed ? "GodaApp dashboard" : undefined}>
-          <Image alt="GodaApp" className="h-9 w-9 rounded-md object-contain" height={36} src="/logotrans.avif" width={36} />
-          {!isCollapsed && <span className="font-semibold tracking-tight">GodaApp <span className="text-zinc-400">learn</span></span>}
+        <Link aria-label="Godaapp dashboard" className={`flex h-16 items-center gap-3 border-b border-zinc-700 ${isCollapsed ? "justify-center px-2" : "px-5"}`} href="/dashboard" title={isCollapsed ? "Godaapp dashboard" : undefined}>
+          <Image alt="Godaapp" className="h-9 w-9 rounded-md object-contain" height={36} src="/logotrans.avif" width={36} />
+          {!isCollapsed && <span className="font-semibold tracking-tight">Godaapp <span className="text-zinc-400">learn</span></span>}
         </Link>
         <nav aria-label="Student dashboard" className={`flex-1 space-y-1 overflow-y-auto ${isCollapsed ? "p-2" : "p-3"}`}>
           {navigation.map(({ href, label, icon }) => {

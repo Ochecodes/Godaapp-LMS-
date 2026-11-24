@@ -15,7 +15,7 @@ describe("WhoWeAre", () => {
 
     expect(screen.getByRole("region", { name: "Who we are" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Who we are" })).not.toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "A member of the GodaApp community" })).toHaveAttribute(
+    expect(screen.getByRole("img", { name: "A member of the Godaapp community" })).toHaveAttribute(
       "data-src",
       "/WhoWeAre.avif",
     );

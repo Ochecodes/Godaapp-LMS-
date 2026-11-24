@@ -8,8 +8,9 @@ const SOCIAL_LINKS = [
   { name: "Instagram", href: "https://www.instagram.com/godaappofficial", icon: "simple-icons:instagram" },
   { name: "LinkedIn", href: "https://www.linkedin.com/company/godaapp/", icon: "simple-icons:linkedin" },
   { name: "X", href: "https://x.com/godaapp", icon: "simple-icons:x" },
+  { name: "TikTok", href: "https://www.tiktok.com/@godaapp", icon: "simple-icons:tiktok" },
   { name: "YouTube", href: "https://www.youtube.com/@Godaapp", icon: "simple-icons:youtube" },
-  { name: "WhatsApp", href: "https://wa.me/2348145356898?text=Hello%20GodaApp%20Support", icon: "simple-icons:whatsapp" },
+  { name: "WhatsApp", href: "https://wa.me/2348145356889?text=Hello%20Godaapp%20Support", icon: "simple-icons:whatsapp" },
 ];
 
 type StudentResource = {
@@ -75,7 +76,7 @@ export function StudentResourcesPage({ resources }: { resources: StudentResource
       </section>
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
         {resources.length
-          ? "Resources are hosted by their respective publishers. GodaApp does not control third-party content."
+          ? "Resources are hosted by their respective publishers. Godaapp does not control third-party content."
           : "Starter resources are shown until instructors publish the learning library."}
       </p>
     </main>
@@ -86,7 +87,7 @@ export function StudentCommunityPage() {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <DashboardPageBanner
-        description="Connect with learners and follow GodaApp across our official social channels."
+        description="Connect with learners and follow Godaapp across our official social channels."
         icon="lucide:users-round"
         title="Community"
       />
@@ -97,10 +98,10 @@ export function StudentCommunityPage() {
           </span>
           <h2 className="mt-4 text-xl font-semibold">Learn alongside a growing community</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Join the conversation, find new perspectives, and stay up to date with learning opportunities from GodaApp.
+            Join the conversation, find new perspectives, and stay up to date with learning opportunities from Godaapp.
           </p>
           <div className="relative mt-5 aspect-[1.8] overflow-hidden rounded-xl bg-muted">
-            <Image alt="GodaApp learners connecting across a global community" className="object-cover" fill sizes="(max-width: 1279px) 100vw, 40vw" src="/ContactIMG.avif" />
+            <Image alt="Godaapp learners connecting across a global community" className="object-cover" fill sizes="(max-width: 1279px) 100vw, 40vw" src="/ContactIMG.avif" />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/75 via-transparent to-transparent" />
             <div className="absolute inset-x-4 bottom-4 flex items-center gap-3">
               <div aria-hidden="true" className="flex shrink-0 pl-1">
@@ -113,13 +114,13 @@ export function StudentCommunityPage() {
             </div>
           </div>
           <ul
-            aria-label="GodaApp social media links"
-            className="mt-5 grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4"
+            aria-label="Godaapp social media links"
+            className="mt-5 grid grid-cols-2 gap-3 sm:gap-4"
           >
             {SOCIAL_LINKS.map((social) => (
               <li key={social.name}>
                 <a
-                  aria-label={`GodaApp on ${social.name}`}
+                  aria-label={`Godaapp on ${social.name}`}
                   className="mx-auto grid size-16 place-items-center rounded-full border border-border bg-muted/40 text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:size-20"
                   href={social.href}
                   rel="noopener noreferrer"
@@ -133,7 +134,7 @@ export function StudentCommunityPage() {
         </section>
         <DashboardContactForm
           heading="Say hello to the community team"
-          subject="New GodaApp community message"
+          subject="New Godaapp community message"
           description="Have an idea, want to collaborate, or need help finding your place in the community? Send us a message."
         />
       </div>
@@ -155,30 +156,47 @@ export function StudentSupportPage() {
             <h2 className="text-lg font-semibold">Talk to our support team</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Choose the channel that works best for you. We’ll be glad to help.</p>
           </div>
-          <a className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition hover:border-[#068365]/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://wa.me/2348145356898?text=Hello%20GodaApp%20Support" rel="noopener noreferrer" target="_blank">
+          <a className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition hover:border-[#068365]/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="https://wa.me/2348145356889?text=Hello%20Godaapp%20Support" rel="noopener noreferrer" target="_blank">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-700">
               <DashboardIcon aria-hidden="true" className="size-5" icon="simple-icons:whatsapp" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-semibold">Chat on WhatsApp</span>
-              <span className="mt-1 block text-xs text-muted-foreground">+234 814 535 6898</span>
+              <span className="mt-1 block text-xs text-muted-foreground">+234 814 535 6889</span>
             </span>
             <DashboardIcon aria-hidden="true" className="size-4 text-muted-foreground" icon="lucide:external-link" />
           </a>
-          <a className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition hover:border-[#068365]/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="tel:+2348145356898">
+          <a className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition hover:border-[#068365]/40 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="tel:+2348145356889">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#068365]/10 text-[#068365]">
               <DashboardIcon aria-hidden="true" className="size-5" icon="lucide:phone" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-semibold">Call support</span>
-              <span className="mt-1 block text-xs text-muted-foreground">+234 814 535 6898</span>
+              <span className="mt-1 block text-xs text-muted-foreground">+234 814 535 6889</span>
             </span>
             <DashboardIcon aria-hidden="true" className="size-4 text-muted-foreground" icon="lucide:arrow-up-right" />
           </a>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <h2 className="text-sm font-semibold">Email support</h2>
+            <div className="mt-3 grid gap-2 text-sm">
+              <a className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" href="mailto:Support@godaapp.com">
+                <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:mail" />
+                Support@godaapp.com
+              </a>
+              <a className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" href="mailto:info@godaapp.com">
+                <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:mail" />
+                info@godaapp.com
+              </a>
+              <a className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" href="mailto:Admin@godaapp.com">
+                <DashboardIcon aria-hidden="true" className="size-4" icon="lucide:mail" />
+                Admin@godaapp.com
+              </a>
+            </div>
+          </div>
         </section>
         <DashboardContactForm
           heading="Send a support request"
-          subject="New GodaApp student support request"
+          subject="New Godaapp student support request"
           description="Tell us what happened and our team will get back to you."
         />
       </div>

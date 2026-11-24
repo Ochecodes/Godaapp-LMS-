@@ -64,7 +64,7 @@ export function AffiliateDashboardShell({
       <aside className="border-b border-border bg-card lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between gap-4 px-5 py-4 lg:block lg:px-6 lg:py-6">
           <Link className="text-xl font-semibold tracking-tight" href="/affiliate-dashboard">
-            GodaApp
+            Godaapp
           </Link>
           <p className="hidden text-xs text-muted-foreground lg:mt-1 lg:block">
             Affiliate workspace
@@ -104,7 +104,7 @@ export function AffiliateDashboardShell({
               <span className="block truncate font-medium">{fullName}</span>
               <span className="block truncate text-xs text-muted-foreground">{email}</span>
             </span>
-            <ChevronDown aria-hidden="true" className="size-4 text-muted-foreground transition group-open:rotate-180" />
+            <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-muted-foreground transition group-open:rotate-180" />
           </summary>
           <div className="absolute left-4 right-4 top-[calc(100%+0.5rem)] z-40 grid gap-1 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg lg:bottom-[calc(100%+0.5rem)] lg:top-auto">
             <Link

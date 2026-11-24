@@ -125,7 +125,7 @@ export default async function AffiliatePayoutsPage() {
       <section className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="border-b border-border px-4 py-4 sm:px-5">
           <h2 className="font-semibold">Payout requests</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Each request is reviewed and processed manually by GodaApp staff.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Each request is reviewed and processed manually by Godaapp staff.</p>
         </div>
         {payouts.length ? (
           <div className="overflow-x-auto">
@@ -220,7 +220,7 @@ export default async function AffiliatePayoutsPage() {
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         A completed request means an administrator recorded an offline payment.
-        GodaApp does not initiate transfers or send funds through a payment provider.
+        Godaapp does not initiate transfers or send funds through a payment provider.
       </p>
     </div>
   );

@@ -8,18 +8,18 @@ import { useTheme } from "@payloadcms/ui";
 export function PayloadGraphic() {
   return (
     <span className="goda-admin-graphic">
-      <Image src="/logotrans.avif" alt="GodaApp" width={42} height={32} />
+      <Image src="/logotrans.avif" alt="Godaapp" width={42} height={32} />
     </span>
   );
 }
 
 export function PayloadNavBrand() {
   return (
-    <Link className="goda-admin-nav-brand" href="/instructor-panel" aria-label="GodaApp dashboard">
+    <Link className="goda-admin-nav-brand" href="/instructor-panel" aria-label="Godaapp dashboard">
       <span className="goda-admin-logo-frame">
-        <Image src="/logotrans.avif" alt="GodaApp" width={82} height={58} />
+        <Image src="/logotrans.avif" alt="Godaapp" width={82} height={58} />
       </span>
-      <span>GodaApp workspace</span>
+      <span>Godaapp workspace</span>
     </Link>
   );
 }
@@ -44,8 +44,8 @@ export function PayloadThemeToggle() {
 export function PayloadDashboardWelcome() {
   return (
     <section className="goda-admin-welcome" aria-labelledby="goda-admin-welcome-title">
-      <p>GODAAPP · LEARNING PLATFORM</p>
-      <h1 id="goda-admin-welcome-title">Your GodaApp workspace</h1>
+      <p>Godaapp · Learning Platform</p>
+      <h1 id="goda-admin-welcome-title">Your Godaapp workspace</h1>
       <span>Manage courses, learning content, and program requests in one place.</span>
       <Link className="goda-admin-analytics-link" href="/instructor-panel/analytics">
         Open platform analytics

@@ -101,14 +101,14 @@ export async function POST(request: Request) {
 
     let notificationSent = false;
     try {
-      const emailResponse = await fetch("https://formsubmit.co/ajax/godaappinfo@gmail.com", {
+      const emailResponse = await fetch("https://formsubmit.co/ajax/Admin@godaapp.com", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          _subject: "Affiliate dispute — GodaApp",
+          _subject: "Affiliate dispute — Godaapp",
           name: membership.application.fullName,
           email: user.email,
           disputeReference: String(dispute.id),
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
         id: dispute.id,
         notificationSent,
         message: notificationSent
-          ? "Your dispute was submitted and sent to GodaApp support."
+          ? "Your dispute was submitted and sent to Godaapp support."
           : "Your dispute was saved, but its email notification could not be sent. Please contact support and include the dispute reference.",
       },
       { status: 201 },

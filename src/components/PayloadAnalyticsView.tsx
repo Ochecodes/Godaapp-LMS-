@@ -123,7 +123,7 @@ export function PayloadAnalyticsView() {
     <main className="goda-analytics">
       <header className="goda-analytics-header">
         <div>
-          <p className="goda-analytics-eyebrow">GODAAPP · PLATFORM INSIGHTS</p>
+          <p className="goda-analytics-eyebrow">Godaapp · Platform Insights</p>
           <h1>Platform analytics</h1>
           <p>Operational, enrollment, and revenue signals for the learning platform.</p>
         </div>

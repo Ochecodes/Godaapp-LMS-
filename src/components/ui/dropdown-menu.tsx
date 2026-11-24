@@ -21,11 +21,13 @@ function DropdownMenuPortal({
 }
 
 function DropdownMenuTrigger({
+  className,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
+      className={cn("inline-flex items-center justify-center gap-2 [&_svg]:shrink-0", className)}
       {...props}
     />
   )
@@ -232,7 +234,7 @@ function DropdownMenuSubTrigger({
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto" />
+      <ChevronRightIcon className="ml-auto size-4 shrink-0" />
     </DropdownMenuPrimitive.SubTrigger>
   )
 }

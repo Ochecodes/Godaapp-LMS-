@@ -14,20 +14,21 @@ vi.mock("@/components/DashboardContactForm", () => ({
 import { StudentCommunityPage } from "@/components/StudentDashboardPages";
 
 describe("StudentCommunityPage", () => {
-  it("shows all six social channels as icon-only links in a two-column, three-row grid", () => {
+  it("shows the social channels as icon-only links in a responsive grid", () => {
     render(<StudentCommunityPage />);
 
-    const list = screen.getByRole("list", { name: "GodaApp social media links" });
+    const list = screen.getByRole("list", { name: "Godaapp social media links" });
     const links = within(list).getAllByRole("link");
 
-    expect(list).toHaveClass("grid-cols-2", "grid-rows-3");
+    expect(list).toHaveClass("grid-cols-2");
     expect(links.map((link) => link.getAttribute("aria-label"))).toEqual([
-      "GodaApp on Facebook",
-      "GodaApp on Instagram",
-      "GodaApp on LinkedIn",
-      "GodaApp on X",
-      "GodaApp on YouTube",
-      "GodaApp on WhatsApp",
+      "Godaapp on Facebook",
+      "Godaapp on Instagram",
+      "Godaapp on LinkedIn",
+      "Godaapp on X",
+      "Godaapp on TikTok",
+      "Godaapp on YouTube",
+      "Godaapp on WhatsApp",
     ]);
 
     for (const link of links) {
@@ -36,9 +37,9 @@ describe("StudentCommunityPage", () => {
       expect(link.querySelectorAll("svg")).toHaveLength(1);
     }
 
-    expect(screen.getByRole("link", { name: "GodaApp on WhatsApp" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Godaapp on WhatsApp" })).toHaveAttribute(
       "href",
-      "https://wa.me/2348145356898?text=Hello%20GodaApp%20Support",
+      "https://wa.me/2348145356889?text=Hello%20Godaapp%20Support",
     );
   });
 });

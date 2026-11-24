@@ -52,7 +52,7 @@ export default function TermsOfServicePage() {
             Terms of <span className="text-[#068365]">Service</span>
           </h1>
           <p className="mx-auto mt-4 max-w-4xl text-balance text-center text-lg text-zinc-400">
-            Review the terms that apply when you use the GodaApp platform and
+            Review the terms that apply when you use the Godaapp platform and
             its educational content.
           </p>
         </AuroraHero>

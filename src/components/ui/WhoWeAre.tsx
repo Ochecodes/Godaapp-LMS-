@@ -12,7 +12,7 @@ export function WhoWeAre() {
           <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
             <div className="relative aspect-[1.15] overflow-hidden rounded-2xl bg-background">
               <Image
-                alt="A member of the GodaApp community"
+                alt="A member of the Godaapp community"
                 className="object-cover object-[center_38%]"
                 fill
                 sizes="(max-width: 1023px) 100vw, 50vw"
@@ -22,7 +22,7 @@ export function WhoWeAre() {
 
             <div className="max-w-2xl space-y-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
               <p>
-                GodaApp is a financial education platform helping people build a stronger
+                Godaapp is a financial education platform helping people build a stronger
                 foundation in digital asset markets.
               </p>
               <p>
